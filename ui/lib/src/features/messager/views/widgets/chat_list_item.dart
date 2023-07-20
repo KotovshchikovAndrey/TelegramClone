@@ -22,7 +22,7 @@ class ChatListItem extends StatelessWidget {
           Row(
             children: [
               Padding(
-                padding: const EdgeInsets.only(right: 25),
+                padding: const EdgeInsets.only(right: 15, left: 7),
                 child: CircleAvatar(
                   radius: 35,
                   backgroundImage: NetworkImage(chatRoomImageUrl),
@@ -33,25 +33,35 @@ class ChatListItem extends StatelessWidget {
                   width: MediaQuery.of(context).size.width,
                   decoration: const BoxDecoration(
                     border: Border(
-                      bottom: BorderSide(color: Colors.black, width: 1),
+                      bottom: BorderSide(color: Colors.black, width: 0.5),
                     ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Text(
-                          chatRoomTitle,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: Colors.white,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            chatRoomTitle,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
+                          const Padding(
+                            padding: EdgeInsets.only(right: 7),
+                            child: Text(
+                              "ср",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          )
+                        ],
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 10),
                         child: Text(
                           chatRoomDescription,
                           style: const TextStyle(color: Colors.grey),

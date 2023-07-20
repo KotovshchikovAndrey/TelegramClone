@@ -18,8 +18,8 @@ class ChatListPage extends StatelessWidget {
 
   final List<ChatRoom> chatList = const [
     ChatRoom(
-        chatRoomTitle: "Chat 1",
-        chatRoomDescription: "Test Desc",
+        chatRoomTitle: "Екатерина Анисимова",
+        chatRoomDescription: "Посмотрим)",
         chatRoomImageUrl: "https://i.yapx.cc/PWwHk.jpg"),
     ChatRoom(
         chatRoomTitle: "Chat 2",
@@ -41,12 +41,15 @@ class ChatListPage extends StatelessWidget {
         itemBuilder: (context, index) {
           final currentChatRoom = chatList[index];
 
-          return SizedBox(
-            height: 100,
-            child: ChatListItem(
-              chatRoomTitle: currentChatRoom.chatRoomTitle,
-              chatRoomDescription: currentChatRoom.chatRoomDescription,
-              chatRoomImageUrl: currentChatRoom.chatRoomImageUrl,
+          return InkWell(
+            onTap: () => print(111),
+            child: SizedBox(
+              height: 100,
+              child: ChatListItem(
+                chatRoomTitle: currentChatRoom.chatRoomTitle,
+                chatRoomDescription: currentChatRoom.chatRoomDescription,
+                chatRoomImageUrl: currentChatRoom.chatRoomImageUrl,
+              ),
             ),
           );
         },

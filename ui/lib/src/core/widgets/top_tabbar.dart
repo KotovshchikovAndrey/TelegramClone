@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ui/src/core/widgets/drawer_menu.dart';
 import 'package:ui/src/features/messager/views/pages/chat_list.dart';
 
 import 'custom_appbar.dart';
@@ -15,7 +16,9 @@ class _TopTabBarState extends State<TopTabBar>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const Drawer(),
+      drawer: const Drawer(
+        child: DrawerMenu(),
+      ),
       appBar: customAppBar(),
       body: Theme(
         data: ThemeData(
