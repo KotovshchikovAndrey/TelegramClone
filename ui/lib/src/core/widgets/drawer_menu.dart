@@ -73,6 +73,151 @@ class DrawerMenu extends StatelessWidget {
           ],
         ),
       ),
+      body: Container(
+        color: const Color.fromARGB(255, 43, 46, 49),
+        child: ListView(
+          children: [
+            IconButton(
+              onPressed: () => null,
+              icon: const Row(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Icon(
+                      Icons.people_alt,
+                      size: 30,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Text(
+                    "Создать группу",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 17,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              onPressed: () => null,
+              icon: const Row(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Icon(
+                      Icons.person,
+                      size: 30,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Text(
+                    "Контакты",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 17,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              onPressed: () => null,
+              icon: const Row(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Icon(
+                      Icons.phone,
+                      size: 30,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Text(
+                    "Звонки",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 17,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              onPressed: () => null,
+              icon: const Row(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Icon(
+                      Icons.person_pin,
+                      size: 30,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Text(
+                    "Люди рядом",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 17,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              onPressed: () => null,
+              icon: const Row(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Icon(
+                      Icons.bookmark,
+                      size: 30,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Text(
+                    "Избранное",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 17,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              onPressed: () => null,
+              icon: const Row(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Icon(
+                      Icons.settings,
+                      size: 30,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Text(
+                    "Настройки",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 17,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
