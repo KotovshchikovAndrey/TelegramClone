@@ -1,0 +1,6 @@
+fastapi
+aioredis
+pydantic-settings
+kink
+uvicorn[standard]
+databases[asyncpg]
