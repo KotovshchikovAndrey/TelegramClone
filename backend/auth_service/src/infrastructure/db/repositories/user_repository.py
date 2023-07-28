@@ -33,7 +33,7 @@ class PostgresUserRepository(IUserRepository):
             :surname,
             :email,
             :phone
-        );
+        ) RETURNING user_id;
         """
 
         new_user = await self._postgres.execute(

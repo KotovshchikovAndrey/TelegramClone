@@ -14,3 +14,7 @@ class SessionInDB(SessionBase):
 
 class SessionCreate(SessionBase):
     pass
+
+
+class SessionUpdate(SessionBase):
+    pass

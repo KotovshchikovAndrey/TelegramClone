@@ -1,7 +1,7 @@
 import typing as tp
 
 from kink import inject
-from domain.models.user import UserCreate
+from domain.models.user import UserCreate, UserInDB
 from domain.repositories.user_repository import IUserRepository
 from domain.exceptions.http_exception import HttpException
 
@@ -24,3 +24,11 @@ class UserService:
 
         new_user = await self._repository.create_user(user_create)
         return new_user
+
+    async def find_user_by_phone(self, phone: str) -> tp.Optional[UserInDB]:
+        user = await self._repository.find_user_by_phone(phone)
+        return user
+
+    async def find_user_by_email(self, email: str) -> tp.Optional[UserInDB]:
+        user = await self._repository.find_user_by_email(email)
+        return user

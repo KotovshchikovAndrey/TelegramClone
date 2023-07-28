@@ -1,4 +1,7 @@
 {
     "user_phone_occupied": "Данный телефон занят другим пользователем!",
-    "user_email_occupied": "Данный email занят другим пользователем!"
+    "user_email_occupied": "Данный email занят другим пользователем!",
+    "user_not_found": "Пользователь не найден!",
+    "session_not_found": "Сессия не найдена!",
+    "incorrect_code": "Неверный код!"
 }

@@ -33,3 +33,5 @@ def setup_di_container() -> None:
         MAIL_SSL_TLS=False,
         TEMPLATE_FOLDER=pathlib.Path("./src") / "common" / "templates",
     )
+
+    di["session_expire"] = 60 * 60 * 24 * 180  # 6 месяцев

@@ -3,7 +3,7 @@ import typing as tp
 import json
 from kink import inject
 from redis.asyncio import Redis
-from domain.models.session import SessionCreate
+from domain.models.session import SessionCreate, SessionInDB, SessionUpdate
 from domain.repositories.session_repository import ISessionRepository
 
 
@@ -24,7 +24,21 @@ class RedisSessionRepository(ISessionRepository):
         return session_key
 
     async def get_session(self, session_key: str):
-        ...
+        session = await self._redis.get(session_key)
+        if session is not None:
+            session_data = dict(json.loads(session))
+            expire = await self._redis.ttl(session_key)
+
+            return SessionInDB(data=session_data, expire=expire)
+
+    async def update_session(
+        self, session_key: str, new_session_data: tp.Dict[str, str]
+    ):
+        expire = await self._redis.ttl(session_key)
+        session_create = SessionCreate(data=new_session_data, expire=expire)
+        await self.create_session(session_key, session_create)
+
+        return session_key
 
     async def delete_session(self, session_key: str):
         ...
