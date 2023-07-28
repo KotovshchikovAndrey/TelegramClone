@@ -2,6 +2,10 @@ from __future__ import annotations
 import typing as tp
 
 from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+
+from domain.services.localization_service import translate
+from domain.exceptions.http_exception import HttpException
 
 
 class FastApiServer:
@@ -40,4 +44,14 @@ class FastApiServer:
         return app
 
     async def _handle_error(self, request: Request, exc: Exception):
-        ...
+        if isinstance(exc, HttpException):
+            message_localization = await translate(exc.message)
+            return JSONResponse(
+                status_code=exc.status,
+                content={"status": exc.status, "message": message_localization},
+            )
+
+        return JSONResponse(
+            status_code=500,
+            content={"status": 500, "message": "Internal server error!"},
+        )

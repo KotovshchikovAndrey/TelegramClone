@@ -18,13 +18,13 @@ class SessionService:
     async def get_user_session(self):
         ...
 
-    async def create_user_session(self, user: UserBase, session_create: SessionCreate):
-        session_key = await self._generate_session_key_for_user(user_id=user.user_id)
+    async def create_user_session(self, user_uuid: str, session_create: SessionCreate):
+        session_key = await self._generate_session_key_for_user(user_uuid)
         return await self._repository.create_session(session_key, session_create)
 
     async def delete_user_session(self):
         ...
 
-    async def _generate_session_key_for_user(self, user_id: int) -> str:
-        session_key = f"{user_id}_{uuid.uuid4()}"
+    async def _generate_session_key_for_user(self, user_uuid: str) -> str:
+        session_key = f"{user_uuid}_{uuid.uuid4()}"
         return session_key
