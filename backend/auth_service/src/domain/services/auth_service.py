@@ -83,8 +83,8 @@ class AuthService:
 
         return session_data
 
-    async def logout_user(self):
-        ...
+    async def logout_user(self, session_key: str):
+        await self._session_service.delete_user_session(session_key)
 
     async def _create_session_login(
         self, user_uuid: str, finger_print: UserFingerPrint

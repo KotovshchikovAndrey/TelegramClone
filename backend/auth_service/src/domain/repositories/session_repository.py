@@ -1,7 +1,12 @@
 import typing as tp
 from abc import abstractmethod
 
-from domain.models.session import SessionCreate, SessionInDB, SessionData
+from domain.models.session import (
+    SessionCreate,
+    SessionInDB,
+    SessionData,
+    SessionPayload,
+)
 
 SessionKey: tp.TypeAlias = int
 

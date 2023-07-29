@@ -1,7 +1,7 @@
 import typing as tp
 
 from kink import di
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Response, status
 
 from domain.models.user import UserCreate, UserFingerPrint, UserLogin
 from domain.models.session import SessionLogin
@@ -10,7 +10,7 @@ from domain.services.auth_service import AuthService
 router = APIRouter(prefix="/v1")
 
 
-@router.post("/register")
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_user(
     request: Request,
     service: tp.Annotated[AuthService, Depends(lambda: di[AuthService])],
@@ -25,18 +25,34 @@ async def register_user(
     return session_key
 
 
-@router.post("/login")
+@router.post("/login", status_code=status.HTTP_201_CREATED)
 async def login_user(
+    request: Request,
     service: tp.Annotated[AuthService, Depends(lambda: di[AuthService])],
     user_login: UserLogin,
 ):
-    ...
+    user_finger_print = UserFingerPrint(
+        user_device=request.headers.get("User-Agent"),
+        user_ip="2a00:1fa0:84ad:361f:2da5:2edb:3d14:966d",
+    )
+
+    session_key = await service.login_user(user_finger_print, user_login)
+    return session_key
 
 
-@router.post("/confirm-login")
-async def confirm_login(
+@router.post("/confirm-login", status_code=status.HTTP_200_OK)
+async def confirm_user_login(
     service: tp.Annotated[AuthService, Depends(lambda: di[AuthService])],
     session_login: SessionLogin,
 ):
     session_data = await service.confirm_user_login(session_login)
     return session_data
+
+
+@router.delete("/logout", status_code=status.HTTP_204_NO_CONTENT)
+async def logout_user(
+    response: Response,
+    service: tp.Annotated[AuthService, Depends(lambda: di[AuthService])],
+    session_key: str,
+):
+    await service.logout_user(session_key)

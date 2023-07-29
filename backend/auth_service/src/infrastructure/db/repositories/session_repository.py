@@ -44,4 +44,4 @@ class RedisSessionRepository(ISessionRepository):
         return session_key
 
     async def delete_session(self, session_key: str):
-        ...
+        await self._redis.delete(session_key)

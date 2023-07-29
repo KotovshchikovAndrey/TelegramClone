@@ -2,10 +2,13 @@ import typing as tp
 from pydantic import BaseModel, IPvAnyAddress, EmailStr, validator
 
 
-class SessionData(BaseModel):
+class SessionPayload(BaseModel):
     user_device: str
     user_ip: IPvAnyAddress
     user_location: str
+
+
+class SessionData(SessionPayload):
     login_code: int
     is_active: bool = False
 

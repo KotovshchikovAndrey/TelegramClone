@@ -3,6 +3,6 @@
     "user_email_occupied": "This email is occupied by another user!",
     "user_not_found": "User does not exists!",
     "session_not_found": "Session does not exists!",
-    "incorrect_code": "Code is not correct!!"
-
+    "incorrect_code": "Code is not correct!!",
+    "session_already_is_active": "Session is already activated!"
 }
