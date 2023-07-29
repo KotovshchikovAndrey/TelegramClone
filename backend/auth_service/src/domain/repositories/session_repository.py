@@ -1,7 +1,7 @@
 import typing as tp
 from abc import abstractmethod
 
-from domain.models.session import SessionCreate, SessionInDB, SessionUpdate
+from domain.models.session import SessionCreate, SessionInDB, SessionData
 
 SessionKey: tp.TypeAlias = int
 
@@ -19,7 +19,7 @@ class ISessionRepository(tp.Protocol):
 
     @abstractmethod
     async def update_session(
-        self, session_key: str, new_session_data: tp.Dict[str, str]
+        self, session_key: str, new_session_data: SessionData
     ) -> SessionKey:
         ...
 

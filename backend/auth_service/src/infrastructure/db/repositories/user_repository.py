@@ -13,6 +13,16 @@ class PostgresUserRepository(IUserRepository):
     def __init__(self, postgres: Database) -> None:
         self._postgres = postgres
 
+    async def get_user_by_uuid(self, user_uuid: str):
+        db_query = """SELECT * FROM "user" WHERE user_uuid = :user_uuid;"""
+        user = await self._postgres.fetch_one(
+            query=db_query,
+            values={"user_uuid": user_uuid},
+        )
+
+        if user is not None:
+            return UserInDB.model_validate(user)
+
     async def find_user_by_email(self, email: str):
         db_query = """SELECT * FROM "user" WHERE email = :email;"""
         user = await self._postgres.fetch_one(query=db_query, values={"email": email})
@@ -33,7 +43,7 @@ class PostgresUserRepository(IUserRepository):
             :surname,
             :email,
             :phone
-        ) RETURNING user_id;
+        ) RETURNING user_uuid;
         """
 
         new_user = await self._postgres.execute(

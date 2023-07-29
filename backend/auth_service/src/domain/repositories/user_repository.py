@@ -8,6 +8,10 @@ UserUUID: tp.TypeAlias = str
 
 class IUserRepository(tp.Protocol):
     @abstractmethod
+    async def get_user_by_uuid(self, user_uuid: str) -> UserInDB | None:
+        ...
+
+    @abstractmethod
     async def find_user_by_email(self, email: str) -> UserInDB | None:
         ...
 

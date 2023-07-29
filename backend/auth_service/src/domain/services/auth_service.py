@@ -2,12 +2,12 @@ import typing as tp
 
 import random
 import asyncio
-import json
 from kink import inject
 from infrastructure.utils.ip import get_location_by_ip
 
+from domain.models.session import SessionData, SessionLogin
 from domain.exceptions.http_exception import HttpException
-from domain.models.user import UserCreate, UserLoginConfirm, UserFingerPrint, UserLogin
+from domain.models.user import UserCreate, UserFingerPrint, UserLogin
 from domain.services.user_service import UserService
 from domain.services.session_service import SessionService
 from domain.services.mail_service import MailService
@@ -32,57 +32,50 @@ class AuthService:
     async def register_new_user(
         self, finger_print: UserFingerPrint, user_create: UserCreate
     ):
-        finger_print.user_location = await get_location_by_ip(finger_print.user_ip)
         new_user = await self._user_service.create_user(user_create)
-
-        session_data = finger_print.model_dump()
-        session_data["login_code"] = self._generate_code_for_login()
-
-        new_session = await self._session_service.create_user_session(
-            user_uuid=new_user,
-            session_data=finger_print.model_dump(),
-        )
+        new_session = await self._create_session_login(new_user, finger_print)
 
         asyncio.create_task(
-            self._mail_service.send_login_confirm_mail(user_create.email)
+            self._mail_service.send_login_confirm_code(
+                email=user_create.email,
+                code=new_session.code,
+            )
         )
 
-        return new_session
+        return new_session.session_key
 
     async def login_user(self, finger_print: UserFingerPrint, user_login: UserLogin):
         user = await self._user_service.find_user_by_phone(user_login.phone)
         if user is None:
             raise HttpException.not_found("user_not_found")
 
-        session_data = finger_print.model_dump()
-        session_data["login_code"] = self._generate_code_for_login()
-
-        new_session = await self._session_service.create_user_session(
-            user_uuid=user.user_id,
-            session_data=finger_print.model_dump(),
+        new_session = await self._create_session_login(user.user_uuid, finger_print)
+        asyncio.create_task(
+            self._mail_service.send_login_confirm_code(
+                email=user.email,
+                code=new_session.code,
+            )
         )
 
-        asyncio.create_task(self._mail_service.send_login_confirm_mail(user.email))
-        return new_session
+        return new_session.session_key
 
-    async def confirm_user_login(self, user_login_confirm: UserLoginConfirm) -> bool:
-        user = await self._user_service.find_user_by_email(user_login_confirm.email)
+    async def confirm_user_login(self, session_login: SessionLogin):
+        session_key = session_login.session_key
+        user_uuid = self._session_service.get_user_uuid_from_session_key(session_key)
+
+        user = await self._user_service.get_user_by_uuid(user_uuid)
         if user is None:
             raise HttpException.not_found("user_not_found")
 
-        current_session = await self._session_service.get_user_session(
-            session_key=user_login_confirm.session_key
-        )
-
+        current_session = await self._session_service.get_user_session(session_key)
         if current_session is None:
             raise HttpException.not_found("session_not_found")
 
-        session_data = dict(json.loads(current_session.data))
-        login_code = int(session_data.get("login_code", None))
-        if login_code != user_login_confirm.code:
+        session_data = current_session.data
+        if session_data.login_code != session_login.code:
             raise HttpException.bad_request("incorrect_code")
 
-        session_data["is_active"] = True
+        session_data.is_active = True
         await self._session_service.update_user_session(
             session_key=current_session.session_key,
             new_session_data=session_data,
@@ -93,6 +86,20 @@ class AuthService:
     async def logout_user(self):
         ...
 
+    async def _create_session_login(
+        self, user_uuid: str, finger_print: UserFingerPrint
+    ):
+        finger_print.user_location = await get_location_by_ip(finger_print.user_ip)
+        login_code = self._generate_code_for_login()
+
+        session_data = SessionData(**finger_print.model_dump(), login_code=login_code)
+        new_session = await self._session_service.create_user_session(
+            user_uuid=user_uuid,
+            session_data=session_data,
+        )
+
+        return SessionLogin(code=login_code, session_key=new_session)
+
     def _generate_code_for_login(self) -> int:
-        code = [random.randint(1, 9) for _ in range(5)]
+        code = [str(random.randint(1, 9)) for _ in range(5)]
         return int("".join(code))

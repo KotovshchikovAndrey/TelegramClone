@@ -3,7 +3,7 @@ import typing as tp
 import json
 from kink import inject
 from redis.asyncio import Redis
-from domain.models.session import SessionCreate, SessionInDB, SessionUpdate
+from domain.models.session import SessionCreate, SessionInDB, SessionData
 from domain.repositories.session_repository import ISessionRepository
 
 
@@ -17,7 +17,7 @@ class RedisSessionRepository(ISessionRepository):
     async def create_session(self, session_key: str, session_create: SessionCreate):
         await self._redis.set(
             session_key,
-            json.dumps(session_create.data),
+            session_create.model_dump_json(),
             ex=session_create.expire,
         )
 
@@ -26,14 +26,17 @@ class RedisSessionRepository(ISessionRepository):
     async def get_session(self, session_key: str):
         session = await self._redis.get(session_key)
         if session is not None:
-            session_data = dict(json.loads(session))
-            expire = await self._redis.ttl(session_key)
+            session_value = dict(json.loads(session))
+            session_expire = await self._redis.ttl(session_key)
+            session_data = SessionData(**session_value["data"])
 
-            return SessionInDB(data=session_data, expire=expire)
+            return SessionInDB(
+                session_key=session_key,
+                data=session_data,
+                expire=session_expire,
+            )
 
-    async def update_session(
-        self, session_key: str, new_session_data: tp.Dict[str, str]
-    ):
+    async def update_session(self, session_key: str, new_session_data: SessionData):
         expire = await self._redis.ttl(session_key)
         session_create = SessionCreate(data=new_session_data, expire=expire)
         await self.create_session(session_key, session_create)

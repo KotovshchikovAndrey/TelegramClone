@@ -25,6 +25,10 @@ class UserService:
         new_user = await self._repository.create_user(user_create)
         return new_user
 
+    async def get_user_by_uuid(self, user_uuid: str):
+        user = await self._repository.get_user_by_uuid(user_uuid)
+        return user
+
     async def find_user_by_phone(self, phone: str) -> tp.Optional[UserInDB]:
         user = await self._repository.find_user_by_phone(phone)
         return user

@@ -2,7 +2,6 @@ import typing as tp
 
 from kink import inject
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
-from domain.models.mail import LoginConfirmEmail
 
 
 @inject
@@ -12,11 +11,11 @@ class MailService:
     def __init__(self, mail_config: ConnectionConfig) -> None:
         self._mail_config = mail_config
 
-    async def send_login_confirm_mail(self, email: LoginConfirmEmail):
+    async def send_login_confirm_code(self, email: str, code: int):
         message = MessageSchema(
             subject="Confirm registration",
-            recipients=[email.email],
-            template_body={"code": email.code},
+            recipients=[email],
+            template_body={"code": code},
             subtype=MessageType.html,
         )
 
