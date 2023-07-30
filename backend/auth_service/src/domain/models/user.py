@@ -1,5 +1,7 @@
 import typing as tp
-from pydantic import BaseModel, UUID4, IPvAnyAddress, EmailStr, validator
+
+from io import BytesIO
+from pydantic import BaseModel, UUID4, IPvAnyAddress
 from datetime import datetime, date
 
 
@@ -12,8 +14,8 @@ class UserBase(BaseModel):
 
 class UserInDB(UserBase):
     user_uuid: UUID4
-    password: str | None = None
     created_at: datetime
+    about_me: str | None = None
     avatar: str | None = None
     birthday: date | None = None
 
@@ -33,3 +35,22 @@ class UserFingerPrint(BaseModel):
     user_device: str
     user_ip: IPvAnyAddress
     user_location: str | None = None
+
+
+class ProfilePublic(BaseModel):
+    name: str
+    surname: str
+    about_me: str | None = None
+    birthday: date | None = None
+
+    class Config:
+        from_attributes = True
+
+
+class ProfileUpdate(ProfilePublic):
+    pass
+
+
+class UserAvatar(BaseModel):
+    file: BytesIO
+    ext: str

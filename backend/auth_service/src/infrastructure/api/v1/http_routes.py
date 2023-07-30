@@ -4,13 +4,17 @@ from kink import di
 from fastapi import APIRouter, Depends, Request, Response, status
 
 from domain.models.user import UserCreate, UserFingerPrint, UserLogin
-from domain.models.session import SessionLogin
+from domain.models.session import SessionLogin, SessionDataResponse, SessionKeyResponse
 from domain.services.auth_service import AuthService
 
 router = APIRouter(prefix="/v1")
 
 
-@router.post("/register", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register",
+    status_code=status.HTTP_201_CREATED,
+    response_model=SessionKeyResponse,
+)
 async def register_user(
     request: Request,
     service: tp.Annotated[AuthService, Depends(lambda: di[AuthService])],
@@ -22,10 +26,14 @@ async def register_user(
     )
 
     session_key = await service.register_new_user(user_finger_print, user_create)
-    return session_key
+    return {"session_key": session_key}
 
 
-@router.post("/login", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/login",
+    status_code=status.HTTP_201_CREATED,
+    response_model=SessionKeyResponse,
+)
 async def login_user(
     request: Request,
     service: tp.Annotated[AuthService, Depends(lambda: di[AuthService])],
@@ -37,10 +45,14 @@ async def login_user(
     )
 
     session_key = await service.login_user(user_finger_print, user_login)
-    return session_key
+    return {"session_key": session_key}
 
 
-@router.post("/confirm-login", status_code=status.HTTP_200_OK)
+@router.post(
+    "/confirm-login",
+    status_code=status.HTTP_200_OK,
+    response_model=SessionDataResponse,
+)
 async def confirm_user_login(
     service: tp.Annotated[AuthService, Depends(lambda: di[AuthService])],
     session_login: SessionLogin,

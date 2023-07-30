@@ -1,9 +1,15 @@
 import typing as tp
-
 from kink import inject
-from domain.models.user import UserCreate, UserInDB
+
 from domain.repositories.user_repository import IUserRepository
 from domain.exceptions.http_exception import HttpException
+from domain.models.user import (
+    UserCreate,
+    UserInDB,
+    ProfileUpdate,
+    UserAvatar,
+    ProfilePublic,
+)
 
 
 @inject
@@ -12,6 +18,19 @@ class UserService:
 
     def __init__(self, repository: IUserRepository) -> None:
         self._repository = repository
+
+    async def get_user_profile(self, user_uuid: str):
+        user = await self._repository.get_user_by_uuid(user_uuid)
+        if user is None:
+            raise HttpException("user_not_found")
+
+        return ProfilePublic.model_validate(user)
+
+    async def set_user_avatar(self, user_uuid: str, avatar: UserAvatar):
+        ...
+
+    async def update_user_profile(self, profile_update: ProfileUpdate):
+        ...
 
     async def create_user(self, user_create: UserCreate):
         user = await self._repository.find_user_by_phone(user_create.phone)
