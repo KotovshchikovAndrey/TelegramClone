@@ -1,15 +1,16 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import mongoose, { HydratedDocument } from "mongoose"
 import { ObjectType, Field } from "@nestjs/graphql"
+import { randomUUID } from "crypto"
 
 export type ConversationDocument = HydratedDocument<Conversation>
 
 @Schema()
 @ObjectType()
 export class Conversation {
-  @Prop({ type: mongoose.Schema.ObjectId })
+  @Prop({ type: String, default: randomUUID().toString() })
   @Field()
-  uuid: string
+  _id: string
 
   @Prop({ default: false })
   @Field()
@@ -30,9 +31,9 @@ export class Conversation {
 
 @ObjectType()
 export class ConversationMember {
-  @Prop({ type: mongoose.Schema.ObjectId })
+  @Prop({ type: String, default: randomUUID().toString() })
   @Field()
-  uuid: string
+  _id: string
 
   @Prop({ type: mongoose.Schema.ObjectId, ref: Conversation })
   @Field(() => String)
@@ -53,9 +54,9 @@ export class ConversationMember {
 
 @ObjectType()
 export class Message {
-  @Prop({ type: mongoose.Schema.ObjectId })
+  @Prop({ type: String, default: randomUUID().toString() })
   @Field()
-  uuid: string
+  _id: string
 
   @Prop({ type: mongoose.Schema.ObjectId, ref: ConversationMember })
   @Field(() => String)
