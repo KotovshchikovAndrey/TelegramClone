@@ -2,24 +2,40 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Conversation {
-  _id: String!
-  is_group: Boolean!
-  name: String!
-  description: String
-  avatar: String
+type Message {
+  uuid: String!
+  text: String!
+  media_url: String
+  created_at: DateTime!
+  send_from: String!
+  send_to: String!
+  status: String!
 }
 
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type Query {
-  getAllConversations: [Conversation!]
+  getMessages(dto: GetMessageListDTO!): [Message]!
+  getNotRecievedMessages(userUUID: String!): [Message]!
+  getAllInterlocutors(userUUID: String!): [String]!
+}
+
+input GetMessageListDTO {
+  send_from: String!
+  send_to: String!
+  limit: Int!
+  offset: Int! = 0
 }
 
 type Mutation {
-  createGroupConversation(dto: CreateConversationDTO!): Conversation!
+  createMessage(dto: CreateMessageDTO!): Message!
 }
 
-input CreateConversationDTO {
-  name: String!
-  description: String
-  avatar: String
+input CreateMessageDTO {
+  text: String!
+  send_from: String!
+  send_to: String!
 }
