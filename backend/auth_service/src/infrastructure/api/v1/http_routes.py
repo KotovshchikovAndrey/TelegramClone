@@ -3,9 +3,16 @@ import typing as tp
 from kink import di
 from fastapi import APIRouter, Depends, Request, Response, status
 
-from domain.models.user import UserCreate, UserFingerPrint, UserLogin
+from infrastructure.api.middlewares.auth_middleware import authenticate_current_user
 from domain.models.session import SessionLogin, SessionDataResponse, SessionKeyResponse
 from domain.services.auth_service import AuthService
+from domain.models.user import (
+    UserCreate,
+    UserFingerPrint,
+    UserInDB,
+    UserLogin,
+    UserPayload,
+)
 
 router = APIRouter(prefix="/v1")
 
@@ -68,3 +75,10 @@ async def logout_user(
     session_key: str,
 ):
     await service.logout_user(session_key)
+
+
+@router.get("/authenticate", response_model=UserPayload)
+async def authenticate_user(
+    current_user: tp.Annotated[UserInDB, Depends(authenticate_current_user)],
+):
+    return current_user

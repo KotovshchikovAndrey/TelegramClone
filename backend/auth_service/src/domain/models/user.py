@@ -52,5 +52,12 @@ class ProfileUpdate(ProfilePublic):
 
 
 class UserAvatar(BaseModel):
-    file: BytesIO
+    # file: BytesIO
     ext: str
+
+
+class UserPayload(UserBase):
+    user_uuid: UUID4
+
+    class Config:
+        from_attributes = True

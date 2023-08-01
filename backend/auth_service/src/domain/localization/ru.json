@@ -4,5 +4,7 @@
     "user_not_found": "Пользователь не найден!",
     "session_not_found": "Сессия не найдена!",
     "incorrect_code": "Неверный код!",
-    "session_already_is_active": "Сессия уже активирована!"
+    "session_already_is_active": "Сессия уже активирована!",
+    "session_not_transferred": "Сессия не была передана!",
+    "unauthorized": "Ошибка аутентификации!"
 }

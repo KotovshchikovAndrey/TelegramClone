@@ -86,6 +86,16 @@ class AuthService:
     async def logout_user(self, session_key: str):
         await self._session_service.delete_user_session(session_key)
 
+    async def authenticate_current_user(self, session_key: str):
+        session = await self._session_service.get_user_session(session_key)
+        if session is None:
+            raise HttpException.unauthorized("unauthorized")
+
+        user_uuid = self._session_service.get_user_uuid_from_session_key(session_key)
+        current_user = await self._user_service.get_user_by_uuid(user_uuid)
+
+        return current_user
+
     async def _create_session_login(
         self, user_uuid: str, finger_print: UserFingerPrint
     ):
