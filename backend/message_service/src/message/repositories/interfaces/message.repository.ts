@@ -6,8 +6,8 @@ import {
 import { Message } from "src/message/message.entity"
 
 export interface IMessageRepository {
-  findAll(dto: GetMessageListDTO): Promise<Message[]>
-  findBy(dto: FilterMessageListDTO): Promise<Message[]>
-  findAllSenders(userUUID: string): Promise<Pick<Message, "send_from">[]>
-  create(dto: CreateMessageDTO): Promise<Message>
+  findAll(dto: GetMessageListDTO & { send_to: string }): Promise<Message[]>
+  findBy(dto: FilterMessageListDTO & { send_to: string }): Promise<Message[]>
+  findAllSenders(send_to: string): Promise<string[]>
+  create(dto: CreateMessageDTO & { send_from: string }): Promise<Message>
 }

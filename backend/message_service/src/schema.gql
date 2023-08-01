@@ -18,14 +18,13 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Query {
-  getMessages(dto: GetMessageListDTO!): [Message]!
-  getNotRecievedMessages(userUUID: String!): [Message]!
-  getAllInterlocutors(userUUID: String!): [String]!
+  getMessagesForMe(dto: GetMessageListDTO!): [Message]!
+  getNotRecievedMessages: [Message]!
+  getAllInterlocutors: [String]!
 }
 
 input GetMessageListDTO {
   send_from: String!
-  send_to: String!
   limit: Int!
   offset: Int! = 0
 }
@@ -36,6 +35,5 @@ type Mutation {
 
 input CreateMessageDTO {
   text: String!
-  send_from: String!
   send_to: String!
 }

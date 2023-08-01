@@ -10,10 +10,6 @@ export class CreateMessageDTO {
 
   @Field()
   @IsNotEmpty()
-  send_from: string
-
-  @Field()
-  @IsNotEmpty()
   send_to: string
 }
 
@@ -22,10 +18,6 @@ export class GetMessageListDTO {
   @Field()
   @IsNotEmpty()
   send_from: string
-
-  @Field()
-  @IsNotEmpty()
-  send_to: string
 
   @Field(() => Int)
   @IsInt()
@@ -37,8 +29,15 @@ export class GetMessageListDTO {
 }
 
 export class FilterMessageListDTO {
-  send_to?: string
   send_from?: string
   created_at?: Date
   status?: "sent" | "received" | "readed"
+}
+
+export class CurrentUserDTO {
+  user_uuid: string
+  name: string
+  surname: string
+  phone: string
+  email: string
 }

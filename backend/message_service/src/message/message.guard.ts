@@ -27,3 +27,28 @@ export class GetMessageListGuard implements CanActivate {
     // }
   }
 }
+
+@Injectable()
+export class AuthGuard implements CanActivate {
+  constructor(private readonly configService: ConfigService) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    return true
+    // const gqlContext = GqlExecutionContext.create(context)
+    // const headers = gqlContext.getContext().req.headers
+
+    // const userSession = headers["user-session"]
+    // if (!userSession) {
+    //   throw Error("Unauthorized")
+    // }
+
+    // const authServiceHost = this.configService.get("AUTH_SERVICE_HOST")
+
+    // try {
+    //   const response = await axios.get(authServiceHost)
+    //   return true
+    // } catch (err) {
+    //   throw Error("NOOOOOOOOOOOOOOOOOOOOOO!")
+    // }
+  }
+}

@@ -11,7 +11,7 @@ export class Message {
   @Field(() => String)
   uuid: string
 
-  @Prop()
+  @Prop({ required: true })
   @Field()
   text: string
 
@@ -23,11 +23,11 @@ export class Message {
   @Field(() => Date)
   created_at: Date
 
-  @Prop()
+  @Prop({ required: true })
   @Field()
   send_from: string
 
-  @Prop()
+  @Prop({ required: true })
   @Field()
   send_to: string
 

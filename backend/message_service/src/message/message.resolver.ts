@@ -1,34 +1,43 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql"
 import { MessageService } from "./message.service"
 import { Message } from "./message.entity"
-import { CreateMessageDTO, GetMessageListDTO } from "./message.dto"
+import {
+  CreateMessageDTO,
+  CurrentUserDTO,
+  GetMessageListDTO,
+} from "./message.dto"
 import { UseGuards } from "@nestjs/common"
 import { GetMessageListGuard } from "./message.guard"
+import { CurrentUser } from "./decorators/auth.decorator"
+import { ConfigService } from "@nestjs/config"
 
 @Resolver()
 export class MessageResolver {
   constructor(private readonly messageService: MessageService) {}
 
-  @UseGuards(GetMessageListGuard)
   @Query(() => [Message], { nullable: "items" })
-  async getMessages(@Args("dto") dto: GetMessageListDTO) {
-    return this.messageService.getMessages(dto)
+  async getMessagesForMe(
+    @CurrentUser() currentUser: CurrentUserDTO,
+    @Args("dto") dto: GetMessageListDTO,
+  ) {
+    return this.messageService.getMessagesForMe(currentUser, dto)
   }
 
-  @UseGuards(GetMessageListGuard)
   @Query(() => [Message], { nullable: "items" })
-  async getNotRecievedMessages(@Args("userUUID") userUUID: string) {
-    return this.messageService.getNotReceivedMessages(userUUID)
+  async getNotRecievedMessages(@CurrentUser() currentUser: CurrentUserDTO) {
+    return this.messageService.getNotReceivedMessages(currentUser)
   }
 
-  @UseGuards(GetMessageListGuard)
   @Query(() => [String], { nullable: "items" })
-  async getAllInterlocutors(@Args("userUUID") userUUID: string) {
-    return this.messageService.getAllInterlocutors(userUUID)
+  async getAllInterlocutors(@CurrentUser() currentUser: CurrentUserDTO) {
+    return this.messageService.getAllInterlocutors(currentUser)
   }
 
   @Mutation(() => Message)
-  async createMessage(@Args("dto") dto: CreateMessageDTO) {
-    return this.messageService.createMessage(dto)
+  async createMessage(
+    @CurrentUser() currentUser: CurrentUserDTO,
+    @Args("dto") dto: CreateMessageDTO,
+  ) {
+    return this.messageService.createMessage(currentUser, dto)
   }
 }

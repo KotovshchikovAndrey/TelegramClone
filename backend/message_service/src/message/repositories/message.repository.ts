@@ -2,23 +2,23 @@ import { InjectModel } from "@nestjs/mongoose"
 import { IMessageRepository } from "./interfaces/message.repository"
 import { Message } from "../message.entity"
 import { Model } from "mongoose"
+import { randomUUID } from "crypto"
 import {
   CreateMessageDTO,
   FilterMessageListDTO,
   GetMessageListDTO,
 } from "../message.dto"
-import { randomUUID } from "crypto"
 
 export class MongoMessageRepository implements IMessageRepository {
   constructor(
     @InjectModel("Message") private readonly messageModel: Model<Message>,
   ) {}
 
-  async findAll(dto: GetMessageListDTO) {
+  async findAll(dto: GetMessageListDTO & { send_to: string }) {
     const messages = await this.messageModel
       .find({
-        send_from: dto.send_from,
         send_to: dto.send_to,
+        send_from: dto.send_from,
       })
       .skip(dto.offset)
       .limit(dto.limit)
@@ -27,7 +27,7 @@ export class MongoMessageRepository implements IMessageRepository {
     return messages
   }
 
-  async findBy(dto: FilterMessageListDTO) {
+  async findBy(dto: FilterMessageListDTO & { send_to: string }) {
     // delete undefined values
     Object.keys(dto).forEach((key: string) => !dto[key] && delete dto[key])
 
@@ -35,19 +35,17 @@ export class MongoMessageRepository implements IMessageRepository {
     return messages
   }
 
-  async findAllSenders(
-    userUUID: string,
-  ): Promise<Pick<Message, "send_from">[]> {
+  async findAllSenders(send_to: string) {
     const senders = await this.messageModel
       .find({
-        send_to: userUUID,
+        send_to,
       })
       .distinct("send_from")
 
     return senders
   }
 
-  async create(dto: CreateMessageDTO) {
+  async create(dto: CreateMessageDTO & { send_from: string }) {
     const createdMessage = new this.messageModel({
       ...dto,
       uuid: randomUUID().toString(),
