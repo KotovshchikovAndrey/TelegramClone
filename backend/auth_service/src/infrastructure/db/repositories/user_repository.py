@@ -2,7 +2,9 @@ import typing as tp
 
 from kink import inject
 from databases import Database
-from domain.models.user import UserCreate, UserInDB
+from pydantic import UUID4
+
+from domain.models.user import UserCreate, UserInDB, UserPublic
 from domain.repositories.user_repository import IUserRepository
 
 
@@ -22,6 +24,18 @@ class PostgresUserRepository(IUserRepository):
 
         if user is not None:
             return UserInDB.model_validate(user)
+
+    async def get_users_info_by_uuids(self, user_uuids: tp.List[UUID4]):
+        db_query = """
+            SELECT user_uuid, name, surname, phone, avatar, about_me
+            FROM "user"
+            WHERE user_uuid IN %(uuids)s;
+        """ % {
+            "uuids": str(user_uuids).replace("[", "(").replace("]", ")")
+        }
+
+        users_info = await self._postgres.fetch_all(query=db_query)
+        return [UserPublic.model_validate(user_info) for user_info in users_info]
 
     async def find_user_by_email(self, email: str):
         db_query = """SELECT * FROM "user" WHERE email = :email;"""

@@ -1,7 +1,7 @@
 import typing as tp
 
 from io import BytesIO
-from pydantic import BaseModel, UUID4, IPvAnyAddress
+from pydantic import BaseModel, UUID4, IPvAnyAddress, validator
 from datetime import datetime, date
 
 
@@ -61,3 +61,26 @@ class UserPayload(UserBase):
 
     class Config:
         from_attributes = True
+
+
+class UserPublic(BaseModel):
+    user_uuid: UUID4
+    name: str
+    surname: str
+    phone: str
+    avatar: str | None = None
+    about_me: str | None = None
+
+    class Config:
+        from_attributes = True
+
+
+class UsersInfoGet(BaseModel):
+    user_uuids: tp.List[UUID4]
+
+    @validator("user_uuids")
+    def validate_user_uuids(cls, user_uuids: tp.List[UUID4]):
+        if not user_uuids:
+            raise ValueError("user_uuids field cannot be empty list!")
+
+        return user_uuids

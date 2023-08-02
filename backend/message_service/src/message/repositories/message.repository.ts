@@ -5,8 +5,8 @@ import { Model } from "mongoose"
 import { randomUUID } from "crypto"
 import {
   CreateMessageDTO,
-  FilterMessageListDTO,
-  GetMessageListDTO,
+  FindMessageDTO,
+  MessageHistoryDTO,
 } from "../message.dto"
 
 export class MongoMessageRepository implements IMessageRepository {
@@ -14,20 +14,29 @@ export class MongoMessageRepository implements IMessageRepository {
     @InjectModel("Message") private readonly messageModel: Model<Message>,
   ) {}
 
-  async findAll(dto: GetMessageListDTO & { send_to: string }) {
+  async findMessages(dto: MessageHistoryDTO & { send_to: string }) {
     const messages = await this.messageModel
       .find({
-        send_to: dto.send_to,
-        send_from: dto.send_from,
+        $or: [
+          {
+            send_to: dto.send_to,
+            send_from: dto.send_from,
+          },
+          {
+            send_to: dto.send_from,
+            send_from: dto.send_to,
+          },
+        ],
       })
       .skip(dto.offset)
       .limit(dto.limit)
+      .sort("created_at")
       .exec()
 
     return messages
   }
 
-  async findBy(dto: FilterMessageListDTO & { send_to: string }) {
+  async findMessagesBy(dto: FindMessageDTO & { send_to: string }) {
     // delete undefined values
     Object.keys(dto).forEach((key: string) => !dto[key] && delete dto[key])
 
@@ -45,7 +54,7 @@ export class MongoMessageRepository implements IMessageRepository {
     return senders
   }
 
-  async create(dto: CreateMessageDTO & { send_from: string }) {
+  async createMessage(dto: CreateMessageDTO & { send_from: string }) {
     const createdMessage = new this.messageModel({
       ...dto,
       uuid: randomUUID().toString(),

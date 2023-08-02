@@ -3,8 +3,9 @@ import { IMessageRepository } from "./repositories/interfaces/message.repository
 import {
   CreateMessageDTO,
   CurrentUserDTO,
-  GetMessageListDTO,
+  MessageHistoryDTO,
 } from "./message.dto"
+import axios from "axios"
 
 @Injectable()
 export class MessageService {
@@ -13,9 +14,9 @@ export class MessageService {
     private readonly messageRepository: IMessageRepository,
   ) {}
 
-  async getMessagesForMe(currentUser: CurrentUserDTO, dto: GetMessageListDTO) {
+  async getMessageHistory(currentUser: CurrentUserDTO, dto: MessageHistoryDTO) {
     const userUUID = currentUser.user_uuid
-    return this.messageRepository.findAll({
+    return this.messageRepository.findMessages({
       ...dto,
       send_to: userUUID,
     })
@@ -23,7 +24,7 @@ export class MessageService {
 
   async getNotReceivedMessages(currentUser: CurrentUserDTO) {
     const userUUID = currentUser.user_uuid
-    return this.messageRepository.findBy({
+    return this.messageRepository.findMessagesBy({
       send_to: userUUID,
       status: "sent",
     })
@@ -31,18 +32,25 @@ export class MessageService {
 
   async getAllInterlocutors(currentUser: CurrentUserDTO) {
     const userUUID = currentUser.user_uuid
-    const interlocutors = await this.messageRepository.findAllSenders(userUUID)
+    const sendersUUIDS = await this.messageRepository.findAllSenders(userUUID)
 
-    return interlocutors
+    try {
+      const authServiceHost = "http://127.0.0.1:8000/api/v1"
+      const response = await axios.post(authServiceHost + "/get-users-info", {
+        user_uuids: sendersUUIDS,
+      })
+
+      return response.data
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   async createMessage(currentUser: CurrentUserDTO, dto: CreateMessageDTO) {
     const userUUID = currentUser.user_uuid
-    return this.messageRepository.create({
+    return this.messageRepository.createMessage({
       ...dto,
       send_from: userUUID,
     })
   }
-
-  // async updateMessage()
 }

@@ -1,26 +1,23 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql"
 import { MessageService } from "./message.service"
-import { Message } from "./message.entity"
+import { Interlocutor, Message } from "./message.entity"
 import {
   CreateMessageDTO,
   CurrentUserDTO,
-  GetMessageListDTO,
+  MessageHistoryDTO,
 } from "./message.dto"
-import { UseGuards } from "@nestjs/common"
-import { GetMessageListGuard } from "./message.guard"
 import { CurrentUser } from "./decorators/auth.decorator"
-import { ConfigService } from "@nestjs/config"
 
 @Resolver()
 export class MessageResolver {
   constructor(private readonly messageService: MessageService) {}
 
   @Query(() => [Message], { nullable: "items" })
-  async getMessagesForMe(
+  async getMessageHistory(
     @CurrentUser() currentUser: CurrentUserDTO,
-    @Args("dto") dto: GetMessageListDTO,
+    @Args("dto") dto: MessageHistoryDTO,
   ) {
-    return this.messageService.getMessagesForMe(currentUser, dto)
+    return this.messageService.getMessageHistory(currentUser, dto)
   }
 
   @Query(() => [Message], { nullable: "items" })
@@ -28,7 +25,7 @@ export class MessageResolver {
     return this.messageService.getNotReceivedMessages(currentUser)
   }
 
-  @Query(() => [String], { nullable: "items" })
+  @Query(() => [Interlocutor], { nullable: "items" })
   async getAllInterlocutors(@CurrentUser() currentUser: CurrentUserDTO) {
     return this.messageService.getAllInterlocutors(currentUser)
   }

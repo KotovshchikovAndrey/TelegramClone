@@ -36,4 +36,25 @@ export class Message {
   status: "sent" | "received" | "readed"
 }
 
+@ObjectType()
+export class Interlocutor {
+  @Field()
+  user_uuid: string
+
+  @Field()
+  name: string
+
+  @Field()
+  surname: string
+
+  @Field()
+  phone: string
+
+  @Field({ nullable: true })
+  avatar?: string
+
+  @Field({ nullable: true })
+  about_me?: string
+}
+
 export const MessageSchema = SchemaFactory.createForClass(Message)

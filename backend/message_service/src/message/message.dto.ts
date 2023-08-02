@@ -14,7 +14,7 @@ export class CreateMessageDTO {
 }
 
 @InputType()
-export class GetMessageListDTO {
+export class MessageHistoryDTO {
   @Field()
   @IsNotEmpty()
   send_from: string
@@ -28,7 +28,7 @@ export class GetMessageListDTO {
   offset: number = 0
 }
 
-export class FilterMessageListDTO {
+export class FindMessageDTO {
   send_from?: string
   created_at?: Date
   status?: "sent" | "received" | "readed"

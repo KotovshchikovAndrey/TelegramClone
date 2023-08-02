@@ -1,5 +1,7 @@
 import typing as tp
+
 from kink import inject
+from pydantic import UUID4
 
 from domain.repositories.user_repository import IUserRepository
 from domain.exceptions.http_exception import HttpException
@@ -25,6 +27,10 @@ class UserService:
             raise HttpException("user_not_found")
 
         return ProfilePublic.model_validate(user)
+
+    async def get_users_info_by_uuids(self, user_uuids: tp.List[UUID4]):
+        users_info = await self._repository.get_users_info_by_uuids(user_uuids)
+        return users_info
 
     async def set_user_avatar(self, user_uuid: str, avatar: UserAvatar):
         ...
