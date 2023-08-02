@@ -88,7 +88,7 @@ class AuthService:
 
     async def authenticate_current_user(self, session_key: str):
         session = await self._session_service.get_user_session(session_key)
-        if session is None:
+        if (session is None) or (not session.data.is_active):
             raise HttpException.unauthorized("unauthorized")
 
         user_uuid = self._session_service.get_user_uuid_from_session_key(session_key)
