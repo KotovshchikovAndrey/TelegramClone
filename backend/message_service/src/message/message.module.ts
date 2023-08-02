@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common"
-import { MessageService } from "./message.service"
+import { MessageService } from "./services/message.service"
 import { MessageResolver } from "./message.resolver"
 import { MongoMessageRepository } from "./repositories/message.repository"
 import { MongooseModule } from "@nestjs/mongoose"

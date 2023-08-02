@@ -1,10 +1,10 @@
 import { Injectable, Inject } from "@nestjs/common"
-import { IMessageRepository } from "./repositories/interfaces/message.repository"
+import { IMessageRepository } from "../repositories/interfaces/message.repository"
 import {
   CreateMessageDTO,
   CurrentUserDTO,
   MessageHistoryDTO,
-} from "./message.dto"
+} from "../message.dto"
 import axios from "axios"
 
 @Injectable()
