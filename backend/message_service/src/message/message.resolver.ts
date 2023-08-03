@@ -1,15 +1,17 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql"
 import { MessageService } from "./services/message.service"
 import { Interlocutor, Message } from "./message.entity"
+import { CurrentUser } from "./decorators/auth.decorator"
 import {
   CreateMessageDTO,
   CurrentUserDTO,
+  FileDTO,
   MessageHistoryDTO,
 } from "./message.dto"
-import { CurrentUser } from "./decorators/auth.decorator"
 
 import * as GraphQLUpload from "graphql-upload/GraphQLUpload.js"
 import * as Upload from "graphql-upload/Upload.js"
+import { FileUpload } from "./messages.types"
 
 @Resolver()
 export class MessageResolver {
@@ -37,40 +39,14 @@ export class MessageResolver {
   async createMessage(
     @CurrentUser() currentUser: CurrentUserDTO,
     @Args("dto") dto: CreateMessageDTO,
+    @Args({ name: "files", type: () => [GraphQLUpload], defaultValue: [] })
+    files: Promise<FileUpload>[],
   ) {
-    return this.messageService.createMessage(currentUser, dto)
-  }
+    let messageFiles: FileDTO[]
+    if (files.length !== 0) {
+      messageFiles = await FileDTO.fromFileUploadArray(files)
+    }
 
-  @Mutation(() => Boolean)
-  async testUpload(
-    @Args({ name: "files", type: () => [GraphQLUpload] })
-    files: Upload[],
-  ) {
-    const fileBuffers = await Promise.all(
-      files.map((file) => {
-        return new Promise(async (resolve, reject) => {
-          const chunks: Buffer[] = []
-          const fileContent = await file
-          const stream = fileContent.createReadStream()
-
-          stream.on("data", (chunk: Buffer) => {
-            chunks.push(chunk)
-          })
-
-          stream.on("end", () => {
-            const buffer = Buffer.concat(chunks)
-            console.log(file)
-            resolve({
-              filename: fileContent.filename,
-              mimetype: fileContent.mimetype,
-              content: buffer,
-            })
-          })
-        })
-      }),
-    )
-
-    console.log(fileBuffers)
-    return true
+    return this.messageService.createMessage(currentUser, dto, messageFiles)
   }
 }

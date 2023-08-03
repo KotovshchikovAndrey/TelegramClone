@@ -3,15 +3,18 @@ import { IMessageRepository } from "../repositories/interfaces/message.repositor
 import {
   CreateMessageDTO,
   CurrentUserDTO,
+  FileDTO,
   MessageHistoryDTO,
 } from "../message.dto"
 import axios from "axios"
+import { FileService } from "./file.service"
 
 @Injectable()
 export class MessageService {
   constructor(
     @Inject("MessageRepository")
     private readonly messageRepository: IMessageRepository,
+    private readonly fileService: FileService,
   ) {}
 
   async getMessageHistory(currentUser: CurrentUserDTO, dto: MessageHistoryDTO) {
@@ -46,8 +49,16 @@ export class MessageService {
     }
   }
 
-  async createMessage(currentUser: CurrentUserDTO, dto: CreateMessageDTO) {
+  async createMessage(
+    currentUser: CurrentUserDTO,
+    dto: CreateMessageDTO,
+    messageFiles?: FileDTO[],
+  ) {
     const userUUID = currentUser.user_uuid
+    if (messageFiles) {
+      dto.media_url = await this.fileService.uploadFiles(messageFiles)
+    }
+
     return this.messageRepository.createMessage({
       ...dto,
       send_from: userUUID,

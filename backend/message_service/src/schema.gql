@@ -39,8 +39,7 @@ input MessageHistoryDTO {
 }
 
 type Mutation {
-  createMessage(dto: CreateMessageDTO!): Message!
-  testUpload(files: [Upload!]!): Boolean!
+  createMessage(dto: CreateMessageDTO!, files: [Upload!]! = []): Message!
 }
 
 input CreateMessageDTO {
