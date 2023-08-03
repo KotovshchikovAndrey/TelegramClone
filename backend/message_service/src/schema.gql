@@ -40,6 +40,7 @@ input MessageHistoryDTO {
 
 type Mutation {
   createMessage(dto: CreateMessageDTO!, files: [Upload!]! = []): Message!
+  updateMessage(dto: UpdateMessageDTO!, files: [Upload!]! = []): Message!
 }
 
 input CreateMessageDTO {
@@ -49,3 +50,8 @@ input CreateMessageDTO {
 
 """The `Upload` scalar type represents a file upload."""
 scalar Upload
+
+input UpdateMessageDTO {
+  uuid: String!
+  text: String!
+}

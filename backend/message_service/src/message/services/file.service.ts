@@ -1,28 +1,30 @@
-import { Injectable } from "@nestjs/common"
 import { FileDTO } from "../message.dto"
-import { join } from "path"
-import { randomUUID } from "crypto"
+import { resolve } from "path"
+import { randomUUID, createHash } from "crypto"
 
+const fs = require("fs")
 const AdmZip = require("adm-zip")
 
-@Injectable()
-export class FileService {
-  private readonly maxSize = 15728640
-  private readonly allowedExt = new Set(["jpeg", "png", "svg"])
-  private readonly uploadPath: string
-
-  constructor() {
-    this.uploadPath = join(__dirname, "..", "..", "assets")
-  }
+export abstract class FileService {
+  protected readonly maxSize = 15728640
+  protected readonly allowedExt = new Set(["jpeg", "png", "svg"])
 
   async uploadFiles(files: FileDTO[]) {
     for (const file of files) {
       this.checkIsValidOrThrowError(file)
     }
 
-    const zipName = `${randomUUID()}.zip`
-    this.createZipFromFiles(zipName, files)
-    return "/" + zipName
+    const zipName = await this.createZipFromFiles(files)
+    return zipName
+  }
+
+  async updateFiles(mediaUrl: string, files: FileDTO[]) {
+    for (const file of files) {
+      this.checkIsValidOrThrowError(file)
+    }
+
+    const zipName = await this.updateZip(mediaUrl, files)
+    return zipName
   }
 
   private checkIsValidOrThrowError(file: FileDTO) {
@@ -37,13 +39,54 @@ export class FileService {
     }
   }
 
-  private createZipFromFiles(zipName: string, files: FileDTO[]) {
+  protected abstract createZipFromFiles(files: FileDTO[]): Promise<string>
+  protected abstract updateZip(
+    zipName: string,
+    files: FileDTO[],
+  ): Promise<string>
+}
+
+export class DefaultFileService extends FileService {
+  private readonly uploadPath: string
+
+  constructor() {
+    super()
+    this.uploadPath = resolve(process.cwd(), "src", "assets")
+  }
+
+  protected async createZipFromFiles(files: FileDTO[]) {
     const zip = new AdmZip()
     for (const file of files) {
       const filename = `${randomUUID()}.${file.ext}`
       zip.addFile(filename, file.content)
     }
 
+    const filesHash = createHash("sha256")
+      .update(files.map((file) => file.content).join(";"))
+      .digest("hex")
+      .toString()
+
+    const zipName = `${randomUUID()}_${filesHash}.zip`
     zip.writeZip(this.uploadPath + `/${zipName}`)
+
+    return zipName
+  }
+
+  protected async updateZip(zipName: string, files: FileDTO[]) {
+    const newFilesHash = createHash("sha256")
+      .update(files.map((file) => file.content).join(";"))
+      .digest("hex")
+      .toString()
+
+    const uploadedFilesHash = zipName.split("_")[1].split(".")[0]
+    if (newFilesHash === uploadedFilesHash) {
+      return
+    }
+
+    const zipPath = resolve(this.uploadPath, zipName)
+    fs.unlink(zipPath, () => {})
+
+    const newZipName = await this.createZipFromFiles(files)
+    return newZipName
   }
 }

@@ -17,6 +17,20 @@ export class CreateMessageDTO {
 }
 
 @InputType()
+export class UpdateMessageDTO {
+  @Field()
+  @IsNotEmpty()
+  uuid: string
+
+  @Field()
+  @MaxLength(500)
+  @IsNotEmpty()
+  text: string
+
+  media_url?: string
+}
+
+@InputType()
 export class MessageHistoryDTO {
   @Field()
   @IsNotEmpty()

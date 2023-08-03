@@ -33,3 +33,5 @@
 **.launch
 **.settings/
 **.sublime-workspace
+
+**/message_service/src/assets

@@ -4,7 +4,7 @@ import { MessageResolver } from "./message.resolver"
 import { MongoMessageRepository } from "./repositories/message.repository"
 import { MongooseModule } from "@nestjs/mongoose"
 import { MessageSchema } from "./message.entity"
-import { FileService } from "./services/file.service"
+import { DefaultFileService, FileService } from "./services/file.service"
 
 @Module({
   imports: [
@@ -17,7 +17,10 @@ import { FileService } from "./services/file.service"
       provide: "MessageRepository",
       useClass: MongoMessageRepository,
     },
-    FileService,
+    {
+      provide: FileService,
+      useClass: DefaultFileService,
+    },
   ],
 })
 export class MessageModule {}

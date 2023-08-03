@@ -5,6 +5,7 @@ import {
   CurrentUserDTO,
   FileDTO,
   MessageHistoryDTO,
+  UpdateMessageDTO,
 } from "../message.dto"
 import axios from "axios"
 import { FileService } from "./file.service"
@@ -63,5 +64,28 @@ export class MessageService {
       ...dto,
       send_from: userUUID,
     })
+  }
+
+  async updateMessage(
+    currentUser: CurrentUserDTO,
+    dto: UpdateMessageDTO,
+    messageFiles?: FileDTO[],
+  ) {
+    const message = await this.messageRepository.findMessageByUUID(dto.uuid)
+    if (!message) {
+      throw Error("Message does not exists!")
+    }
+
+    const userUUID = currentUser.user_uuid
+    if (message.send_from !== userUUID) {
+      throw Error("Forbidden!")
+    }
+
+    dto.media_url =
+      message.media_url !== undefined
+        ? await this.fileService.updateFiles(message.media_url, messageFiles)
+        : await this.fileService.uploadFiles(messageFiles)
+
+    return this.messageRepository.updateMessage(dto)
   }
 }

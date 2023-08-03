@@ -7,6 +7,7 @@ import {
   CreateMessageDTO,
   FindMessageDTO,
   MessageHistoryDTO,
+  UpdateMessageDTO,
 } from "../message.dto"
 
 export class MongoMessageRepository implements IMessageRepository {
@@ -54,6 +55,14 @@ export class MongoMessageRepository implements IMessageRepository {
     return senders
   }
 
+  async findMessageByUUID(uuid: string) {
+    const message = await this.messageModel.findOne({
+      uuid,
+    })
+
+    return message
+  }
+
   async createMessage(dto: CreateMessageDTO & { send_from: string }) {
     const createdMessage = new this.messageModel({
       ...dto,
@@ -62,5 +71,17 @@ export class MongoMessageRepository implements IMessageRepository {
     })
 
     return await createdMessage.save()
+  }
+
+  async updateMessage(dto: UpdateMessageDTO) {
+    const updatedMessage = await this.messageModel.findOneAndUpdate(
+      {
+        uuid: dto.uuid,
+      },
+      { text: dto.text, media_url: dto.media_url },
+      { new: true },
+    )
+
+    return updatedMessage
   }
 }
