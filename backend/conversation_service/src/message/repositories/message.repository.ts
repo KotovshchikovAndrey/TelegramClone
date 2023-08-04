@@ -12,11 +12,11 @@ import {
 
 export class MongoMessageRepository implements IMessageRepository {
   constructor(
-    @InjectModel("Message") private readonly messageModel: Model<Message>,
+    @InjectModel("Message") private readonly messages: Model<Message>,
   ) {}
 
   async findMessages(dto: MessageHistoryDTO & { send_to: string }) {
-    const messages = await this.messageModel
+    const messages = await this.messages
       .find({
         $or: [
           {
@@ -41,12 +41,12 @@ export class MongoMessageRepository implements IMessageRepository {
     // delete undefined values
     Object.keys(dto).forEach((key: string) => !dto[key] && delete dto[key])
 
-    const messages = await this.messageModel.find(dto).exec()
+    const messages = await this.messages.find(dto).exec()
     return messages
   }
 
   async findAllSenders(send_to: string) {
-    const senders = await this.messageModel
+    const senders = await this.messages
       .find({
         send_to,
       })
@@ -56,7 +56,7 @@ export class MongoMessageRepository implements IMessageRepository {
   }
 
   async findMessageByUUID(uuid: string) {
-    const message = await this.messageModel.findOne({
+    const message = await this.messages.findOne({
       uuid,
     })
 
@@ -64,7 +64,7 @@ export class MongoMessageRepository implements IMessageRepository {
   }
 
   async createMessage(dto: CreateMessageDTO & { send_from: string }) {
-    const createdMessage = new this.messageModel({
+    const createdMessage = new this.messages({
       ...dto,
       uuid: randomUUID().toString(),
       status: "sent",
@@ -74,7 +74,7 @@ export class MongoMessageRepository implements IMessageRepository {
   }
 
   async updateMessage(dto: UpdateMessageDTO) {
-    const updatedMessage = await this.messageModel.findOneAndUpdate(
+    const updatedMessage = await this.messages.findOneAndUpdate(
       {
         uuid: dto.uuid,
       },

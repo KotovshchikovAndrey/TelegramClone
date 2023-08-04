@@ -3,9 +3,11 @@ import { MongooseModule } from "@nestjs/mongoose"
 import { ConfigModule, ConfigService } from "@nestjs/config"
 import { GraphQLModule } from "@nestjs/graphql"
 import { ApolloDriverConfig, ApolloDriver } from "@nestjs/apollo"
-import { join } from "path"
 import { getMongoConnection } from "./db/mongo.connection"
 import { MessageModule } from "./message/message.module"
+import { ConversationModule } from "./conversation/conversation.module"
+import { join } from "path"
+import { FileModule } from "./file/file.module"
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { MessageModule } from "./message/message.module"
       autoSchemaFile: join(process.cwd(), "src/schema.gql"),
     }),
     MessageModule,
+    ConversationModule,
+    FileModule,
   ],
 })
 export class AppModule {}

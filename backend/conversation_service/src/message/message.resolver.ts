@@ -1,19 +1,18 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql"
-import { MessageService } from "./services/message.service"
+import { MessageService } from "./message.service"
 import { Interlocutor, Message } from "./message.entity"
 import { CurrentUser } from "./decorators/auth.decorator"
 
 import * as GraphQLUpload from "graphql-upload/GraphQLUpload.js"
-import * as Upload from "graphql-upload/Upload.js"
+import { FileUpload } from "src/file/file.types"
 
-import { FileUpload } from "./messages.types"
 import {
   CreateMessageDTO,
   CurrentUserDTO,
-  FileDTO,
   MessageHistoryDTO,
   UpdateMessageDTO,
 } from "./message.dto"
+import { FileDTO } from "src/file/file.dto"
 
 @Resolver()
 export class MessageResolver {

@@ -34,4 +34,4 @@
 **.settings/
 **.sublime-workspace
 
-**/message_service/src/assets
+**/conversation_service/src/assets

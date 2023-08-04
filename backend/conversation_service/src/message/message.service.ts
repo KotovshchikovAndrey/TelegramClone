@@ -1,26 +1,28 @@
 import { Injectable, Inject } from "@nestjs/common"
-import { IMessageRepository } from "../repositories/interfaces/message.repository"
+import axios from "axios"
+import { IMessageRepository } from "./repositories/interfaces/message.repository"
+import { FileService } from "src/file/file.service"
+import { ConversationService } from "src/conversation/conversation.service"
+import { FileDTO } from "src/file/file.dto"
 import {
   CreateMessageDTO,
   CurrentUserDTO,
-  FileDTO,
   MessageHistoryDTO,
   UpdateMessageDTO,
-} from "../message.dto"
-import axios from "axios"
-import { FileService } from "./file.service"
+} from "./message.dto"
 
 @Injectable()
 export class MessageService {
   constructor(
     @Inject("MessageRepository")
-    private readonly messageRepository: IMessageRepository,
+    private readonly repository: IMessageRepository,
     private readonly fileService: FileService,
+    private readonly conversationService: ConversationService,
   ) {}
 
   async getMessageHistory(currentUser: CurrentUserDTO, dto: MessageHistoryDTO) {
     const userUUID = currentUser.user_uuid
-    return this.messageRepository.findMessages({
+    return this.repository.findMessages({
       ...dto,
       send_to: userUUID,
     })
@@ -28,7 +30,7 @@ export class MessageService {
 
   async getNotReceivedMessages(currentUser: CurrentUserDTO) {
     const userUUID = currentUser.user_uuid
-    return this.messageRepository.findMessagesBy({
+    return this.repository.findMessagesBy({
       send_to: userUUID,
       status: "sent",
     })
@@ -36,7 +38,7 @@ export class MessageService {
 
   async getAllInterlocutors(currentUser: CurrentUserDTO) {
     const userUUID = currentUser.user_uuid
-    const sendersUUIDS = await this.messageRepository.findAllSenders(userUUID)
+    const sendersUUIDS = await this.repository.findAllSenders(userUUID)
 
     try {
       const authServiceHost = "http://127.0.0.1:8000/api/v1"
@@ -46,7 +48,7 @@ export class MessageService {
 
       return response.data
     } catch (error) {
-      console.log(error)
+      throw Error("Service Unavailable!")
     }
   }
 
@@ -60,7 +62,7 @@ export class MessageService {
       dto.media_url = await this.fileService.uploadFiles(messageFiles)
     }
 
-    return this.messageRepository.createMessage({
+    return this.repository.createMessage({
       ...dto,
       send_from: userUUID,
     })
@@ -71,7 +73,7 @@ export class MessageService {
     dto: UpdateMessageDTO,
     messageFiles?: FileDTO[],
   ) {
-    const message = await this.messageRepository.findMessageByUUID(dto.uuid)
+    const message = await this.repository.findMessageByUUID(dto.uuid)
     if (!message) {
       throw Error("Message does not exists!")
     }
@@ -86,6 +88,6 @@ export class MessageService {
         ? await this.fileService.updateFiles(message.media_url, messageFiles)
         : await this.fileService.uploadFiles(messageFiles)
 
-    return this.messageRepository.updateMessage(dto)
+    return this.repository.updateMessage(dto)
   }
 }

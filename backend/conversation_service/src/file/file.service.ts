@@ -1,4 +1,4 @@
-import { FileDTO } from "../message.dto"
+import { FileDTO } from "./file.dto"
 import { resolve } from "path"
 import { randomUUID, createHash } from "crypto"
 
@@ -80,7 +80,7 @@ export class DefaultFileService extends FileService {
 
     const uploadedFilesHash = zipName.split("_")[1].split(".")[0]
     if (newFilesHash === uploadedFilesHash) {
-      return
+      return zipName
     }
 
     const zipPath = resolve(this.uploadPath, zipName)

@@ -26,6 +26,13 @@ type Interlocutor {
   about_me: String
 }
 
+type ConversationMember {
+  uuid: String!
+  is_active: Boolean!
+  join_date: DateTime!
+  leave_date: DateTime
+}
+
 type Query {
   getMessageHistory(dto: MessageHistoryDTO!): [Message]!
   getNotRecievedMessages: [Message]!

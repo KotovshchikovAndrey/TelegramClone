@@ -10,7 +10,7 @@ export const CurrentUser = createParamDecorator(
 
     const userSession = headers["user-session"]
     if (!userSession) {
-      throw Error("Unauthorized")
+      throw Error("Unauthorized!")
     }
 
     try {
@@ -26,7 +26,7 @@ export const CurrentUser = createParamDecorator(
 
       return response.data
     } catch (error) {
-      console.log(error)
+      throw Error("Unauthorized!")
     }
   },
 )
