@@ -40,6 +40,10 @@ export class ConversationMember {
   @Prop({ required: true })
   user: string
 
+  @Prop({ default: false })
+  @Field()
+  is_admin: boolean
+
   @Prop({ default: true })
   @Field()
   is_active: boolean

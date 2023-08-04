@@ -14,8 +14,14 @@ export class CreateConversationDTO {
 }
 
 export class CreateMemberDTO {
-  conservation: string
+  conversation: string
   user: string
+  is_admin: boolean
+}
+
+export class CreateMembersDTO {
+  conversation: string
+  members: Omit<CreateMemberDTO, "conservation">[] = []
 }
 
 export class CreateMessageDTO {
@@ -23,6 +29,10 @@ export class CreateMessageDTO {
   @MaxLength(500)
   @IsNotEmpty()
   text: string
+
+  @Field()
+  @IsNotEmpty()
+  conversation: string
 
   media_url?: string
 }

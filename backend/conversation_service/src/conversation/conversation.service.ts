@@ -4,6 +4,7 @@ import { User } from "src/app.entity"
 import {
   CreateConversationDTO,
   CreateMemberDTO,
+  CreateMembersDTO,
   CreateMessageDTO,
 } from "./conversation.dto"
 
@@ -29,5 +30,51 @@ export class ConversationService {
     return newMember
   }
 
-  async createConversationMessage(currentUser: User, dto: CreateMessageDTO) {}
+  async addMembersToConservation(currentUser: User, dto: CreateMembersDTO) {
+    const conversation = await this.repository.findConversationByUUID(
+      dto.conversation,
+    )
+
+    if (!conversation) {
+      throw Error("Conservation does not exists!")
+    }
+
+    const currentMember =
+      conversation.members.find(
+        (member) => member.user === currentUser.user_uuid,
+      ) ?? null
+
+    if (!currentMember || !currentMember.is_admin) {
+      throw Error("Forbidden!")
+    }
+
+    const newMembers = await this.repository.createConversationMembers(dto)
+    return newMembers
+  }
+
+  async createConversationMessage(currentUser: User, dto: CreateMessageDTO) {
+    const conversation = await this.repository.findConversationByUUID(
+      dto.conversation,
+    )
+
+    if (!conversation) {
+      throw Error("Conservation does not exists!")
+    }
+
+    const currentMember =
+      conversation.members.find(
+        (member) => member.user === currentUser.user_uuid,
+      ) ?? null
+
+    if (!currentMember) {
+      throw Error("Forbidden!")
+    }
+
+    const newMessage = await this.repository.createMessage({
+      ...dto,
+      sender: currentMember.user,
+    })
+
+    return newMessage
+  }
 }
