@@ -5,9 +5,11 @@ import { Model } from "mongoose"
 import { randomUUID } from "crypto"
 import {
   CreateMessageDTO,
+  FindAllMediaDTO,
   FindMessageDTO,
   MessageHistoryDTO,
   UpdateMessageDTO,
+  UpdateMessageStatusDTO,
 } from "../message.dto"
 
 export class MongoMessageRepository implements IMessageRepository {
@@ -29,9 +31,9 @@ export class MongoMessageRepository implements IMessageRepository {
           },
         ],
       })
+      .sort({ created_at: -1 })
       .skip(dto.offset)
       .limit(dto.limit)
-      .sort("created_at")
       .exec()
 
     return messages
@@ -51,14 +53,17 @@ export class MongoMessageRepository implements IMessageRepository {
         send_to,
       })
       .distinct("send_from")
+      .exec()
 
     return senders
   }
 
   async findMessageByUUID(uuid: string) {
-    const message = await this.messages.findOne({
-      uuid,
-    })
+    const message = await this.messages
+      .findOne({
+        uuid,
+      })
+      .exec()
 
     return message
   }
@@ -74,14 +79,53 @@ export class MongoMessageRepository implements IMessageRepository {
   }
 
   async updateMessage(dto: UpdateMessageDTO) {
-    const updatedMessage = await this.messages.findOneAndUpdate(
-      {
-        uuid: dto.uuid,
-      },
-      { text: dto.text, media_url: dto.media_url },
-      { new: true },
-    )
+    const updatedMessage = await this.messages
+      .findOneAndUpdate(
+        {
+          uuid: dto.uuid,
+        },
+        { text: dto.text, media_url: dto.media_url },
+        { new: true },
+      )
+      .exec()
 
     return updatedMessage
+  }
+
+  async updateMessageStatus(dto: UpdateMessageStatusDTO) {
+    const updatedMessage = await this.messages
+      .findOneAndUpdate(
+        {
+          uuid: dto.uuid,
+        },
+        { status: dto.status },
+        { new: true },
+      )
+      .exec()
+
+    return updatedMessage
+  }
+
+  async findAllMedia(dto: FindAllMediaDTO & { send_from: string }) {
+    const media = await this.messages
+      .find({
+        $or: [
+          {
+            send_to: dto.send_to,
+            send_from: dto.send_from,
+          },
+          {
+            send_to: dto.send_from,
+            send_from: dto.send_to,
+          },
+        ],
+      })
+      .sort({ created_at: -1 })
+      .skip(dto.offset)
+      .limit(dto.limit)
+      .distinct("media_url")
+      .exec()
+
+    return media
   }
 }

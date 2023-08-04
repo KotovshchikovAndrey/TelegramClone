@@ -1,5 +1,4 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common"
-import { ConfigService } from "@nestjs/config"
 import { GqlExecutionContext } from "@nestjs/graphql"
 import axios from "axios"
 

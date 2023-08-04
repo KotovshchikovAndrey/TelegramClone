@@ -1,18 +1,20 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql"
 import { MessageService } from "./message.service"
-import { Interlocutor, Message } from "./message.entity"
+import { Interlocutor, MediaHistory, Message } from "./message.entity"
 import { CurrentUser } from "./decorators/auth.decorator"
+import { User } from "src/app.entity"
 
 import * as GraphQLUpload from "graphql-upload/GraphQLUpload.js"
 import { FileUpload } from "src/file/file.types"
 
+import { FileDTO } from "src/file/file.dto"
 import {
   CreateMessageDTO,
-  CurrentUserDTO,
+  FindAllMediaDTO,
   MessageHistoryDTO,
   UpdateMessageDTO,
+  UpdateMessageStatusDTO,
 } from "./message.dto"
-import { FileDTO } from "src/file/file.dto"
 
 @Resolver()
 export class MessageResolver {
@@ -20,25 +22,33 @@ export class MessageResolver {
 
   @Query(() => [Message], { nullable: "items" })
   async getMessageHistory(
-    @CurrentUser() currentUser: CurrentUserDTO,
+    @CurrentUser() currentUser: User,
     @Args("dto") dto: MessageHistoryDTO,
   ) {
     return this.messageService.getMessageHistory(currentUser, dto)
   }
 
   @Query(() => [Message], { nullable: "items" })
-  async getNotRecievedMessages(@CurrentUser() currentUser: CurrentUserDTO) {
+  async getNotRecievedMessages(@CurrentUser() currentUser: User) {
     return this.messageService.getNotReceivedMessages(currentUser)
   }
 
   @Query(() => [Interlocutor], { nullable: "items" })
-  async getAllInterlocutors(@CurrentUser() currentUser: CurrentUserDTO) {
+  async getAllInterlocutors(@CurrentUser() currentUser: User) {
     return this.messageService.getAllInterlocutors(currentUser)
+  }
+
+  @Query(() => MediaHistory)
+  async getAllMediaInChat(
+    @CurrentUser() currentUser: User,
+    @Args("dto") dto: FindAllMediaDTO,
+  ) {
+    return this.messageService.getAllMediaInChat(currentUser, dto)
   }
 
   @Mutation(() => Message)
   async createMessage(
-    @CurrentUser() currentUser: CurrentUserDTO,
+    @CurrentUser() currentUser: User,
     @Args("dto") dto: CreateMessageDTO,
     @Args({ name: "files", type: () => [GraphQLUpload], defaultValue: [] })
     files: Promise<FileUpload>[],
@@ -53,7 +63,7 @@ export class MessageResolver {
 
   @Mutation(() => Message)
   async updateMessage(
-    @CurrentUser() currentUser: CurrentUserDTO,
+    @CurrentUser() currentUser: User,
     @Args("dto") dto: UpdateMessageDTO,
     @Args({ name: "files", type: () => [GraphQLUpload], defaultValue: [] })
     files: Promise<FileUpload>[],
@@ -64,5 +74,13 @@ export class MessageResolver {
     }
 
     return this.messageService.updateMessage(currentUser, dto, messageFiles)
+  }
+
+  @Mutation(() => Message)
+  async setMessageStatus(
+    @CurrentUser() currentUser: User,
+    @Args("dto") dto: UpdateMessageStatusDTO,
+  ) {
+    return this.messageService.setMessageStatus(currentUser, dto)
   }
 }

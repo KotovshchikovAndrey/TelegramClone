@@ -1,7 +1,11 @@
 import { Inject, Injectable } from "@nestjs/common"
 import { IConversationRepository } from "./repositories/interfaces/conversation.repository"
-import { ConversationMember } from "./conversation.entity"
-import { ConversationMemberDTO } from "./conversation.dto"
+import { User } from "src/app.entity"
+import {
+  CreateConversationDTO,
+  CreateMemberDTO,
+  CreateMessageDTO,
+} from "./conversation.dto"
 
 @Injectable()
 export class ConversationService {
@@ -12,32 +16,18 @@ export class ConversationService {
 
   async getConversation(uuid: string) {
     const conversation = await this.repository.findConversationByUUID(uuid)
-    if (conversation) {
-      return conversation
-    }
+    return conversation
+  }
 
-    const newConversation = await this.createDialog()
+  async createConversation(dto: CreateConversationDTO) {
+    const newConversation = await this.repository.createConversation(dto)
     return newConversation
   }
 
-  async createDialog() {
-    const newConversation = await this.repository.createConversation({
-      is_group: false,
-    })
-
-    return newConversation
+  async addMemberToConservation(dto: CreateMemberDTO) {
+    const newMember = await this.repository.createConversationMember(dto)
+    return newMember
   }
 
-  async setConversationMembers(conversation: string, users: string[]) {
-    const members = users.map((user) => {
-      const member = new ConversationMemberDTO()
-      member.conversation = conversation
-      member.user = user
-      member.is_active = true
-
-      return member
-    })
-
-    return this.repository.updateConversationMembers(conversation, members)
-  }
+  async createConversationMessage(currentUser: User, dto: CreateMessageDTO) {}
 }

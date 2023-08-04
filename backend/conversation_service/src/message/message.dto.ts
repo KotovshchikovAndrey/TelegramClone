@@ -1,5 +1,5 @@
 import { InputType, Field, Int } from "@nestjs/graphql"
-import { IsInt, MaxLength, IsNotEmpty } from "class-validator"
+import { IsInt, MaxLength, IsNotEmpty, IsIn } from "class-validator"
 
 @InputType()
 export class CreateMessageDTO {
@@ -50,10 +50,24 @@ export class FindMessageDTO {
   status?: "sent" | "received" | "readed"
 }
 
-export class CurrentUserDTO {
-  user_uuid: string
-  name: string
-  surname: string
-  phone: string
-  email: string
+@InputType()
+export class UpdateMessageStatusDTO {
+  @Field()
+  uuid: string
+
+  @Field()
+  @IsIn(["sent", "received", "readed"])
+  status: "sent" | "received" | "readed"
+}
+
+@InputType()
+export class FindAllMediaDTO {
+  @Field()
+  send_to: string
+
+  @Field(() => Int)
+  limit: number
+
+  @Field(() => Int, { defaultValue: 0 })
+  offset: number = 0
 }

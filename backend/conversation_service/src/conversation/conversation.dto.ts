@@ -4,10 +4,7 @@ import { MaxLength, IsNotEmpty } from "class-validator"
 @InputType()
 export class CreateConversationDTO {
   @Field()
-  is_group: boolean
-
-  @Field({ nullable: true })
-  name?: string
+  name: string
 
   @Field({ nullable: true })
   description?: string
@@ -16,8 +13,16 @@ export class CreateConversationDTO {
   avatar?: string
 }
 
-export class ConversationMemberDTO {
+export class CreateMemberDTO {
+  conservation: string
   user: string
-  conversation: string
-  is_active: boolean
+}
+
+export class CreateMessageDTO {
+  @Field()
+  @MaxLength(500)
+  @IsNotEmpty()
+  text: string
+
+  media_url?: string
 }

@@ -7,10 +7,7 @@ import {
   ConversationMember,
   ConversationMessage,
 } from "../conversation.entity"
-import {
-  ConversationMemberDTO,
-  CreateConversationDTO,
-} from "../conversation.dto"
+import { CreateConversationDTO, CreateMemberDTO } from "../conversation.dto"
 
 export class MongoConversationRepository implements IConversationRepository {
   constructor(
@@ -41,18 +38,13 @@ export class MongoConversationRepository implements IConversationRepository {
     return newConversation.save()
   }
 
-  async updateConversationMembers(
-    conversation: string,
-    members: ConversationMemberDTO[],
-  ) {
-    const updatedConversation = await this.conversations.findOneAndUpdate(
-      {
-        uuid: conversation,
-      },
-      { members },
-      { new: true },
-    )
+  async createConversationMember(dto: CreateMemberDTO) {
+    const newMember = new this.conversationMembers({
+      ...dto,
+      uuid: randomUUID().toString(),
+      is_active: true,
+    })
 
-    return updatedConversation
+    return newMember.save()
   }
 }

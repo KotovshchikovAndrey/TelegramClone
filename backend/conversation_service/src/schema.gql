@@ -26,6 +26,10 @@ type Interlocutor {
   about_me: String
 }
 
+type MediaHistory {
+  media_urls: [String]!
+}
+
 type ConversationMember {
   uuid: String!
   is_active: Boolean!
@@ -37,6 +41,7 @@ type Query {
   getMessageHistory(dto: MessageHistoryDTO!): [Message]!
   getNotRecievedMessages: [Message]!
   getAllInterlocutors: [Interlocutor]!
+  getAllMediaInChat(dto: FindAllMediaDTO!): MediaHistory!
 }
 
 input MessageHistoryDTO {
@@ -45,9 +50,16 @@ input MessageHistoryDTO {
   offset: Int! = 0
 }
 
+input FindAllMediaDTO {
+  send_to: String!
+  limit: Int!
+  offset: Int! = 0
+}
+
 type Mutation {
   createMessage(dto: CreateMessageDTO!, files: [Upload!]! = []): Message!
   updateMessage(dto: UpdateMessageDTO!, files: [Upload!]! = []): Message!
+  setMessageStatus(dto: UpdateMessageStatusDTO!): Message!
 }
 
 input CreateMessageDTO {
@@ -61,4 +73,9 @@ scalar Upload
 input UpdateMessageDTO {
   uuid: String!
   text: String!
+}
+
+input UpdateMessageStatusDTO {
+  uuid: String!
+  status: String!
 }

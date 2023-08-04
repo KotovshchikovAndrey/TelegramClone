@@ -57,4 +57,10 @@ export class Interlocutor {
   about_me?: string
 }
 
+@ObjectType()
+export class MediaHistory {
+  @Field(() => [String], { nullable: "items" })
+  media_urls: string[]
+}
+
 export const MessageSchema = SchemaFactory.createForClass(Message)

@@ -4,12 +4,15 @@ import { IMessageRepository } from "./repositories/interfaces/message.repository
 import { FileService } from "src/file/file.service"
 import { ConversationService } from "src/conversation/conversation.service"
 import { FileDTO } from "src/file/file.dto"
+import { User } from "src/app.entity"
 import {
   CreateMessageDTO,
-  CurrentUserDTO,
+  FindAllMediaDTO,
   MessageHistoryDTO,
   UpdateMessageDTO,
+  UpdateMessageStatusDTO,
 } from "./message.dto"
+import { MediaHistory } from "./message.entity"
 
 @Injectable()
 export class MessageService {
@@ -20,7 +23,7 @@ export class MessageService {
     private readonly conversationService: ConversationService,
   ) {}
 
-  async getMessageHistory(currentUser: CurrentUserDTO, dto: MessageHistoryDTO) {
+  async getMessageHistory(currentUser: User, dto: MessageHistoryDTO) {
     const userUUID = currentUser.user_uuid
     return this.repository.findMessages({
       ...dto,
@@ -28,7 +31,7 @@ export class MessageService {
     })
   }
 
-  async getNotReceivedMessages(currentUser: CurrentUserDTO) {
+  async getNotReceivedMessages(currentUser: User) {
     const userUUID = currentUser.user_uuid
     return this.repository.findMessagesBy({
       send_to: userUUID,
@@ -36,7 +39,7 @@ export class MessageService {
     })
   }
 
-  async getAllInterlocutors(currentUser: CurrentUserDTO) {
+  async getAllInterlocutors(currentUser: User) {
     const userUUID = currentUser.user_uuid
     const sendersUUIDS = await this.repository.findAllSenders(userUUID)
 
@@ -53,7 +56,7 @@ export class MessageService {
   }
 
   async createMessage(
-    currentUser: CurrentUserDTO,
+    currentUser: User,
     dto: CreateMessageDTO,
     messageFiles?: FileDTO[],
   ) {
@@ -69,7 +72,7 @@ export class MessageService {
   }
 
   async updateMessage(
-    currentUser: CurrentUserDTO,
+    currentUser: User,
     dto: UpdateMessageDTO,
     messageFiles?: FileDTO[],
   ) {
@@ -89,5 +92,31 @@ export class MessageService {
         : await this.fileService.uploadFiles(messageFiles)
 
     return this.repository.updateMessage(dto)
+  }
+
+  async setMessageStatus(currentUser: User, dto: UpdateMessageStatusDTO) {
+    const message = await this.repository.findMessageByUUID(dto.uuid)
+    if (!message) {
+      throw Error("Message does not exists!")
+    }
+
+    if (message.send_to !== currentUser.user_uuid) {
+      throw Error("forbidden!")
+    }
+
+    const updatedMessage = await this.repository.updateMessageStatus(dto)
+    return updatedMessage
+  }
+
+  async getAllMediaInChat(currentUser: User, dto: FindAllMediaDTO) {
+    const mediaUrls = await this.repository.findAllMedia({
+      ...dto,
+      send_from: currentUser.user_uuid,
+    })
+
+    const mediaHistory = new MediaHistory()
+    mediaHistory.media_urls = mediaUrls
+
+    return mediaHistory
   }
 }
