@@ -32,6 +32,8 @@ type MediaHistory {
 
 type ConversationMember {
   uuid: String!
+  conversation: String!
+  is_admin: Boolean!
   is_active: Boolean!
   join_date: DateTime!
   leave_date: DateTime

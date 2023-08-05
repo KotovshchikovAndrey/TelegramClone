@@ -25,9 +25,8 @@ export class Conversation {
   @Field({ nullable: true })
   avatar?: string
 
-  @Prop({ type: [{ type: String, ref: "ConversationMember", default: [] }] })
   @Field(() => ConversationMember, { nullable: "items" })
-  members: ConversationMember[]
+  members: Omit<ConversationMember, "conservation">[]
 }
 
 @Schema()
@@ -39,6 +38,10 @@ export class ConversationMember {
 
   @Prop({ required: true })
   user: string
+
+  @Prop({ type: String, ref: "Conversation", required: true })
+  @Field(() => String, { nullable: false })
+  conversation: string
 
   @Prop({ default: false })
   @Field()

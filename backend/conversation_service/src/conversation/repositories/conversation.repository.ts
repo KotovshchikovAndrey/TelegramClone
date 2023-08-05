@@ -24,14 +24,56 @@ export class MongoConversationRepository implements IConversationRepository {
     private readonly conversationMessages: Model<ConversationMessage>,
   ) {}
 
-  async findConversationByUUID(uuid: string) {
-    const conversation = await this.conversations
-      .findOne({
-        uuid,
-      })
+  async findAllUserConversations(user: string) {
+    const conservations = await this.conversations
+      .aggregate([
+        {
+          $lookup: {
+            from: "conversationmembers",
+            localField: "uuid",
+            foreignField: "conversation",
+            as: "members",
+          },
+        },
+        { $match: { "members.user": user } },
+        {
+          $project: {
+            _id: 0,
+            messages: 0,
+            "members._id": 0,
+            "members.conversation": 0,
+          },
+        },
+      ])
       .exec()
 
-    return conversation
+    return conservations
+  }
+
+  async findConversationByUUID(uuid: string) {
+    const conversation = await this.conversations
+      .aggregate([
+        { $match: { uuid } },
+        {
+          $lookup: {
+            from: "conversationmembers",
+            localField: "uuid",
+            foreignField: "conversation",
+            as: "members",
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            messages: 0,
+            "members._id": 0,
+            "members.conversation": 0,
+          },
+        },
+      ])
+      .exec()
+
+    return conversation.length !== 0 ? conversation[0] : null
   }
 
   async createMessage(dto: CreateMessageDTO & { sender: string }) {

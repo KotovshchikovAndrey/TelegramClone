@@ -7,6 +7,7 @@ import {
 } from "./conversation.entity"
 import { ConversationService } from "./conversation.service"
 import { MongoConversationRepository } from "./repositories/conversation.repository"
+import { ConversationController } from './conversation.controller';
 
 @Module({
   imports: [
@@ -24,5 +25,6 @@ import { MongoConversationRepository } from "./repositories/conversation.reposit
     },
   ],
   exports: [ConversationService],
+  controllers: [ConversationController],
 })
 export class ConversationModule {}

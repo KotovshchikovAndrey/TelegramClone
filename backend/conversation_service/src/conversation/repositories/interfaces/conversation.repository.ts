@@ -11,6 +11,7 @@ import {
 } from "src/conversation/conversation.dto"
 
 export interface IConversationRepository {
+  findAllUserConversations(user: string): Promise<Conversation[]>
   findConversationByUUID(uuid: string): Promise<Conversation | null>
   createConversation(dto: CreateConversationDTO): Promise<Conversation>
   createConversationMember(dto: CreateMemberDTO): Promise<ConversationMember>

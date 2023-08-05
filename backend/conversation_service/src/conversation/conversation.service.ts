@@ -7,6 +7,7 @@ import {
   CreateMembersDTO,
   CreateMessageDTO,
 } from "./conversation.dto"
+import { ConversationMember } from "./conversation.entity"
 
 @Injectable()
 export class ConversationService {
@@ -18,6 +19,14 @@ export class ConversationService {
   async getConversation(uuid: string) {
     const conversation = await this.repository.findConversationByUUID(uuid)
     return conversation
+  }
+
+  async getAllUserConversations(currentUser: User) {
+    const conversations = await this.repository.findAllUserConversations(
+      currentUser.user_uuid,
+    )
+
+    return conversations
   }
 
   async createConversation(dto: CreateConversationDTO) {
@@ -39,16 +48,20 @@ export class ConversationService {
       throw Error("Conservation does not exists!")
     }
 
+    const { members } = conversation
     const currentMember =
-      conversation.members.find(
-        (member) => member.user === currentUser.user_uuid,
-      ) ?? null
+      members.find((member) => member.user === currentUser.user_uuid) ?? null
 
     if (!currentMember || !currentMember.is_admin) {
       throw Error("Forbidden!")
     }
 
-    const newMembers = await this.repository.createConversationMembers(dto)
+    const membersForCreate = this.excludeDuplicateMembers(members, dto)
+    const newMembers = await this.repository.createConversationMembers({
+      conversation: dto.conversation,
+      members: membersForCreate,
+    })
+
     return newMembers
   }
 
@@ -76,5 +89,17 @@ export class ConversationService {
     })
 
     return newMessage
+  }
+
+  private excludeDuplicateMembers(
+    existsMembers: ConversationMember[],
+    newMembers: CreateMembersDTO,
+  ) {
+    const existsMembersSet = new Set(existsMembers.map((member) => member.user))
+    const membersWithoutDuplicate = newMembers.members.filter(
+      (member) => !existsMembersSet.has(member.user),
+    )
+
+    return membersWithoutDuplicate
   }
 }
