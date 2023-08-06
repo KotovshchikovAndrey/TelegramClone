@@ -1,8 +1,8 @@
 import typing as tp
 
 import httpx
-from abc import abstractmethod
 from httpx import AsyncClient, Response
+from abc import abstractmethod
 from fastapi import Request
 
 
@@ -19,7 +19,8 @@ class ApiAdapter(IApiAdapter):
         self._client = AsyncClient(base_url=base_url)
 
     async def get_response(self, request: Request):
-        url = httpx.URL(path=request.url.path, query=request.url.query.encode("utf-8"))
+        path = request.path_params["path"]
+        url = httpx.URL(path=path, query=request.url.query.encode("utf-8"))
         api_request = self._client.build_request(
             method=request.method,
             url=url,
@@ -37,8 +38,9 @@ class ApiAdapterFactory:
     def __init__(self) -> None:
         self._adapters = {
             "message": ApiAdapter(base_url="http://127.0.0.1:3000/graphql"),
+            "auth": ApiAdapter(base_url="http://127.0.0.1:8000/api/v1"),
         }
 
-    def get_api_adapter(self, name: str) -> IApiAdapter | None:
-        api_adapter = self._adapters.get(name, None)
+    def get_api_adapter(self, name: str) -> IApiAdapter:
+        api_adapter = self._adapters[name]
         return api_adapter

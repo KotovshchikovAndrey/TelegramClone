@@ -85,7 +85,7 @@ export class ConversationService {
 
     const newMessage = await this.repository.createMessage({
       ...dto,
-      sender: currentMember.user,
+      sender: currentMember.uuid,
     })
 
     return newMessage

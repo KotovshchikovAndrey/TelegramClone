@@ -7,25 +7,12 @@ export const CurrentUser = createParamDecorator(
     const gqlContext = GqlExecutionContext.create(context).getContext()
     const headers = gqlContext.req.headers
 
-    const userSession = headers["user-session"]
-    if (!userSession) {
+    const authorizer = headers["authorizer"]
+    if (!authorizer) {
       throw Error("Unauthorized!")
     }
 
-    try {
-      const response = await axios.get(
-        "http://127.0.0.1:8000/api/v1/authenticate",
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "User-Session": userSession,
-          },
-        },
-      )
-
-      return response.data
-    } catch (error) {
-      throw Error("Unauthorized!")
-    }
+    const currentUser = JSON.parse(authorizer)
+    return currentUser
   },
 )
