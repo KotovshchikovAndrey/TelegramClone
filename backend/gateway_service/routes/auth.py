@@ -1,16 +1,16 @@
 import typing as tp
 
 import httpx
-from fastapi import APIRouter, BackgroundTasks, HTTPException, status, Request
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
 
 from models.user import CurrentUser
-from routes import api_adapter_factory
+from utils import api_adapter_factory
 
-router = APIRouter()
+router = APIRouter(prefix="/auth")
 
 
-@router.route("/auth/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+@router.route("/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 async def auth_api_proxy(request: Request):
     api_adapter = api_adapter_factory.get_api_adapter("auth")
     api_response = await api_adapter.get_response(request)

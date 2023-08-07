@@ -1,9 +1,9 @@
 import typing as tp
+from abc import abstractmethod
 
 import httpx
-from httpx import AsyncClient, Response
-from abc import abstractmethod
 from fastapi import Request
+from httpx import AsyncClient, Response
 
 
 class IApiAdapter(tp.Protocol):

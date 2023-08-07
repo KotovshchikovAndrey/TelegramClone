@@ -1,0 +1,110 @@
+version: '3.7'
+
+x-zooServers: &zooServers zoo-1:12888:13888;zoo-2:22888:23888;zoo-3:32888:33888
+x-kafkaZookeeperConnect: &kafkaZookeeperConnect zoo-1:12181,zoo-2:22181,zoo-3:32181
+
+services:
+  zoo-1:
+    image: confluentinc/cp-zookeeper:latest
+    hostname: zoo-1
+    ports:
+      - "12181:12181"
+    volumes:
+      - D:/Programs/Kafka/zoo_1/data:/var/lib/zookeeper/data
+      - D:/Programs/Kafka/zoo_1/log:/var/lib/zookeeper/log
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 12181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: *zooServers
+
+  zoo-2:
+    image: confluentinc/cp-zookeeper:latest
+    hostname: zoo-2
+    ports:
+      - "22181:22181"
+    volumes:
+      - D:/Programs/Kafka/zoo_2/data:/var/lib/zookeeper/data
+      - D:/Programs/Kafka/zoo_2/log:/var/lib/zookeeper/log
+    environment:
+      ZOOKEEPER_SERVER_ID: 2
+      ZOOKEEPER_CLIENT_PORT: 22181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: *zooServers
+
+  zoo-3:
+    image: confluentinc/cp-zookeeper:latest
+    hostname: zoo-3
+    ports:
+      - "32181:32181"
+    volumes:
+      - D:/Programs/Kafka/zoo_3/data:/var/lib/zookeeper/data
+      - D:/Programs/Kafka/zoo_3/log:/var/lib/zookeeper/log
+    environment:
+      ZOOKEEPER_SERVER_ID: 3
+      ZOOKEEPER_CLIENT_PORT: 32181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: *zooServers
+
+  kafka-1:
+    image: confluentinc/cp-kafka:latest
+    hostname: kafka-1
+    ports:
+      - "19092:19092"
+    volumes:
+      - D:/Programs/Kafka/kafka_1:/var/lib/kafka/data
+    depends_on:
+      - zoo-1
+      - zoo-2
+      - zoo-3
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: *kafkaZookeeperConnect
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:19092
+      # KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:19092,PLAINTEXT://kafka-1:19092
+      # KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${DOCKER_HOST_IP:-kafka-1}:19092
+
+  kafka-2:
+    image: confluentinc/cp-kafka:latest
+    hostname: kafka-2
+    ports:
+      - "29092:29092"
+    volumes:
+      - D:/Programs/Kafka/kafka_2:/var/lib/kafka/data
+    depends_on:
+      - zoo-1
+      - zoo-2
+      - zoo-3
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: *kafkaZookeeperConnect
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092
+      # KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092,PLAINTEXT://kafka-2:29092
+      # KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${DOCKER_HOST_IP:-kafka-2}:29092
+
+  kafka-3:
+    image: confluentinc/cp-kafka:latest
+    hostname: kafka-3
+    ports:
+      - "39092:39092"
+    volumes:
+      - D:/Programs/Kafka/kafka_3:/var/lib/kafka/data
+    depends_on:
+      - zoo-1
+      - zoo-2
+      - zoo-3
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: *kafkaZookeeperConnect
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:39092
+      # KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:39092,PLAINTEXT://kafka-3:39092
+      # KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${DOCKER_HOST_IP:-kafka-3}:39092
