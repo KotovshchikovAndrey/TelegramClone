@@ -9,8 +9,14 @@ class KafkaClient:
         self.port = port
         self.host = host
 
-    async def send_message(self, topic_name: str, message: str):
-        await self._producer.send_and_wait(topic_name, message.encode(), partition=4)
+    async def send_message(self, topic_name: str, message: str, partition: int = 0):
+        await self._producer.send_and_wait(
+            topic=topic_name,
+            value=message.encode(),
+            partition=partition,
+        )
+
+        print("sended!")
 
     async def connect(self):
         self._producer = AIOKafkaProducer(bootstrap_servers=f"{self.host}:{self.port}")

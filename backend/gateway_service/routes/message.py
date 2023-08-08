@@ -52,5 +52,5 @@ async def send_message(websocket: WebSocket, client_id: int):
 
 @router.get("/kafka")
 async def kafka_consumer():
-    await kafka.send_message("new_test_topic", message="test")
+    await kafka.send_message("messages", message="test_1")
     return 200
