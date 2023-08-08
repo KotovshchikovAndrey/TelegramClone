@@ -5,6 +5,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
 
 from models.user import CurrentUser
+from settings import settings
 from utils import api_adapter_factory
 
 router = APIRouter(prefix="/auth")
@@ -28,7 +29,7 @@ async def get_current_user(request: Request):
     if user_session is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
-    async with httpx.AsyncClient(base_url="http://127.0.0.1:8000/api/v1") as client:
+    async with httpx.AsyncClient(base_url=settings.auth_api_url) as client:
         try:
             response = await client.get(
                 "/authenticate",

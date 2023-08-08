@@ -5,6 +5,8 @@ import httpx
 from fastapi import Request
 from httpx import AsyncClient, Response
 
+from settings import settings
+
 
 class IApiAdapter(tp.Protocol):
     @abstractmethod
@@ -37,8 +39,8 @@ class ApiAdapterFactory:
 
     def __init__(self) -> None:
         self._adapters = {
-            "message": ApiAdapter(base_url="http://127.0.0.1:3000/graphql"),
-            "auth": ApiAdapter(base_url="http://127.0.0.1:8000/api/v1"),
+            "message": ApiAdapter(base_url=settings.conservation_api_url),
+            "auth": ApiAdapter(base_url=settings.auth_api_url),
         }
 
     def get_api_adapter(self, name: str) -> IApiAdapter:

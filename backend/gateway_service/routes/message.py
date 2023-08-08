@@ -13,7 +13,8 @@ from fastapi.responses import StreamingResponse
 from starlette.datastructures import MutableHeaders
 
 from routes.auth import get_current_user
-from utils import api_adapter_factory, kafka, websocket_manager
+from utils import api_adapter_factory, websocket_manager
+from utils.kafka import producer
 
 router = APIRouter(prefix="/messages")
 
@@ -52,5 +53,5 @@ async def send_message(websocket: WebSocket, client_id: int):
 
 @router.get("/kafka")
 async def kafka_consumer():
-    await kafka.send_message("messages", message="test_1")
+    await producer.send_message(message="test_2")
     return 200
