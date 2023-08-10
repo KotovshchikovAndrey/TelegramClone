@@ -1,11 +1,8 @@
 import typing as tp
 
-import httpx
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, Request
 from fastapi.responses import StreamingResponse
 
-from models.user import CurrentUser
-from settings import settings
 from utils import api_adapter_factory
 
 router = APIRouter(prefix="/auth")
@@ -22,20 +19,3 @@ async def auth_api_proxy(request: Request):
         headers=api_response.headers,
         background=BackgroundTasks([api_response.aclose]),
     )
-
-
-async def get_current_user(request: Request):
-    user_session = request.headers.get("User-Session", None)
-    if user_session is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-
-    async with httpx.AsyncClient(base_url=settings.auth_service_host) as client:
-        try:
-            response = await client.get(
-                "/authenticate",
-                headers={"User-Session": user_session},
-            )
-
-            return CurrentUser(**response.json())
-        except (httpx.TimeoutException, httpx.ConnectError):
-            return None

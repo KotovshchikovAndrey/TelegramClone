@@ -53,7 +53,7 @@ export class MessageResolver {
     @Args({ name: "files", type: () => [GraphQLUpload], defaultValue: [] })
     files: Promise<FileUpload>[],
   ) {
-    let messageFiles: FileDTO[]
+    let messageFiles: FileDTO[] = []
     if (files.length !== 0) {
       messageFiles = await FileDTO.fromFileUploadArray(files)
     }

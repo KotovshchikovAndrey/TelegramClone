@@ -16,13 +16,15 @@ app.include_router(auth_router)
 
 @app.on_event("startup")
 async def startup():
-    await producer.connect()
+    ...
+    # await producer.connect()
     # asyncio.create_task(consumer.connect())
 
 
 @app.on_event("shutdown")
 async def shutdown():
-    await producer.disconect()
+    ...
+    # await producer.disconect()
     # await consumer.disconect()
 
 

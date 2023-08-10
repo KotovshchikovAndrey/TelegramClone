@@ -8,7 +8,7 @@ import { MessageModule } from "./message/message.module"
 import { ConversationModule } from "./conversation/conversation.module"
 import { join } from "path"
 import { FileModule } from "./file/file.module"
-import { KafkaModule } from "./kafka/kafka.module"
+// import { KafkaModule } from "./kafka/kafka.module"
 
 @Module({
   imports: [
@@ -25,7 +25,7 @@ import { KafkaModule } from "./kafka/kafka.module"
     MessageModule,
     ConversationModule,
     FileModule,
-    KafkaModule,
+    // KafkaModule,
   ],
 })
 export class AppModule {}

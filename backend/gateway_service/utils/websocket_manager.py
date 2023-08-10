@@ -10,26 +10,26 @@ class WebSocketManager:
     def __init__(self):
         self._connections = {}
 
-    async def connect(self, room_name: str, websocket: WebSocket):
-        room = self._connections.get(room_name, None)
-        if room is None:
-            self._connections[room_name] = []
+    async def connect(self, channel_name: str, websocket: WebSocket):
+        channel = self._connections.get(channel_name, None)
+        if channel is None:
+            self._connections[channel_name] = []
 
         await websocket.accept()
-        self._connections[room_name].append(websocket)
+        self._connections[channel_name].append(websocket)
 
-    def disconnect(self, room_name: str, websocket: WebSocket):
-        room = self._connections.get(room_name, None)
-        if room is not None:
-            room.remove(websocket)
+    def disconnect(self, channel_name: str, websocket: WebSocket):
+        channel = self._connections.get(channel_name, None)
+        if channel is not None:
+            channel.remove(websocket)
 
-    async def send_room_message(self, room_name: str, message: str):
-        room = self._connections.get(room_name, None)
-        if room is None:
+    async def send_channel_message(self, channel_name: str, message: str):
+        channel = self._connections.get(channel_name, None)
+        if channel is None:
             return
 
         send_message_tasks = []
-        for websocket in room:
+        for websocket in channel:
             task = asyncio.create_task(websocket.send_text(message))
             send_message_tasks.append(task)
 
