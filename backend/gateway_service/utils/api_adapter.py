@@ -39,8 +39,8 @@ class ApiAdapterFactory:
 
     def __init__(self) -> None:
         self._adapters = {
-            "message": ApiAdapter(base_url=settings.conservation_api_url),
-            "auth": ApiAdapter(base_url=settings.auth_api_url),
+            "message": ApiAdapter(base_url=settings.conservation_service_host),
+            "auth": ApiAdapter(base_url=settings.auth_service_host),
         }
 
     def get_api_adapter(self, name: str) -> IApiAdapter:

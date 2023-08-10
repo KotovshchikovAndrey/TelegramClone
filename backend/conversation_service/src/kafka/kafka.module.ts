@@ -1,17 +1,18 @@
 import { Module, OnModuleDestroy, OnModuleInit } from "@nestjs/common"
-import { KafkaClient } from "kafka-node"
 import { KafkaMessagingFactory } from "./kafka.factory"
 import { IKafkaConsumer } from "./kafka.types"
+import { randomUUID } from "crypto"
+import { Kafka } from "kafkajs"
 
 @Module({
   imports: [],
   providers: [
     {
       provide: "KAFKA_CLIENT",
-      useFactory: (): KafkaClient => {
-        const kafkaClient = new KafkaClient({
-          kafkaHost: "localhost:9091",
-          clientId: "conversation-service",
+      useFactory: (): Kafka => {
+        const kafkaClient = new Kafka({
+          clientId: randomUUID(),
+          brokers: ["localhost:9091"], // ЗАМЕНИТЬ НА .env!
         })
 
         return kafkaClient

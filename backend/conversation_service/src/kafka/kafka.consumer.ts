@@ -1,24 +1,33 @@
-import { Consumer, Message } from "kafka-node"
+import { Consumer, KafkaMessage } from "kafkajs"
 
 export class KafkaConsumer implements KafkaConsumer {
   private readonly consumer: Consumer
+  private readonly topicName: string
 
-  constructor(consumer: Consumer) {
+  constructor(consumer: Consumer, topicName: string) {
     this.consumer = consumer
+    this.topicName = topicName
   }
 
   async connect() {
-    this.consumer.on("message", (message) => this.handleMessage(message))
-    console.log("Kafka consumer connected")
-  }
+    await this.consumer.connect()
+    await this.consumer.subscribe({
+      topic: this.topicName,
+      fromBeginning: true,
+    })
 
-  async disconnect() {
-    this.consumer.close(true, () => {
-      console.log("Kafka consumer disconnected")
+    await this.consumer.run({
+      autoCommit: true, // ПОТОМ УБРАТЬ!
+      eachMessage: async ({ topic, partition, message }) =>
+        this.handleMessage(message),
     })
   }
 
-  private async handleMessage(message: Message) {
-    console.log(message)
+  async disconnect() {
+    await this.consumer.disconnect()
+  }
+
+  private async handleMessage(message: KafkaMessage) {
+    console.log(message.value.toString())
   }
 }

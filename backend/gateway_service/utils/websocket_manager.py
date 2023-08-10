@@ -19,13 +19,17 @@ class WebSocketManager:
         self._connections[room_name].append(websocket)
 
     def disconnect(self, room_name: str, websocket: WebSocket):
-        room = self._connections[room_name]
-        room.remove(websocket)
+        room = self._connections.get(room_name, None)
+        if room is not None:
+            room.remove(websocket)
 
     async def send_room_message(self, room_name: str, message: str):
-        room_websockets = self._connections[room_name]
+        room = self._connections.get(room_name, None)
+        if room is None:
+            return
+
         send_message_tasks = []
-        for websocket in room_websockets:
+        for websocket in room:
             task = asyncio.create_task(websocket.send_text(message))
             send_message_tasks.append(task)
 

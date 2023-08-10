@@ -5,8 +5,8 @@ class Settings(BaseSettings):
     server_host: str
     server_port: int
 
-    auth_api_url: str
-    conservation_api_url: str
+    auth_service_host: str
+    conservation_service_host: str
 
     kafka_host: str
     kafka_port: int

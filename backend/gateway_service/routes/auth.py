@@ -29,7 +29,7 @@ async def get_current_user(request: Request):
     if user_session is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
-    async with httpx.AsyncClient(base_url=settings.auth_api_url) as client:
+    async with httpx.AsyncClient(base_url=settings.auth_service_host) as client:
         try:
             response = await client.get(
                 "/authenticate",
