@@ -15,7 +15,7 @@ export class Message {
   @Field()
   text: string
 
-  @Prop({ required: false })
+  @Prop({ required: false, default: null })
   @Field({ nullable: true })
   media_url?: string
 

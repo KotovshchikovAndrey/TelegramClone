@@ -7,7 +7,8 @@ from fastapi import FastAPI
 from routes.auth import router as auth_router
 from routes.message import router as message_router
 from settings import settings
-from utils.kafka import consumer, producer
+
+# from api.utils.kafka import consumer, producer
 
 app = FastAPI()
 app.include_router(message_router)

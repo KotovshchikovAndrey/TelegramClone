@@ -1,7 +1,6 @@
 from uuid import uuid4
 
 from aiokafka import AIOKafkaProducer
-
 from utils.kafka.kafka_interfaces import IKafkaProducer
 
 

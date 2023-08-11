@@ -1,16 +1,27 @@
 import typing as tp
 from datetime import datetime
 
-from pydantic import Base64Bytes, BaseModel, Field
+from pydantic import UUID4, Base64Bytes, BaseModel, Field
 
 
-class PrivateMessageCreate(BaseModel):
+class File(BaseModel):
+    filename: str
+    content: Base64Bytes
+
+
+class PersonalMessageCreate(BaseModel):
     send_to: str
     text: str = Field(max_length=500)
-    files: tp.List[Base64Bytes] = []
+    files: tp.List[File] = []
 
 
-# class PrivateMessage(BaseModel):
+class PersonalMessageUpdate(BaseModel):
+    uuid: str
+    text: str = Field(max_length=500)
+    files: tp.List[File] = []
+
+
+# class PersonalMessage(BaseModel):
 #     uuid: str
 #     text: str
 #     media_url: str | None = None

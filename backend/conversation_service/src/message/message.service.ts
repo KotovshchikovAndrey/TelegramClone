@@ -58,12 +58,10 @@ export class MessageService {
   async createMessage(
     currentUser: User,
     dto: CreateMessageDTO,
-    messageFiles?: FileDTO[],
+    messageFiles: FileDTO[],
   ) {
     const userUUID = currentUser.user_uuid
-    if (messageFiles) {
-      dto.media_url = await this.fileService.uploadFiles(messageFiles)
-    }
+    dto.media_url = await this.fileService.uploadFiles(messageFiles)
 
     return this.repository.createMessage({
       ...dto,
@@ -74,7 +72,7 @@ export class MessageService {
   async updateMessage(
     currentUser: User,
     dto: UpdateMessageDTO,
-    messageFiles?: FileDTO[],
+    messageFiles: FileDTO[],
   ) {
     const message = await this.repository.findMessageByUUID(dto.uuid)
     if (!message) {
@@ -87,7 +85,7 @@ export class MessageService {
     }
 
     dto.media_url =
-      message.media_url !== undefined
+      message.media_url !== null
         ? await this.fileService.updateFiles(message.media_url, messageFiles)
         : await this.fileService.uploadFiles(messageFiles)
 

@@ -10,6 +10,10 @@ export abstract class FileService {
   protected readonly allowedExt = new Set(["jpeg", "png", "svg"])
 
   async uploadFiles(files: FileDTO[]) {
+    if (files.length === 0) {
+      return null
+    }
+
     for (const file of files) {
       this.checkIsValidOrThrowError(file)
     }
@@ -19,6 +23,11 @@ export abstract class FileService {
   }
 
   async updateFiles(mediaUrl: string, files: FileDTO[]) {
+    if (files.length === 0) {
+      await this.removeZip(mediaUrl)
+      return null
+    }
+
     for (const file of files) {
       this.checkIsValidOrThrowError(file)
     }
@@ -40,10 +49,13 @@ export abstract class FileService {
   }
 
   protected abstract createZipFromFiles(files: FileDTO[]): Promise<string>
+
   protected abstract updateZip(
     zipName: string,
     files: FileDTO[],
   ): Promise<string>
+
+  protected abstract removeZip(zipName: string): Promise<void>
 }
 
 export class DefaultFileService extends FileService {
@@ -83,10 +95,13 @@ export class DefaultFileService extends FileService {
       return zipName
     }
 
-    const zipPath = resolve(this.uploadPath, zipName)
-    fs.unlink(zipPath, () => {})
-
+    await this.removeZip(zipName) // remove old zip
     const newZipName = await this.createZipFromFiles(files)
     return newZipName
+  }
+
+  protected async removeZip(zipName: string) {
+    const zipPath = resolve(this.uploadPath, zipName)
+    await new Promise((resolve) => fs.unlink(zipPath, resolve))
   }
 }
