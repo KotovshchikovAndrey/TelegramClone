@@ -1,8 +1,8 @@
-import json
 import typing as tp
-
+import json
 import httpx
 
+from api.exceptions.api_exception import ApiException
 from models.message import File
 
 
@@ -16,13 +16,17 @@ class GraphqlAdapter:
         self, query: str, headers: tp.Mapping[str, str] | None = None
     ):
         async with httpx.AsyncClient(base_url=self._graphql_api_url) as client:
-            response = await client.post(
-                url="/",
-                json={"query": query},
-                headers=headers,
-            )
+            try:
+                response = await client.post(
+                    url="/",
+                    json={"query": query},
+                    headers=headers,
+                )
 
-            return response.json()
+                return response.json()
+
+            except (httpx.TimeoutException, httpx.ConnectError):
+                raise ApiException.service_unavailable(message="Service Unavailable!")
 
     async def send_query_form_data(
         self,
@@ -41,11 +45,15 @@ class GraphqlAdapter:
         }
 
         async with httpx.AsyncClient(base_url=self._graphql_api_url) as client:
-            response = await client.post(
-                url="/",
-                data={"operations": operations, "map": json.dumps(files_map)},
-                files=files,
-                headers=headers,
-            )
+            try:
+                response = await client.post(
+                    url="/",
+                    data={"operations": operations, "map": json.dumps(files_map)},
+                    files=files,
+                    headers=headers,
+                )
 
-            return response.json()
+                return response.json()
+
+            except (httpx.TimeoutException, httpx.ConnectError):
+                raise ApiException.service_unavailable(message="Service Unavailable!")

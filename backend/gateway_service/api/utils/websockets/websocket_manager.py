@@ -23,6 +23,9 @@ class WebSocketManager:
         if channel is not None:
             channel.remove(websocket)
 
+    async def send_personal_message(self, websocket: WebSocket, message: str):
+        await websocket.send_text(message)
+
     async def send_channel_message(self, channel_name: str, message: str):
         channel = self._connections.get(channel_name, None)
         if channel is None:

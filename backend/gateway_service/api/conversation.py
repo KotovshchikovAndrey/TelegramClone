@@ -1,8 +1,6 @@
 import json
 import typing as tp
 
-import httpx
-
 from api.graphql import queries
 from api.utils.adapters.graphql_adapter import GraphqlAdapter
 from models.message import PersonalMessageCreate, PersonalMessageUpdate

@@ -21,6 +21,11 @@ class PersonalMessageUpdate(BaseModel):
     files: tp.List[File] = []
 
 
+class MessageAction(BaseModel):
+    action_type: str
+    data: tp.Mapping[tp.Any, tp.Any]
+
+
 # class PersonalMessage(BaseModel):
 #     uuid: str
 #     text: str

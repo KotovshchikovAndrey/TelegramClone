@@ -1,11 +1,11 @@
-import asyncio
 import typing as tp
 
 import uvicorn
 from fastapi import FastAPI
 
+from api.exceptions.handler import handle_error
 from routes.auth import router as auth_router
-from routes.message import router as message_router
+from routes.messages import router as message_router
 from settings import settings
 
 # from api.utils.kafka import consumer, producer
@@ -13,6 +13,7 @@ from settings import settings
 app = FastAPI()
 app.include_router(message_router)
 app.include_router(auth_router)
+app.add_exception_handler(Exception, handle_error)
 
 
 @app.on_event("startup")

@@ -1,9 +1,10 @@
 import typing as tp
-from abc import abstractmethod
-
 import httpx
+from abc import abstractmethod
 from fastapi import Request
 from httpx import AsyncClient, Response
+
+from api.exceptions.api_exception import ApiException
 
 
 class IApiProxy(tp.Protocol):
@@ -32,4 +33,4 @@ class ApiProxy(IApiProxy):
             api_response = await self._client.send(api_request, stream=True)
             return api_response
         except (httpx.TimeoutException, httpx.ConnectError):
-            return None
+            raise ApiException.service_unavailable(message="Service Unavailable!")
