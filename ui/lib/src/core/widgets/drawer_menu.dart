@@ -9,7 +9,7 @@ class DrawerMenu extends StatelessWidget {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         toolbarHeight: MediaQuery.of(context).size.height / 5,
-        backgroundColor: const Color.fromARGB(255, 50, 69, 80),
+        backgroundColor: const Color.fromARGB(255, 33, 47, 60),
         title: Column(
           children: [
             Container(
@@ -45,7 +45,7 @@ class DrawerMenu extends StatelessWidget {
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w400,
-                        fontSize: 20,
+                        fontSize: 18,
                       ),
                     ),
                     Text(
@@ -85,7 +85,7 @@ class DrawerMenu extends StatelessWidget {
                     padding: EdgeInsets.all(10),
                     child: Icon(
                       Icons.people_alt,
-                      size: 30,
+                      size: 25,
                       color: Colors.grey,
                     ),
                   ),
@@ -94,7 +94,7 @@ class DrawerMenu extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,
-                      fontSize: 17,
+                      fontSize: 15,
                     ),
                   ),
                 ],
@@ -108,7 +108,7 @@ class DrawerMenu extends StatelessWidget {
                     padding: EdgeInsets.all(10),
                     child: Icon(
                       Icons.person,
-                      size: 30,
+                      size: 25,
                       color: Colors.grey,
                     ),
                   ),
@@ -117,7 +117,7 @@ class DrawerMenu extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,
-                      fontSize: 17,
+                      fontSize: 15,
                     ),
                   ),
                 ],
@@ -131,7 +131,7 @@ class DrawerMenu extends StatelessWidget {
                     padding: EdgeInsets.all(10),
                     child: Icon(
                       Icons.phone,
-                      size: 30,
+                      size: 25,
                       color: Colors.grey,
                     ),
                   ),
@@ -140,7 +140,7 @@ class DrawerMenu extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,
-                      fontSize: 17,
+                      fontSize: 15,
                     ),
                   ),
                 ],
@@ -154,7 +154,7 @@ class DrawerMenu extends StatelessWidget {
                     padding: EdgeInsets.all(10),
                     child: Icon(
                       Icons.person_pin,
-                      size: 30,
+                      size: 25,
                       color: Colors.grey,
                     ),
                   ),
@@ -163,7 +163,7 @@ class DrawerMenu extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,
-                      fontSize: 17,
+                      fontSize: 15,
                     ),
                   ),
                 ],
@@ -177,7 +177,7 @@ class DrawerMenu extends StatelessWidget {
                     padding: EdgeInsets.all(10),
                     child: Icon(
                       Icons.bookmark,
-                      size: 30,
+                      size: 25,
                       color: Colors.grey,
                     ),
                   ),
@@ -186,7 +186,7 @@ class DrawerMenu extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,
-                      fontSize: 17,
+                      fontSize: 15,
                     ),
                   ),
                 ],
@@ -200,7 +200,7 @@ class DrawerMenu extends StatelessWidget {
                     padding: EdgeInsets.all(10),
                     child: Icon(
                       Icons.settings,
-                      size: 30,
+                      size: 25,
                       color: Colors.grey,
                     ),
                   ),
@@ -209,7 +209,7 @@ class DrawerMenu extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,
-                      fontSize: 17,
+                      fontSize: 15,
                     ),
                   ),
                 ],

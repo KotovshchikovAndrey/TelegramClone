@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ui/src/core/widgets/drawer_menu.dart';
-import 'package:ui/src/features/messager/views/pages/chat_list.dart';
+import 'package:ui/src/features/messages/views/pages/chat_list.dart';
 
 import 'custom_appbar.dart';
 
@@ -26,7 +26,7 @@ class _TopTabBarState extends State<TopTabBar>
           splashColor: Colors.transparent,
         ),
         child: Container(
-          color: const Color.fromARGB(255, 50, 69, 80),
+          color: const Color.fromARGB(255, 33, 47, 60),
           child: DefaultTabController(
             length: 2,
             child: Column(

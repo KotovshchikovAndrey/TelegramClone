@@ -15,7 +15,7 @@ class ChatListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 43, 46, 49),
+      backgroundColor: Colors.transparent,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -24,7 +24,7 @@ class ChatListItem extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 15, left: 7),
                 child: CircleAvatar(
-                  radius: 35,
+                  radius: 27,
                   backgroundImage: NetworkImage(chatRoomImageUrl),
                 ),
               ),
@@ -47,7 +47,7 @@ class ChatListItem extends StatelessWidget {
                             chatRoomTitle,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 20,
+                              fontSize: 18,
                               color: Colors.white,
                             ),
                           ),

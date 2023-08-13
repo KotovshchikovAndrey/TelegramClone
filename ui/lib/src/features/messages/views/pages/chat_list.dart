@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ui/src/features/messager/views/widgets/chat_list_item.dart';
+import 'package:ui/src/core/routes/route_args.dart';
+import 'package:ui/src/features/messages/views/widgets/chat_list_item.dart';
 
 class ChatRoom {
   final String chatRoomTitle;
@@ -34,7 +35,7 @@ class ChatListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 43, 46, 49),
+      backgroundColor: const Color.fromARGB(255, 28, 40, 51),
       body: ListView.builder(
         padding: const EdgeInsets.all(5),
         itemCount: chatList.length,
@@ -42,9 +43,13 @@ class ChatListPage extends StatelessWidget {
           final currentChatRoom = chatList[index];
 
           return InkWell(
-            onTap: () => print(111),
+            onTap: () => Navigator.pushNamed(
+              context,
+              "/chat",
+              arguments: ChatRoomArgs(roomName: "test"),
+            ),
             child: SizedBox(
-              height: 100,
+              height: 85,
               child: ChatListItem(
                 chatRoomTitle: currentChatRoom.chatRoomTitle,
                 chatRoomDescription: currentChatRoom.chatRoomDescription,

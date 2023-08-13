@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ui/src/core/ioc.dart';
-import 'package:ui/src/core/routes.dart';
+import 'package:ui/src/core/routes/route_builder.dart';
 
 void main() {
   setupIocContainer();
