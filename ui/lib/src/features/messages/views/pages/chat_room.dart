@@ -108,6 +108,10 @@ class ChatRoomPage extends StatelessWidget {
           ChatMessage(isMyMessage: false, text: "Message 5", date: "05:11"),
           ChatMessage(isMyMessage: true, text: "Message 6", date: "05:11"),
           ChatMessage(isMyMessage: true, text: "Message 7", date: "05:11"),
+          ChatMessage(isMyMessage: false, text: "Message 4", date: "05:11"),
+          ChatMessage(isMyMessage: false, text: "Message 5", date: "05:11"),
+          ChatMessage(isMyMessage: true, text: "Message 6", date: "05:11"),
+          ChatMessage(isMyMessage: true, text: "Message 7", date: "05:11"),
         ]),
       ),
     );
