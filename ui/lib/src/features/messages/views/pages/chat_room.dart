@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:ui/src/core/routes/route_args.dart';
+import 'package:ui/src/features/messages/views/widgets/chat_message.dart';
 
 class ChatRoomPage extends StatelessWidget {
-  ChatRoomPage({super.key, required this.roomName});
-  String roomName;
+  const ChatRoomPage({super.key, required this.roomName});
+  final String roomName;
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +99,16 @@ class ChatRoomPage extends StatelessWidget {
             ),
           ),
         ),
+        body: ListView(children: [
+          ChatMessage(isMyMessage: false, text: "Message 0", date: "05:11"),
+          ChatMessage(isMyMessage: true, text: "Message 1", date: "05:11"),
+          ChatMessage(isMyMessage: true, text: "Message 2", date: "05:11"),
+          ChatMessage(isMyMessage: false, text: "Message 3", date: "05:11"),
+          ChatMessage(isMyMessage: false, text: "Message 4", date: "05:11"),
+          ChatMessage(isMyMessage: false, text: "Message 5", date: "05:11"),
+          ChatMessage(isMyMessage: true, text: "Message 6", date: "05:11"),
+          ChatMessage(isMyMessage: true, text: "Message 7", date: "05:11"),
+        ]),
       ),
     );
   }
