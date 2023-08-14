@@ -1,5 +1,5 @@
 import typing as tp
-from pydantic import BaseModel, IPvAnyAddress, EmailStr, validator
+from pydantic import BaseModel, IPvAnyAddress, validator
 
 
 class SessionPayload(BaseModel):
@@ -36,11 +36,3 @@ class SessionLogin(BaseModel):
             raise ValueError("Code length must be 6 symbols!")
 
         return code
-
-
-class SessionDataResponse(SessionPayload):
-    ...
-
-
-class SessionKeyResponse(BaseModel):
-    session_key: str

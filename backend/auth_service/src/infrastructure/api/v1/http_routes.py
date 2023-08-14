@@ -4,9 +4,10 @@ from kink import di
 from fastapi import APIRouter, Depends, Request, Response, status
 
 from infrastructure.api.middlewares.auth_middleware import authenticate_current_user
-from domain.models.session import SessionLogin, SessionDataResponse, SessionKeyResponse
 from domain.services.auth_service import AuthService
 from domain.services.user_service import UserService
+from domain.models.response import ConfirmLoginResponse
+from domain.models.session import SessionLogin
 from domain.models.user import (
     UserCreate,
     UserFingerPrint,
@@ -19,11 +20,7 @@ from domain.models.user import (
 router = APIRouter(prefix="/v1")
 
 
-@router.post(
-    "/register",
-    status_code=status.HTTP_201_CREATED,
-    response_model=SessionKeyResponse,
-)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_user(
     request: Request,
     service: tp.Annotated[AuthService, Depends(lambda: di[AuthService])],
@@ -38,11 +35,7 @@ async def register_user(
     return {"session_key": session_key}
 
 
-@router.post(
-    "/login",
-    status_code=status.HTTP_201_CREATED,
-    response_model=SessionKeyResponse,
-)
+@router.post("/login", status_code=status.HTTP_201_CREATED)
 async def login_user(
     request: Request,
     service: tp.Annotated[AuthService, Depends(lambda: di[AuthService])],
@@ -60,14 +53,17 @@ async def login_user(
 @router.post(
     "/confirm-login",
     status_code=status.HTTP_200_OK,
-    response_model=SessionDataResponse,
+    response_model=ConfirmLoginResponse,
 )
 async def confirm_user_login(
     service: tp.Annotated[AuthService, Depends(lambda: di[AuthService])],
     session_login: SessionLogin,
 ):
-    session_data = await service.confirm_user_login(session_login)
-    return session_data
+    user, session_data = await service.confirm_user_login(session_login)
+    return {
+        "user": user,
+        "session_payload": session_data,
+    }
 
 
 @router.delete("/logout", status_code=status.HTTP_204_NO_CONTENT)
@@ -91,6 +87,5 @@ async def get_users_info(
     service: tp.Annotated[UserService, Depends(lambda: di[UserService])],
     users_info_get: UsersInfoGet,
 ):
-    print(users_info_get.user_uuids)
     users_info = await service.get_users_info_by_uuids(users_info_get.user_uuids)
     return users_info

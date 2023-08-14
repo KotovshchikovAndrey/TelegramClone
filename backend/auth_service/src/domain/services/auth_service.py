@@ -81,7 +81,7 @@ class AuthService:
             new_session_data=session_data,
         )
 
-        return session_data
+        return user, session_data
 
     async def logout_user(self, session_key: str):
         await self._session_service.delete_user_session(session_key)

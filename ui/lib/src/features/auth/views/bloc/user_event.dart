@@ -15,3 +15,16 @@ class RegisterUser extends UserEvent {
     required this.phone,
   });
 }
+
+class LoginUser extends UserEvent {
+  String phone;
+
+  LoginUser({required this.phone});
+}
+
+class ConfirmUserLogin extends UserEvent {
+  int code;
+  String sessionKey;
+
+  ConfirmUserLogin({required this.code, required this.sessionKey});
+}
