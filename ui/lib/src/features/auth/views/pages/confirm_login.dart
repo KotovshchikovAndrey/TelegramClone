@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:ui/src/features/auth/views/widgets/register_form.dart';
+import 'package:ui/src/features/auth/views/widgets/code_input.dart';
 
-class RegisterPage extends StatelessWidget {
-  const RegisterPage({super.key});
+class ConfirmLoginPage extends StatelessWidget {
+  const ConfirmLoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -11,11 +11,14 @@ class RegisterPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 28, 40, 51),
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (!isKeyboard) _buildGreeting(),
-          const RegisterForm(),
+          Padding(
+            padding: const EdgeInsets.all(30),
+            child: CodeInput(hintText: "Код"),
+          ),
         ],
       ),
     );
@@ -25,7 +28,7 @@ class RegisterPage extends StatelessWidget {
     return const Column(
       children: [
         Text(
-          "Регистрация",
+          "Проверьте почту",
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -34,7 +37,7 @@ class RegisterPage extends StatelessWidget {
         Padding(
           padding: EdgeInsets.all(10),
           child: Text(
-            "Введите имя, фамилию, email и номер телефона для регистрации нового аккаунта",
+            "Введите код, который пришел на электронную почту email@mail.ru",
             style: TextStyle(
               color: Colors.grey,
             ),

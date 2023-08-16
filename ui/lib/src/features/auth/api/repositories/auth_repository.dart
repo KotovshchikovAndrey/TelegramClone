@@ -2,9 +2,9 @@ import 'package:dio/dio.dart';
 import 'package:ui/src/core/constants.dart';
 import 'package:ui/src/core/exceptions/api_exception_mixin.dart';
 import 'package:ui/src/features/auth/api/interfaces/auth_repository.dart';
-import 'package:ui/src/features/auth/api/models/user.dart';
-import 'package:ui/src/features/auth/api/models/user_create.dart';
-import 'package:ui/src/features/auth/api/models/user_session.dart';
+import 'package:ui/src/features/auth/models/user.dart';
+import 'package:ui/src/features/auth/models/user_create.dart';
+import 'package:ui/src/features/auth/models/user_session.dart';
 
 class HttpAuthRepository with ApiExceptionMixin implements IAuthRepository {
   final Dio _dio = Dio(

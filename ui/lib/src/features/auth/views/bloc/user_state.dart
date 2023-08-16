@@ -4,6 +4,8 @@ abstract class UserState {}
 
 class InitialUserState extends UserState {}
 
+class UserLoading extends UserState {}
+
 class AuthenticatedUser extends UserState {
   CurrentUser currentUser;
   UserSessionPayload sessionPayload;
