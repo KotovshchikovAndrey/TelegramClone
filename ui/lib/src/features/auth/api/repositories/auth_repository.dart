@@ -67,4 +67,23 @@ class HttpAuthRepository with ApiExceptionMixin implements IAuthRepository {
       throwApiException(exc);
     }
   }
+
+  @override
+  Future<CurrentUser> authenticateUser(String userSession) async {
+    try {
+      Response response = await _dio.get(
+        "/authenticate",
+        options: Options(
+          headers: {
+            "User-Session": userSession,
+          },
+        ),
+      );
+
+      final currentUser = CurrentUser.fromJson(response.data);
+      return currentUser;
+    } on Exception catch (exc) {
+      throwApiException(exc);
+    }
+  }
 }

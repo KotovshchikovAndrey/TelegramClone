@@ -5,19 +5,19 @@ import 'package:ui/src/core/utils/local_storage.dart';
 import 'package:ui/src/features/auth/api/interfaces/auth_repository.dart';
 import 'package:ui/src/features/auth/models/user.dart';
 import 'package:ui/src/features/auth/models/user_create.dart';
-import 'package:ui/src/features/auth/models/user_session.dart';
 
 part 'user_state.dart';
 part 'user_event.dart';
 
 class UserBloc extends Bloc<UserEvent, UserState> {
-  final IAuthRepository repository = container<IAuthRepository>();
-  final LocalStorage localStorage = container<LocalStorage>();
+  final IAuthRepository _repository = container<IAuthRepository>();
+  final LocalStorage _localStorage = container<LocalStorage>();
 
   UserBloc() : super(InitialUserState()) {
     on<RegisterUser>(_registerUser);
     on<LoginUser>(_loginUser);
     on<ConfirmUserLogin>(_confirmUserLogin);
+    on<AuthenticateUser>(_authenticateUser);
   }
 
   Future<void> _registerUser(
@@ -33,8 +33,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
     try {
       emit(UserLoading());
-      final userSession = await repository.registerUser(userCreate);
-      await localStorage.saveData(
+      final userSession = await _repository.registerUser(userCreate);
+      await _localStorage.saveValue(
         key: "sessionKey",
         value: userSession.sessionKey,
       );
@@ -51,8 +51,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   ) async {
     try {
       emit(UserLoading());
-      final userSession = await repository.loginUser(event.phone);
-      await localStorage.saveData(
+      final userSession = await _repository.loginUser(event.phone);
+      await _localStorage.saveValue(
         key: "sessionKey",
         value: userSession.sessionKey,
       );
@@ -69,19 +69,40 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   ) async {
     try {
       emit(UserLoading());
-      final (currentUser, sessionPayload) = await repository.confirmUserLogin(
+      final sessionKey = await _localStorage.getValue(key: "sessionKey");
+      if (sessionKey == null) {
+        const errorMessage =
+            "Что то пошло не так. Попробуйте произвести вход еще раз";
+
+        emit(UserError(message: errorMessage));
+        return;
+      }
+
+      final (currentUser, _) = await _repository.confirmUserLogin(
         code: event.code,
-        sessionKey: event.sessionKey,
+        sessionKey: sessionKey,
       );
 
-      emit(
-        AuthenticatedUser(
-          currentUser: currentUser,
-          sessionPayload: sessionPayload,
-        ),
-      );
+      emit(AuthenticatedUser(currentUser: currentUser));
     } on ApiException catch (exc) {
       emit(UserError(message: exc.message));
+    }
+  }
+
+  Future<void> _authenticateUser(
+    AuthenticateUser event,
+    Emitter<UserState> emit,
+  ) async {
+    final sessionKey = await _localStorage.getValue(key: "sessionKey");
+    if (sessionKey == null) {
+      return;
+    }
+
+    try {
+      final currentUser = await _repository.authenticateUser(sessionKey);
+      emit(AuthenticatedUser(currentUser: currentUser));
+    } on ApiException catch (_) {
+      return;
     }
   }
 }

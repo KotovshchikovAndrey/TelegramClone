@@ -6,16 +6,29 @@ import 'package:ui/src/features/auth/views/bloc/user_bloc.dart';
 
 void main() {
   setupIocContainer();
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final _authBloc = UserBloc();
+
+  @override
+  void initState() {
+    super.initState();
+    _authBloc.add(AuthenticateUser());
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => UserBloc(), // Global Authentication State
+      create: (context) => _authBloc, // Global Authentication State
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',

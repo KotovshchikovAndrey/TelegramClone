@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:ui/src/features/auth/utils/auth_validator.dart';
 import 'package:ui/src/features/auth/views/bloc/user_bloc.dart';
+import 'package:ui/src/features/auth/views/widgets/submit_button.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -30,7 +31,7 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
-  _sumbitForm() {
+  void _sumbitForm() {
     if (_isFormValid) {
       final event = LoginUser(phone: _phoneController.text);
       userBloc.add(event);
@@ -44,17 +45,21 @@ class _LoginFormState extends State<LoginForm> {
       child: Column(
         children: [
           _buildPhoneInput(),
-          BlocBuilder(
+          BlocConsumer(
             bloc: userBloc,
-            builder: (context, state) {
+            listener: (context, state) {
               if (state is LoginSuccess) {
                 Navigator.of(context).pushNamed("/confirm-login");
               }
-
+            },
+            builder: (context, state) {
               if (state is UserLoading) {
                 return Column(
                   children: [
-                    _buildSubmitButton(),
+                    SubmitButton(
+                      text: "Войти",
+                      onSubmit: _sumbitForm,
+                    ),
                     const Center(
                       child: CircularProgressIndicator(
                         color: Colors.blue,
@@ -68,7 +73,10 @@ class _LoginFormState extends State<LoginForm> {
               if (state is UserError) {
                 return Column(
                   children: [
-                    _buildSubmitButton(),
+                    SubmitButton(
+                      text: "Войти",
+                      onSubmit: _sumbitForm,
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30),
                       child: Text(
@@ -84,7 +92,10 @@ class _LoginFormState extends State<LoginForm> {
                 );
               }
 
-              return _buildSubmitButton();
+              return SubmitButton(
+                text: "Войти",
+                onSubmit: _sumbitForm,
+              );
             },
           ),
         ],
@@ -129,37 +140,6 @@ class _LoginFormState extends State<LoginForm> {
             borderSide: const BorderSide(
               color: Colors.grey,
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSubmitButton() {
-    return Padding(
-      padding: const EdgeInsets.all(15),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(
-            vertical: 10,
-            horizontal: 30,
-          ),
-          backgroundColor: Colors.blue,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topRight: Radius.circular(5),
-              bottomRight: Radius.circular(5),
-              topLeft: Radius.circular(5),
-              bottomLeft: Radius.circular(5),
-            ),
-          ),
-        ),
-        onPressed: _sumbitForm,
-        child: const Text(
-          "Войти",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 15,
           ),
         ),
       ),

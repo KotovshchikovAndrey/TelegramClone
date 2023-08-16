@@ -8,9 +8,8 @@ class UserLoading extends UserState {}
 
 class AuthenticatedUser extends UserState {
   CurrentUser currentUser;
-  UserSessionPayload sessionPayload;
 
-  AuthenticatedUser({required this.currentUser, required this.sessionPayload});
+  AuthenticatedUser({required this.currentUser});
 }
 
 class UserError extends UserState {

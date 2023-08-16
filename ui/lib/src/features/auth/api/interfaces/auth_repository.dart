@@ -9,4 +9,5 @@ abstract interface class IAuthRepository {
     required int code,
     required String sessionKey,
   });
+  Future<CurrentUser> authenticateUser(String sessionKey);
 }

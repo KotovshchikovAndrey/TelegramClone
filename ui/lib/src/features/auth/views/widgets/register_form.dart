@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:ui/src/features/auth/utils/auth_validator.dart';
 import 'package:ui/src/features/auth/views/bloc/user_bloc.dart';
+import 'package:ui/src/features/auth/views/widgets/submit_button.dart';
 
 class RegisterForm extends StatefulWidget {
   const RegisterForm({super.key});
@@ -38,7 +39,7 @@ class _RegisterFormState extends State<RegisterForm> {
     super.dispose();
   }
 
-  _sumbitForm() {
+  void _sumbitForm() {
     if (_isFormValid) {
       final event = RegisterUser(
         name: _nameController.text,
@@ -61,17 +62,21 @@ class _RegisterFormState extends State<RegisterForm> {
           _buildSurnameInput(),
           _buildEmailInput(),
           _buildPhoneInput(),
-          BlocBuilder(
+          BlocConsumer(
             bloc: userBloc,
-            builder: (context, state) {
+            listener: (context, state) {
               if (state is RegisterSuccess) {
                 Navigator.of(context).pushNamed("/login");
               }
-
+            },
+            builder: (context, state) {
               if (state is UserLoading) {
                 return Column(
                   children: [
-                    _buildSubmitButton(),
+                    SubmitButton(
+                      text: "Зарегистрироваться",
+                      onSubmit: _sumbitForm,
+                    ),
                     const Center(
                       child: CircularProgressIndicator(
                         color: Colors.blue,
@@ -85,7 +90,10 @@ class _RegisterFormState extends State<RegisterForm> {
               if (state is UserError) {
                 return Column(
                   children: [
-                    _buildSubmitButton(),
+                    SubmitButton(
+                      text: "Зарегистрироваться",
+                      onSubmit: _sumbitForm,
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30),
                       child: Text(
@@ -101,7 +109,10 @@ class _RegisterFormState extends State<RegisterForm> {
                 );
               }
 
-              return _buildSubmitButton();
+              return SubmitButton(
+                text: "Зарегистрироваться",
+                onSubmit: _sumbitForm,
+              );
             },
           ),
         ],
@@ -252,37 +263,6 @@ class _RegisterFormState extends State<RegisterForm> {
             borderSide: const BorderSide(
               color: Colors.grey,
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSubmitButton() {
-    return Padding(
-      padding: const EdgeInsets.all(15),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(
-            vertical: 10,
-            horizontal: 30,
-          ),
-          backgroundColor: Colors.blue,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topRight: Radius.circular(5),
-              bottomRight: Radius.circular(5),
-              topLeft: Radius.circular(5),
-              bottomLeft: Radius.circular(5),
-            ),
-          ),
-        ),
-        onPressed: _sumbitForm,
-        child: const Text(
-          "Зарегистрироваться",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 15,
           ),
         ),
       ),

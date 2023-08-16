@@ -24,7 +24,8 @@ class LoginUser extends UserEvent {
 
 class ConfirmUserLogin extends UserEvent {
   int code;
-  String sessionKey;
 
-  ConfirmUserLogin({required this.code, required this.sessionKey});
+  ConfirmUserLogin({required this.code});
 }
+
+class AuthenticateUser extends UserEvent {}
