@@ -17,6 +17,14 @@ export class MongoMessageRepository implements IMessageRepository {
     @InjectModel("Message") private readonly messages: Model<Message>,
   ) {}
 
+  async findOneMessageBy(dto: FindMessageDTO & { send_to: string }) {
+    // delete undefined values
+    Object.keys(dto).forEach((key: string) => !dto[key] && delete dto[key])
+
+    const message = await this.messages.findOne(dto).exec()
+    return message
+  }
+
   async findMessages(dto: MessageHistoryDTO & { send_to: string }) {
     const messages = await this.messages
       .find({
@@ -31,7 +39,7 @@ export class MongoMessageRepository implements IMessageRepository {
           },
         ],
       })
-      .sort({ created_at: -1 })
+      .sort("-created_at")
       .skip(dto.offset)
       .limit(dto.limit)
       .exec()
@@ -120,7 +128,7 @@ export class MongoMessageRepository implements IMessageRepository {
           },
         ],
       })
-      .sort({ created_at: -1 })
+      .sort("-created_at")
       .skip(dto.offset)
       .limit(dto.limit)
       .distinct("media_url")

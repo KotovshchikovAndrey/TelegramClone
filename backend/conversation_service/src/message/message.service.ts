@@ -2,7 +2,6 @@ import { Injectable, Inject } from "@nestjs/common"
 import axios from "axios"
 import { IMessageRepository } from "./repositories/interfaces/message.repository"
 import { FileService } from "src/file/file.service"
-import { ConversationService } from "src/conversation/conversation.service"
 import { FileDTO } from "src/file/file.dto"
 import { User } from "src/app.entity"
 import {
@@ -13,6 +12,7 @@ import {
   UpdateMessageStatusDTO,
 } from "./message.dto"
 import { MediaHistory } from "./message.entity"
+import { ConfigService } from "@nestjs/config"
 
 @Injectable()
 export class MessageService {
@@ -20,7 +20,7 @@ export class MessageService {
     @Inject("MessageRepository")
     private readonly repository: IMessageRepository,
     private readonly fileService: FileService,
-    private readonly conversationService: ConversationService,
+    private readonly configService: ConfigService,
   ) {}
 
   async getMessageHistory(currentUser: User, dto: MessageHistoryDTO) {
@@ -43,16 +43,7 @@ export class MessageService {
     const userUUID = currentUser.user_uuid
     const sendersUUIDS = await this.repository.findAllSenders(userUUID)
 
-    try {
-      const authServiceHost = "http://127.0.0.1:8000/api/v1"
-      const response = await axios.post(authServiceHost + "/get-users-info", {
-        user_uuids: sendersUUIDS,
-      })
-
-      return response.data
-    } catch (error) {
-      throw Error("Service Unavailable!")
-    }
+    return await this.fetchUsersInfo(sendersUUIDS)
   }
 
   async createMessage(
@@ -60,6 +51,11 @@ export class MessageService {
     dto: CreateMessageDTO,
     messageFiles: FileDTO[],
   ) {
+    const usersInfo = await this.fetchUsersInfo([dto.send_to])
+    if (usersInfo.length === 0) {
+      throw Error("User does not exists!")
+    }
+
     const userUUID = currentUser.user_uuid
     dto.media_url = await this.fileService.uploadFiles(messageFiles)
 
@@ -116,5 +112,18 @@ export class MessageService {
     mediaHistory.media_urls = mediaUrls
 
     return mediaHistory
+  }
+
+  private async fetchUsersInfo(usersUUIDS: string[]) {
+    try {
+      const authServiceHost = this.configService.get("AUTH_SERVICE_HOST")
+      const response = await axios.post(authServiceHost + "/get-users-info", {
+        user_uuids: usersUUIDS,
+      })
+
+      return response.data
+    } catch (error) {
+      throw Error("Service Unavailable!")
+    }
   }
 }

@@ -6,10 +6,10 @@ type Message {
   uuid: String!
   text: String!
   media_url: String
-  created_at: DateTime!
   send_from: String!
   send_to: String!
   status: String!
+  created_at: DateTime!
 }
 
 """
@@ -35,8 +35,8 @@ type ConversationMember {
   conversation: String!
   is_admin: Boolean!
   is_active: Boolean!
-  join_date: DateTime!
   leave_date: DateTime
+  join_date: DateTime!
 }
 
 type Query {

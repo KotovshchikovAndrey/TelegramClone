@@ -9,6 +9,9 @@ import {
 import { Message } from "src/message/message.entity"
 
 export interface IMessageRepository {
+  findOneMessageBy(
+    dto: FindMessageDTO & { send_to: string },
+  ): Promise<Message | null>
   findMessages(dto: MessageHistoryDTO & { send_to: string }): Promise<Message[]>
   findMessagesBy(dto: FindMessageDTO & { send_to: string }): Promise<Message[]>
   findAllMedia(dto: FindAllMediaDTO & { send_from: string }): Promise<string[]>

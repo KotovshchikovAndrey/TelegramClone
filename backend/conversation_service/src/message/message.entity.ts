@@ -4,7 +4,7 @@ import { ObjectType, Field } from "@nestjs/graphql"
 
 export type MessageDocument = HydratedDocument<Message>
 
-@Schema()
+@Schema({ timestamps: { createdAt: "created_at" } })
 @ObjectType()
 export class Message {
   @Prop({ required: true, unique: true })
@@ -19,10 +19,6 @@ export class Message {
   @Field({ nullable: true })
   media_url?: string
 
-  @Prop({ default: new Date(Date.now()) })
-  @Field(() => Date)
-  created_at: Date
-
   @Prop({ required: true })
   @Field()
   send_from: string
@@ -34,6 +30,9 @@ export class Message {
   @Prop({ default: "sent" })
   @Field()
   status: "sent" | "received" | "readed"
+
+  @Field(() => Date)
+  created_at: Date
 }
 
 @ObjectType()

@@ -1,5 +1,5 @@
 import { InputType, Field, Int } from "@nestjs/graphql"
-import { IsInt, MaxLength, IsNotEmpty, IsIn } from "class-validator"
+import { IsInt, MaxLength, IsNotEmpty, IsIn, IsUUID } from "class-validator"
 
 @InputType()
 export class CreateMessageDTO {
@@ -9,6 +9,7 @@ export class CreateMessageDTO {
   text: string
 
   @Field()
+  @IsUUID()
   @IsNotEmpty()
   send_to: string
 

@@ -29,7 +29,7 @@ export class Conversation {
   members: Omit<ConversationMember, "conservation">[]
 }
 
-@Schema()
+@Schema({ timestamps: { createdAt: "join_date" } })
 @ObjectType()
 export class ConversationMember {
   @Prop({ required: true, unique: true })
@@ -51,16 +51,15 @@ export class ConversationMember {
   @Field()
   is_active: boolean
 
-  @Prop({ default: new Date(Date.now()) })
-  @Field(() => Date)
-  join_date: Date
-
   @Prop({ required: false })
   @Field(() => Date, { nullable: true })
   leave_date?: Date
+
+  @Field(() => Date)
+  join_date: Date
 }
 
-@Schema()
+@Schema({ timestamps: { createdAt: "created_at" } })
 @ObjectType()
 export class ConversationMessage {
   @Prop({ required: true, unique: true })
@@ -79,10 +78,6 @@ export class ConversationMessage {
   @Field({ nullable: true })
   media_url?: string
 
-  @Prop({ default: new Date(Date.now()) })
-  @Field(() => Date)
-  created_at: Date
-
   @Prop({ default: "sent" })
   @Field()
   status: "sent" | "received" | "readed"
@@ -90,6 +85,9 @@ export class ConversationMessage {
   @Prop({ default: [] })
   @Field(() => [String], { nullable: "items" })
   viewers: string[]
+
+  @Field(() => Date)
+  created_at: Date
 }
 
 export const ConversationSchema = SchemaFactory.createForClass(Conversation)

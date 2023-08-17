@@ -22,9 +22,11 @@ async def send_private_message(websocket: WebSocket, channel_name: str):
         current_user = await _authenticate(websocket)
         while True:
             data = await websocket.receive_json()
+            print(data)
             action = MessageAction(**data)
 
             api_response = await _dispatch_action(action, current_user)
+            print(api_response)
             await websocket_manager.send_channel_message(
                 channel_name,
                 message=json.dumps(api_response),
