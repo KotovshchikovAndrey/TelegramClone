@@ -44,7 +44,9 @@ export class Account {
   is_online: boolean
 }
 
-@Schema({ timestamps: { createdAt: "created_at" } })
+@Schema({
+  timestamps: { createdAt: "created_at", updatedAt: false },
+})
 // @ObjectType()
 export class Conversation {
   @Prop({ required: true, unique: true })
@@ -63,15 +65,21 @@ export class Conversation {
   // @Field({ nullable: true })
   avatar?: string
 
-  // @Field(() => Date, { nullable: false })
-  created_at: Date
-
   @Prop({ required: false, default: false })
   // @Field({ nullable: false })
   is_group: boolean
+
+  @Prop({ required: false, default: new Date(Date.now()) })
+  // @Field(() => Date, { nullable: false })
+  last_message_at: Date
+
+  // @Field(() => Date, { nullable: false })
+  created_at: Date
 }
 
-@Schema({ timestamps: { createdAt: "join_date" } })
+@Schema({
+  timestamps: { createdAt: "join_date", updatedAt: false },
+})
 // @ObjectType()
 export class Member {
   @Prop({ required: true, unique: true })
@@ -102,7 +110,9 @@ export class Member {
   leave_date?: Date
 }
 
-@Schema({ timestamps: { createdAt: "created_at" } })
+@Schema({
+  timestamps: { createdAt: "created_at", updatedAt: false },
+})
 // @ObjectType()
 export class Message {
   @Prop({ required: true, unique: true })

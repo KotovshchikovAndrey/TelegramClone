@@ -1,4 +1,11 @@
-import { Controller, Get, Body, Post } from "@nestjs/common"
+import {
+  Controller,
+  Get,
+  Body,
+  Post,
+  Query,
+  DefaultValuePipe,
+} from "@nestjs/common"
 
 import { ConversationService } from "./conversation.service"
 import { CurrentUser } from "src/conversation/decorators/auth.decorator"
@@ -9,8 +16,22 @@ import { CreatePersonalMessageDTO } from "./conversation.dto"
 export class ConversationController {
   constructor(private readonly conversationService: ConversationService) {}
 
-  @Post()
+  @Get()
   async findAll(
+    @Query("limit", new DefaultValuePipe(10)) limit: number,
+    @Query("offset", new DefaultValuePipe(0)) offset: number,
+  ) {
+    const currentUser = new User()
+    currentUser.user_uuid = "32146edb-a9db-4acb-bf99-d0f5cd777cdc"
+
+    return this.conversationService.getUserConversations(currentUser, {
+      limit,
+      offset,
+    })
+  }
+
+  @Post()
+  async create(
     // @CurrentUser() currentUser: User,
     @Body() dto: CreatePersonalMessageDTO,
   ) {

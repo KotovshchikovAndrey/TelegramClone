@@ -76,3 +76,9 @@ export class UpdateMessageDTO {
   @MaxLength(500)
   text?: string
 }
+
+export class UpdateConversationDTO {
+  name?: string
+  description?: string
+  avatar?: string
+}

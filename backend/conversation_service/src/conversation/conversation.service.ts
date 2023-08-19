@@ -10,6 +10,8 @@ import {
 import { User } from "src/app.entity"
 import { FileDTO } from "src/file/file.dto"
 import { FileService } from "src/file/file.service"
+import { Member } from "./conversation.entity"
+import { createHash } from "crypto"
 
 @Injectable()
 export class ConversationService {
@@ -19,7 +21,24 @@ export class ConversationService {
     private readonly fileService: FileService,
   ) {}
 
-  async getUserConversations() {}
+  async getUserConversations(
+    currentUser: User,
+    {
+      limit,
+      offset,
+    }: {
+      limit: number
+      offset: number
+    },
+  ) {
+    const conversations = await this.repository.findAllUserConversations({
+      user_account: currentUser.user_uuid,
+      limit,
+      offset,
+    })
+
+    return conversations
+  }
 
   async createPersonalMessage(
     currentUser: User,
@@ -30,15 +49,17 @@ export class ConversationService {
       throw Error("Message must be not empty!")
     }
 
-    // Проверка на существование аккаунта
-
-    let personalConversation = await this.repository.findPersonalConversation({
+    const conversationName = this.getNameForPersonalConversation({
       first_user: currentUser.user_uuid,
       second_user: dto.reciever_uuid,
     })
 
+    let personalConversation =
+      await this.repository.findPersonalConversationByName(conversationName)
+
     if (personalConversation === null) {
       personalConversation = await this.repository.createConversation({
+        name: conversationName,
         is_group: false,
       })
 
@@ -127,15 +148,27 @@ export class ConversationService {
     conversation: string
     users: Omit<CreateMemberDTO, "conversation">[]
   }) {
-    const membersForCreate: CreateMemberDTO[] = []
+    const isUserAccountsExists = await this.checkAccountsExists(users)
+    if (!isUserAccountsExists) {
+      throw Error("User account(s) do not exists!")
+    }
+
+    const newMembers: CreateMemberDTO[] = []
     for (const user of users) {
       const dto = new CreateMemberDTO()
       dto.conversation = conversation
       dto.account = user.account
       dto.is_admin = user.is_admin
-
-      membersForCreate.push(dto)
+      newMembers.push(dto)
     }
+
+    const membersInConversation =
+      await this.repository.findAllMembersInConversation(conversation)
+
+    const membersForCreate = this.excludeDuplicateMembers({
+      membersInConversation,
+      newMembers,
+    })
 
     const createdMembers = await this.repository.createMembers(membersForCreate)
     return createdMembers
@@ -166,15 +199,40 @@ export class ConversationService {
     })
   }
 
-  // private excludeDuplicateMembers(
-  //   existsMembers: ConversationMember[],
-  //   newMembers: CreateMembersDTO,
-  // ) {
-  //   const existsMembersSet = new Set(existsMembers.map((member) => member.user))
-  //   const membersWithoutDuplicate = newMembers.members.filter(
-  //     (member) => !existsMembersSet.has(member.user),
-  //   )
+  private getNameForPersonalConversation({
+    first_user,
+    second_user,
+  }: {
+    first_user: string
+    second_user: string
+  }) {
+    const conversationName = createHash("sha256")
+      .update([first_user, second_user].sort().join("."))
+      .digest("hex")
+      .toString()
 
-  //   return membersWithoutDuplicate
-  // }
+    return conversationName
+  }
+
+  private excludeDuplicateMembers({
+    membersInConversation,
+    newMembers,
+  }: {
+    membersInConversation: Member[]
+    newMembers: CreateMemberDTO[]
+  }) {
+    const membersInConversationSet = new Set(
+      membersInConversation.map((member) => member.account),
+    )
+
+    const membersWithoutDuplicate = newMembers.filter(
+      (member) => !membersInConversationSet.has(member.account),
+    )
+
+    return membersWithoutDuplicate
+  }
+
+  private async checkAccountsExists(user_accounts: { account: string }[]) {
+    return false
+  }
 }

@@ -2,6 +2,7 @@ import {
   CreateConversationDTO,
   CreateMemberDTO,
   CreateMessageDTO,
+  UpdateConversationDTO,
   UpdateMessageDTO,
 } from "src/conversation/conversation.dto"
 import {
@@ -11,6 +12,16 @@ import {
 } from "src/conversation/conversation.entity"
 
 export interface IConversationRepository {
+  findAllUserConversations({
+    user_account,
+    limit,
+    offset,
+  }: {
+    user_account: string
+    limit: number
+    offset: number
+  }): Promise<Conversation[]>
+
   findPersonalConversation({
     first_user,
     second_user,
@@ -18,6 +29,8 @@ export interface IConversationRepository {
     first_user: string
     second_user: string
   }): Promise<Conversation | null>
+
+  findPersonalConversationByName(name: string): Promise<Conversation | null>
 
   findConversationMember({
     user,
@@ -31,11 +44,18 @@ export interface IConversationRepository {
 
   findMessage(uuid: string): Promise<Message | null>
 
+  findAllMembersInConversation(conversation: string): Promise<Member[]>
+
   createConversation(dto: CreateConversationDTO): Promise<Conversation>
 
   createMembers(dto: CreateMemberDTO[]): Promise<Member[]>
 
   createMessage(dto: CreateMessageDTO): Promise<Message>
+
+  updateConversation(
+    conversation_uuid: string,
+    dto: UpdateConversationDTO,
+  ): Promise<Conversation>
 
   updateMessage(
     dto: UpdateMessageDTO & { media_url?: string },

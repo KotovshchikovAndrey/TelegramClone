@@ -1,4 +1,4 @@
-import { Model } from "mongoose"
+import { Model, Types } from "mongoose"
 import { Conversation, Member, Message } from "../conversation.entity"
 import { IConversationRepository } from "./interfaces/conversation.repository"
 import { InjectModel } from "@nestjs/mongoose"
@@ -6,6 +6,7 @@ import {
   CreateConversationDTO,
   CreateMemberDTO,
   CreateMessageDTO,
+  UpdateConversationDTO,
   UpdateMessageDTO,
 } from "../conversation.dto"
 import { randomUUID } from "crypto"
@@ -21,6 +22,95 @@ export class MongoConversationRepository implements IConversationRepository {
     @InjectModel("Member")
     private readonly members: Model<Member>,
   ) {}
+
+  async findAllUserConversations({
+    user_account,
+    limit,
+    offset,
+  }: {
+    user_account: string
+    limit: number
+    offset: number
+  }) {
+    const conversations = await this.conversations
+      .aggregate([
+        {
+          $lookup: {
+            from: "members",
+            localField: "uuid",
+            foreignField: "conversation",
+            as: "members",
+            pipeline: [
+              {
+                $project: {
+                  _id: 0,
+                  account: 1,
+                },
+              },
+            ],
+          },
+        },
+        { $match: { "members.account": user_account } },
+        {
+          $lookup: {
+            from: "messages",
+            localField: "uuid",
+            foreignField: "conversation",
+            as: "messages",
+            pipeline: [
+              {
+                $lookup: {
+                  from: "accounts",
+                  localField: "sender",
+                  foreignField: "uuid",
+                  as: "sender",
+                },
+              },
+              {
+                $unwind: "$sender",
+              },
+              {
+                $project: {
+                  _id: 0,
+                  uuid: 1,
+                  text: 1,
+                  media_url: 1,
+                  "sender.uuid": 1,
+                  "sender.name": 1,
+                  "sender.surname": 1,
+                  "sender.avatar": 1,
+                },
+              },
+              {
+                $limit: 10,
+              },
+              {
+                $sort: { created_at: -1 },
+              },
+            ],
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            uuid: 1,
+            is_group: 1,
+            name: 1,
+            description: 1,
+            avatar: 1,
+            created_at: 1,
+            last_message_at: 1,
+            messages: 1,
+          },
+        },
+      ])
+      .skip(offset)
+      .limit(limit)
+      .sort("-last_message_at")
+      .exec()
+
+    return conversations
+  }
 
   async findPersonalConversation({
     first_user,
@@ -62,6 +152,17 @@ export class MongoConversationRepository implements IConversationRepository {
     return conversation.length !== 0 ? conversation[0] : null
   }
 
+  async findPersonalConversationByName(name: string) {
+    const conversation = await this.conversations
+      .findOne({
+        name,
+        is_group: false,
+      })
+      .exec()
+
+    return conversation
+  }
+
   async findConversationMember({
     user,
     conversation,
@@ -100,6 +201,16 @@ export class MongoConversationRepository implements IConversationRepository {
     return message
   }
 
+  async findAllMembersInConversation(conversation: string) {
+    const members = await this.members
+      .find({
+        conversation,
+      })
+      .exec()
+
+    return members
+  }
+
   async createConversation(dto: CreateConversationDTO) {
     const newConversation = new this.conversations({
       uuid: randomUUID(),
@@ -112,7 +223,10 @@ export class MongoConversationRepository implements IConversationRepository {
   async createMembers(dto: CreateMemberDTO[]) {
     const newMembers = []
     for (const member of dto) {
-      newMembers.push({ uuid: randomUUID(), ...member })
+      newMembers.push({
+        uuid: `${member.account}_${member.conversation}`,
+        ...member,
+      })
     }
 
     const createdMembers = await this.members.create(newMembers)
@@ -125,7 +239,10 @@ export class MongoConversationRepository implements IConversationRepository {
       ...dto,
     })
 
-    return newMessage.save()
+    const createdMessage = await newMessage.save()
+    await this.updateLastMessageDate(createdMessage.conversation)
+
+    return createdMessage
   }
 
   async updateMessage(dto: UpdateMessageDTO & { media_url?: string }) {
@@ -143,5 +260,39 @@ export class MongoConversationRepository implements IConversationRepository {
       .exec()
 
     return updatedMessage
+  }
+
+  async updateConversation(
+    conversation_uuid: string,
+    dto: UpdateConversationDTO,
+  ) {
+    // remove undefined values
+    Object.keys(dto).forEach((key) => dto[key] === undefined && delete dto[key])
+    const updatedConversation = this.conversations.findOneAndUpdate(
+      {
+        uuid: conversation_uuid,
+      },
+      {
+        ...dto,
+      },
+      { new: true },
+    )
+
+    return updatedConversation
+  }
+
+  private async updateLastMessageDate(conversation: string) {
+    await this.conversations.updateOne(
+      {
+        uuid: conversation,
+      },
+      {
+        $set: {
+          last_message_at: new Date(Date.now()),
+        },
+      },
+    )
+
+    return null
   }
 }
