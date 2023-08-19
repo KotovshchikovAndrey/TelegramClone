@@ -1,0 +1,55 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Account {
+  uuid: String!
+  phone: String!
+  name: String
+  surname: String
+  about_me: String
+  avatar: String
+  birthday: DateTime
+  is_online: Boolean!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Message {
+  uuid: String!
+  sender: Account!
+  text: String
+  media_url: String
+  status: String!
+  created_at: DateTime!
+}
+
+type ConversationWithLastMessage {
+  uuid: String!
+  name: String
+  description: String
+  avatar: String
+  is_group: Boolean!
+  last_message_at: DateTime!
+  created_at: DateTime!
+  last_message: Message
+}
+
+type Query {
+  getUserConversations(limit: Int! = 10, offset: Int! = 0): [ConversationWithLastMessage]!
+}
+
+type Mutation {
+  createPersonalMessage(dto: CreatePersonalMessageDTO!, files: [Upload!]! = []): Message!
+}
+
+input CreatePersonalMessageDTO {
+  reciever_uuid: String!
+  text: String
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload

@@ -233,6 +233,6 @@ export class ConversationService {
   }
 
   private async checkAccountsExists(user_accounts: { account: string }[]) {
-    return false
+    return true
   }
 }

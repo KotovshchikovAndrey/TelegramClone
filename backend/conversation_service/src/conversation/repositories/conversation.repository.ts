@@ -75,20 +75,22 @@ export class MongoConversationRepository implements IConversationRepository {
                   uuid: 1,
                   text: 1,
                   media_url: 1,
-                  "sender.uuid": 1,
-                  "sender.name": 1,
-                  "sender.surname": 1,
-                  "sender.avatar": 1,
+                  created_at: 1,
+                  status: 1,
+                  sender: 1,
                 },
-              },
-              {
-                $limit: 10,
               },
               {
                 $sort: { created_at: -1 },
               },
+              {
+                $limit: 1,
+              },
             ],
           },
+        },
+        {
+          $addFields: { last_message: { $arrayElemAt: ["$messages", -1] } },
         },
         {
           $project: {
@@ -100,7 +102,7 @@ export class MongoConversationRepository implements IConversationRepository {
             avatar: 1,
             created_at: 1,
             last_message_at: 1,
-            messages: 1,
+            last_message: 1,
           },
         },
       ])
@@ -239,8 +241,13 @@ export class MongoConversationRepository implements IConversationRepository {
       ...dto,
     })
 
-    const createdMessage = await newMessage.save()
-    await this.updateLastMessageDate(createdMessage.conversation)
+    const createdMessage = newMessage.save().then((message) => {
+      this.updateLastMessageDate(message.conversation)
+      return message.populate({
+        path: "sender",
+        foreignField: "uuid",
+      })
+    })
 
     return createdMessage
   }
@@ -257,6 +264,10 @@ export class MongoConversationRepository implements IConversationRepository {
         },
         { new: true },
       )
+      .populate({
+        path: "sender",
+        foreignField: "uuid",
+      })
       .exec()
 
     return updatedMessage

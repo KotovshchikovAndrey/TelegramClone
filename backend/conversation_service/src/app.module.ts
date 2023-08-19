@@ -17,10 +17,10 @@ import { FileModule } from "./file/file.module"
       inject: [ConfigService],
       useFactory: getMongoConnection,
     }),
-    // GraphQLModule.forRoot<ApolloDriverConfig>({
-    //   driver: ApolloDriver,
-    //   autoSchemaFile: join(process.cwd(), "src/schema.gql"),
-    // }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), "src/schema.gql"),
+    }),
     ConversationModule,
     FileModule,
     // KafkaModule,

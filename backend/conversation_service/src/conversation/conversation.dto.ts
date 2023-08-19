@@ -7,13 +7,13 @@ import {
   IsArray,
 } from "class-validator"
 
-// @InputType()
+@InputType()
 export class CreatePersonalMessageDTO {
-  // @Field()
+  @Field()
   @IsUUID()
   reciever_uuid: string
 
-  // @Field()
+  @Field({ nullable: true })
   @IsOptional()
   @IsNotEmpty()
   @MaxLength(500)

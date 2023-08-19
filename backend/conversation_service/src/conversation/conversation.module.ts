@@ -10,7 +10,7 @@ import {
 import { ConversationService } from "./conversation.service"
 import { MongoConversationRepository } from "./repositories/conversation.repository"
 import { ConversationController } from "./conversation.controller"
-// import { ConversationResolver } from "./conversation.resolver"
+import { ConversationResolver } from "./conversation.resolver"
 import { FileModule } from "src/file/file.module"
 
 @Module({
@@ -31,7 +31,7 @@ import { FileModule } from "src/file/file.module"
       provide: "ConversationRepository",
       useClass: MongoConversationRepository,
     },
-    // ConversationResolver,
+    ConversationResolver,
   ],
   controllers: [ConversationController],
 })

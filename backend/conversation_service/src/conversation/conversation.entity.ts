@@ -9,137 +9,135 @@ export type MessageDocumenr = HydratedDocument<Message>
 export type MessageObserverDocument = HydratedDocument<MessageObserver>
 
 @Schema()
-// @ObjectType()
+@ObjectType()
 export class Account {
   @Prop({ required: true, unique: true })
-  // @Field(() => String)
+  @Field(() => String)
   uuid: string
 
   @Prop({ required: true })
-  // @Field({ nullable: false })
+  @Field({ nullable: false })
   phone: string
 
   @Prop({ required: false, default: null })
-  // @Field({ nullable: true })
+  @Field({ nullable: true })
   name?: string
 
   @Prop({ required: false, default: null })
-  // @Field({ nullable: true })
+  @Field({ nullable: true })
   surname?: string
 
   @Prop({ required: false, default: null })
-  // @Field({ nullable: true })
+  @Field({ nullable: true })
   about_me?: string
 
   @Prop({ required: false, default: null })
-  // @Field({ nullable: true })
+  @Field({ nullable: true })
   avatar?: string
 
   @Prop({ required: false })
-  // @Field(() => Date, { nullable: true })
+  @Field(() => Date, { nullable: true })
   birthday?: Date
 
   @Prop({ required: false, default: false })
-  // @Field({ nullable: false })
+  @Field({ nullable: false })
   is_online: boolean
 }
 
 @Schema({
   timestamps: { createdAt: "created_at", updatedAt: false },
 })
-// @ObjectType()
+@ObjectType()
 export class Conversation {
   @Prop({ required: true, unique: true })
-  // @Field(() => String)
+  @Field(() => String)
   uuid: string
 
   @Prop({ required: false, default: null })
-  // @Field({ nullable: true })
+  @Field({ nullable: true })
   name?: string
 
   @Prop({ required: false, default: null })
-  // @Field({ nullable: true })
+  @Field({ nullable: true })
   description?: string
 
   @Prop({ required: false, default: null })
-  // @Field({ nullable: true })
+  @Field({ nullable: true })
   avatar?: string
 
   @Prop({ required: false, default: false })
-  // @Field({ nullable: false })
+  @Field({ nullable: false })
   is_group: boolean
 
   @Prop({ required: false, default: new Date(Date.now()) })
-  // @Field(() => Date, { nullable: false })
+  @Field(() => Date, { nullable: false })
   last_message_at: Date
 
-  // @Field(() => Date, { nullable: false })
+  @Field(() => Date, { nullable: false })
   created_at: Date
 }
 
 @Schema({
   timestamps: { createdAt: "join_date", updatedAt: false },
 })
-// @ObjectType()
+@ObjectType()
 export class Member {
   @Prop({ required: true, unique: true })
-  // @Field(() => String)
+  @Field(() => String)
   uuid: string
 
   @Prop({ type: String, ref: "Account", required: true })
-  // @Field(() => String, { nullable: false })
+  @Field(() => String, { nullable: false })
   account: string
 
   @Prop({ type: String, ref: "Conversation", required: true })
-  // @Field(() => String, { nullable: false })
   conversation: string
 
   @Prop({ required: false, default: false })
-  // @Field({ nullable: false })
+  @Field({ nullable: false })
   is_admin: boolean
 
   @Prop({ required: false, default: true })
-  // @Field({ nullable: false })
+  @Field({ nullable: false })
   is_active: boolean
 
-  // @Field(() => Date, { nullable: false })
+  @Field(() => Date, { nullable: false })
   join_date: Date
 
   @Prop({ required: false, default: null })
-  // @Field(() => Date, { nullable: true })
+  @Field(() => Date, { nullable: true })
   leave_date?: Date
 }
 
 @Schema({
   timestamps: { createdAt: "created_at", updatedAt: false },
 })
-// @ObjectType()
+@ObjectType()
 export class Message {
   @Prop({ required: true, unique: true })
-  // @Field(() => String)
+  @Field(() => String)
   uuid: string
 
   @Prop({ type: String, ref: "Account", required: true })
-  // @Field(() => String, { nullable: false })
+  @Field(() => Account, { nullable: false })
   sender: string
 
   @Prop({ type: String, ref: "Conversation", required: true })
-  // @Field(() => String, { nullable: false })
   conversation: string
 
   @Prop({ required: false, default: null })
-  // @Field({ nullable: true })
+  @Field({ nullable: true })
   text?: string
 
   @Prop({ required: false, default: null })
-  // @Field({ nullable: true })
+  @Field({ nullable: true })
   media_url?: string
 
   @Prop({ default: "sent" })
-  // @Field()
+  @Field()
   status: "sent" | "delivered" | "readed"
 
-  // @Field(() => Date, { nullable: false })
+  @Field(() => Date, { nullable: false })
   created_at: Date
 }
 
@@ -156,6 +154,12 @@ export class MessageObserver {
   @Prop({ default: "sent" })
   // @Field()
   status: "sent" | "delivered" | "readed"
+}
+
+@ObjectType()
+export class ConversationWithLastMessage extends Conversation {
+  @Field(() => Message, { nullable: true })
+  last_message?: Message
 }
 
 export const AccountSchema = SchemaFactory.createForClass(Account)
