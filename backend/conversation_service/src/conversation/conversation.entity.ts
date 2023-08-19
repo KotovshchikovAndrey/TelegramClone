@@ -1,97 +1,156 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { HydratedDocument } from "mongoose"
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { Field, ObjectType } from "@nestjs/graphql"
 
+export type AccountDocument = HydratedDocument<Account>
 export type ConversationDocument = HydratedDocument<Conversation>
-export type ConversationMemberDocument = HydratedDocument<ConversationMember>
-export type ConversationMessageDocument = HydratedDocument<ConversationMessage>
+export type MemberDocument = HydratedDocument<Member>
+export type MessageDocumenr = HydratedDocument<Message>
+export type MessageObserverDocument = HydratedDocument<MessageObserver>
 
 @Schema()
-@ObjectType()
-export class Conversation {
+// @ObjectType()
+export class Account {
   @Prop({ required: true, unique: true })
-  @Field(() => String)
+  // @Field(() => String)
   uuid: string
 
   @Prop({ required: true })
-  @Field({ nullable: false })
-  name: string
+  // @Field({ nullable: false })
+  phone: string
 
-  @Prop({ required: false })
-  @Field({ nullable: true })
-  description?: string
+  @Prop({ required: false, default: null })
+  // @Field({ nullable: true })
+  name?: string
 
-  @Prop({ required: false })
-  @Field({ nullable: true })
+  @Prop({ required: false, default: null })
+  // @Field({ nullable: true })
+  surname?: string
+
+  @Prop({ required: false, default: null })
+  // @Field({ nullable: true })
+  about_me?: string
+
+  @Prop({ required: false, default: null })
+  // @Field({ nullable: true })
   avatar?: string
 
-  @Field(() => ConversationMember, { nullable: "items" })
-  members: Omit<ConversationMember, "conservation">[]
-}
-
-@Schema({ timestamps: { createdAt: "join_date" } })
-@ObjectType()
-export class ConversationMember {
-  @Prop({ required: true, unique: true })
-  @Field(() => String)
-  uuid: string
-
-  @Prop({ required: true })
-  user: string
-
-  @Prop({ type: String, ref: "Conversation", required: true })
-  @Field(() => String, { nullable: false })
-  conversation: string
-
-  @Prop({ default: false })
-  @Field()
-  is_admin: boolean
-
-  @Prop({ default: true })
-  @Field()
-  is_active: boolean
-
   @Prop({ required: false })
-  @Field(() => Date, { nullable: true })
-  leave_date?: Date
+  // @Field(() => Date, { nullable: true })
+  birthday?: Date
 
-  @Field(() => Date)
-  join_date: Date
+  @Prop({ required: false, default: false })
+  // @Field({ nullable: false })
+  is_online: boolean
 }
 
 @Schema({ timestamps: { createdAt: "created_at" } })
-@ObjectType()
-export class ConversationMessage {
+// @ObjectType()
+export class Conversation {
   @Prop({ required: true, unique: true })
-  @Field(() => String)
+  // @Field(() => String)
   uuid: string
 
-  @Prop({ type: String, ref: "ConversationMember", required: true })
-  @Field(() => String, { nullable: false })
+  @Prop({ required: false, default: null })
+  // @Field({ nullable: true })
+  name?: string
+
+  @Prop({ required: false, default: null })
+  // @Field({ nullable: true })
+  description?: string
+
+  @Prop({ required: false, default: null })
+  // @Field({ nullable: true })
+  avatar?: string
+
+  // @Field(() => Date, { nullable: false })
+  created_at: Date
+
+  @Prop({ required: false, default: false })
+  // @Field({ nullable: false })
+  is_group: boolean
+}
+
+@Schema({ timestamps: { createdAt: "join_date" } })
+// @ObjectType()
+export class Member {
+  @Prop({ required: true, unique: true })
+  // @Field(() => String)
+  uuid: string
+
+  @Prop({ type: String, ref: "Account", required: true })
+  // @Field(() => String, { nullable: false })
+  account: string
+
+  @Prop({ type: String, ref: "Conversation", required: true })
+  // @Field(() => String, { nullable: false })
+  conversation: string
+
+  @Prop({ required: false, default: false })
+  // @Field({ nullable: false })
+  is_admin: boolean
+
+  @Prop({ required: false, default: true })
+  // @Field({ nullable: false })
+  is_active: boolean
+
+  // @Field(() => Date, { nullable: false })
+  join_date: Date
+
+  @Prop({ required: false, default: null })
+  // @Field(() => Date, { nullable: true })
+  leave_date?: Date
+}
+
+@Schema({ timestamps: { createdAt: "created_at" } })
+// @ObjectType()
+export class Message {
+  @Prop({ required: true, unique: true })
+  // @Field(() => String)
+  uuid: string
+
+  @Prop({ type: String, ref: "Account", required: true })
+  // @Field(() => String, { nullable: false })
   sender: string
 
-  @Prop({ required: true })
-  @Field()
-  text: string
+  @Prop({ type: String, ref: "Conversation", required: true })
+  // @Field(() => String, { nullable: false })
+  conversation: string
 
-  @Prop({ required: false })
-  @Field({ nullable: true })
+  @Prop({ required: false, default: null })
+  // @Field({ nullable: true })
+  text?: string
+
+  @Prop({ required: false, default: null })
+  // @Field({ nullable: true })
   media_url?: string
 
   @Prop({ default: "sent" })
-  @Field()
-  status: "sent" | "received" | "readed"
+  // @Field()
+  status: "sent" | "delivered" | "readed"
 
-  @Prop({ default: [] })
-  @Field(() => [String], { nullable: "items" })
-  viewers: string[]
-
-  @Field(() => Date)
+  // @Field(() => Date, { nullable: false })
   created_at: Date
 }
 
+@Schema()
+export class MessageObserver {
+  @Prop({ type: String, ref: "Message", required: true })
+  // @Field(() => String, { nullable: false })
+  message: string
+
+  @Prop({ type: String, ref: "Member", required: true })
+  // @Field(() => String, { nullable: false })
+  member: string
+
+  @Prop({ default: "sent" })
+  // @Field()
+  status: "sent" | "delivered" | "readed"
+}
+
+export const AccountSchema = SchemaFactory.createForClass(Account)
 export const ConversationSchema = SchemaFactory.createForClass(Conversation)
-export const ConversationMemberSchema =
-  SchemaFactory.createForClass(ConversationMember)
-export const ConversationMessageSchema =
-  SchemaFactory.createForClass(ConversationMessage)
+export const MemberSchema = SchemaFactory.createForClass(Member)
+export const MessageSchema = SchemaFactory.createForClass(Message)
+export const MessageObserverSchema =
+  SchemaFactory.createForClass(MessageObserver)

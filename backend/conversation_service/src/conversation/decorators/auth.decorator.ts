@@ -1,6 +1,5 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common"
 import { GqlExecutionContext } from "@nestjs/graphql"
-import axios from "axios"
 
 export const CurrentUser = createParamDecorator(
   async (data: unknown, context: ExecutionContext) => {

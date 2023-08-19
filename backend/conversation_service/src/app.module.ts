@@ -4,7 +4,6 @@ import { ConfigModule, ConfigService } from "@nestjs/config"
 import { GraphQLModule } from "@nestjs/graphql"
 import { ApolloDriverConfig, ApolloDriver } from "@nestjs/apollo"
 import { getMongoConnection } from "./db/mongo.connection"
-import { MessageModule } from "./message/message.module"
 import { ConversationModule } from "./conversation/conversation.module"
 import { join } from "path"
 import { FileModule } from "./file/file.module"
@@ -18,11 +17,10 @@ import { FileModule } from "./file/file.module"
       inject: [ConfigService],
       useFactory: getMongoConnection,
     }),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
-      autoSchemaFile: join(process.cwd(), "src/schema.gql"),
-    }),
-    MessageModule,
+    // GraphQLModule.forRoot<ApolloDriverConfig>({
+    //   driver: ApolloDriver,
+    //   autoSchemaFile: join(process.cwd(), "src/schema.gql"),
+    // }),
     ConversationModule,
     FileModule,
     // KafkaModule,

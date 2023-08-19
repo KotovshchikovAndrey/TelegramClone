@@ -1,38 +1,78 @@
-import { InputType, Field, Int } from "@nestjs/graphql"
-import { MaxLength, IsNotEmpty } from "class-validator"
+import { Field, Int, InputType } from "@nestjs/graphql"
+import {
+  MaxLength,
+  IsNotEmpty,
+  IsUUID,
+  IsOptional,
+  IsArray,
+} from "class-validator"
 
-@InputType()
+// @InputType()
+export class CreatePersonalMessageDTO {
+  // @Field()
+  @IsUUID()
+  reciever_uuid: string
+
+  // @Field()
+  @IsOptional()
+  @IsNotEmpty()
+  @MaxLength(500)
+  text?: string
+}
+
 export class CreateConversationDTO {
-  @Field()
-  name: string
-
-  @Field({ nullable: true })
+  is_group: boolean
+  name?: string
   description?: string
-
-  @Field({ nullable: true })
   avatar?: string
 }
 
-export class CreateMemberDTO {
+export class CreateMessageDTO {
+  sender: string
   conversation: string
-  user: string
+  text?: string
+  media_url?: string
+}
+
+export class CreateMemberDTO {
+  account: string
+  conversation: string
   is_admin: boolean
 }
 
-export class CreateMembersDTO {
-  conversation: string
-  members: Omit<CreateMemberDTO, "conservation">[] = []
+export class CreateGroupDTO {
+  @IsNotEmpty()
+  @MaxLength(20)
+  name: string
+
+  @IsOptional()
+  @IsNotEmpty()
+  @MaxLength(70)
+  description?: string
+
+  @IsArray()
+  @IsUUID("4", { each: true })
+  users: string[]
 }
 
-export class CreateMessageDTO {
-  @Field()
-  @MaxLength(500)
+export class CreateGroupMessageDTO {
   @IsNotEmpty()
-  text: string
-
-  @Field()
-  @IsNotEmpty()
+  @IsUUID()
   conversation: string
 
-  media_url?: string
+  @IsOptional()
+  @IsNotEmpty()
+  @MaxLength(500)
+  text?: string
+}
+
+export class UpdateMessageDTO {
+  @IsNotEmpty()
+  @IsUUID()
+  uuid: string
+
+  @IsOptional()
+  @IsNotEmpty()
+  @MaxLength(500)
+  text?: string
 }
