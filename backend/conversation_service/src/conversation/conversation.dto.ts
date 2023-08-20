@@ -77,8 +77,26 @@ export class UpdateMessageDTO {
   text?: string
 }
 
+export class SetUserMessageStatus {
+  user: string
+  conversation: string
+  message: string
+  status: "sent" | "delivered" | "readed"
+}
+
 export class UpdateConversationDTO {
   name?: string
   description?: string
   avatar?: string
+}
+
+export class SetMessageStatusDTO {
+  uuid: string
+  status: "sent" | "delivered" | "readed"
+}
+
+export class SetMemberMessageStatusDTO {
+  member: string
+  message: string
+  status: "sent" | "delivered" | "readed"
 }

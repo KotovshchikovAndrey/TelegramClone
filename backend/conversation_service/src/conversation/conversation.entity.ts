@@ -6,7 +6,7 @@ export type AccountDocument = HydratedDocument<Account>
 export type ConversationDocument = HydratedDocument<Conversation>
 export type MemberDocument = HydratedDocument<Member>
 export type MessageDocumenr = HydratedDocument<Message>
-export type MessageObserverDocument = HydratedDocument<MessageObserver>
+export type MemberMessageStatusDocument = HydratedDocument<MemberMessageStatus>
 
 @Schema()
 @ObjectType()
@@ -142,7 +142,7 @@ export class Message {
 }
 
 @Schema()
-export class MessageObserver {
+export class MemberMessageStatus {
   @Prop({ type: String, ref: "Message", required: true })
   // @Field(() => String, { nullable: false })
   message: string
@@ -166,5 +166,5 @@ export const AccountSchema = SchemaFactory.createForClass(Account)
 export const ConversationSchema = SchemaFactory.createForClass(Conversation)
 export const MemberSchema = SchemaFactory.createForClass(Member)
 export const MessageSchema = SchemaFactory.createForClass(Message)
-export const MessageObserverSchema =
-  SchemaFactory.createForClass(MessageObserver)
+export const MemberMessageStatusSchema =
+  SchemaFactory.createForClass(MemberMessageStatus)

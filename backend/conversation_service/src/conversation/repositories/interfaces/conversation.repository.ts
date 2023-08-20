@@ -2,12 +2,15 @@ import {
   CreateConversationDTO,
   CreateMemberDTO,
   CreateMessageDTO,
+  SetMemberMessageStatusDTO,
+  SetMessageStatusDTO,
   UpdateConversationDTO,
   UpdateMessageDTO,
 } from "src/conversation/conversation.dto"
 import {
   Conversation,
   Member,
+  MemberMessageStatus,
   Message,
 } from "src/conversation/conversation.entity"
 
@@ -60,4 +63,16 @@ export interface IConversationRepository {
   updateMessage(
     dto: UpdateMessageDTO & { media_url?: string },
   ): Promise<Message>
+
+  setMessageStatus(dto: SetMessageStatusDTO): Promise<Message>
+
+  setMemberMessageStatus(
+    dto: SetMemberMessageStatusDTO,
+  ): Promise<MemberMessageStatus>
+
+  aggregateMembersCountInConversation(conversation: string): Promise<number>
+
+  aggregateMemberMesssageStatusesCountInConversation(
+    conversation: string,
+  ): Promise<{ delivered: number; readed: number }>
 }

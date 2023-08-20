@@ -5,11 +5,13 @@ import {
   CreateGroupMessageDTO,
   CreateMemberDTO,
   CreatePersonalMessageDTO,
+  SetMemberMessageStatusDTO,
+  SetUserMessageStatus,
   UpdateMessageDTO,
 } from "./conversation.dto"
 import { User } from "src/app.entity"
-import { FileDTO } from "src/file/file.dto"
-import { FileService } from "src/file/file.service"
+import { FileDTO } from "../file/file.dto"
+import { FileService } from "../file/file.service"
 import { Member } from "./conversation.entity"
 import { createHash } from "crypto"
 
@@ -199,6 +201,32 @@ export class ConversationService {
     })
   }
 
+  async setMessageStatusForUserInConversation(dto: SetUserMessageStatus) {
+    const member = await this.repository.findConversationMember({
+      user: dto.user,
+      conversation: dto.conversation,
+    })
+
+    if (member == null) {
+      throw Error("Forbidden!")
+    }
+
+    const messageMemberStatus = this.repository
+      .setMemberMessageStatus({
+        member: member.uuid,
+        message: dto.message,
+        status: dto.status,
+      })
+      .then(() =>
+        this.updateMessageStatusInConversation({
+          conversation_uuid: dto.conversation,
+          message_uuid: dto.message,
+        }),
+      )
+
+    return messageMemberStatus
+  }
+
   private getNameForPersonalConversation({
     first_user,
     second_user,
@@ -230,6 +258,42 @@ export class ConversationService {
     )
 
     return membersWithoutDuplicate
+  }
+
+  private async updateMessageStatusInConversation({
+    message_uuid,
+    conversation_uuid,
+  }: {
+    message_uuid: string
+    conversation_uuid: string
+  }) {
+    const membersCountInConversation =
+      await this.repository.aggregateMembersCountInConversation(
+        conversation_uuid,
+      )
+
+    const { delivered, readed } =
+      await this.repository.aggregateMemberMesssageStatusesCountInConversation(
+        conversation_uuid,
+      )
+
+    const messageIsDelivered = membersCountInConversation === delivered + readed
+    if (messageIsDelivered) {
+      return this.repository.setMessageStatus({
+        uuid: message_uuid,
+        status: "delivered",
+      })
+    }
+
+    const messageIsReaded = membersCountInConversation === readed
+    if (messageIsReaded) {
+      return this.repository.setMessageStatus({
+        uuid: message_uuid,
+        status: "readed",
+      })
+    }
+
+    return null
   }
 
   private async checkAccountsExists(user_accounts: { account: string }[]) {

@@ -1,11 +1,18 @@
 import { Model, Types } from "mongoose"
-import { Conversation, Member, Message } from "../conversation.entity"
+import {
+  Conversation,
+  Member,
+  MemberMessageStatus,
+  Message,
+} from "../conversation.entity"
 import { IConversationRepository } from "./interfaces/conversation.repository"
 import { InjectModel } from "@nestjs/mongoose"
 import {
   CreateConversationDTO,
   CreateMemberDTO,
   CreateMessageDTO,
+  SetMemberMessageStatusDTO,
+  SetMessageStatusDTO,
   UpdateConversationDTO,
   UpdateMessageDTO,
 } from "../conversation.dto"
@@ -21,6 +28,9 @@ export class MongoConversationRepository implements IConversationRepository {
 
     @InjectModel("Member")
     private readonly members: Model<Member>,
+
+    @InjectModel("MemberMessageStatus")
+    private readonly memberMessageStatuses: Model<MemberMessageStatus>,
   ) {}
 
   async findAllUserConversations({
@@ -279,17 +289,113 @@ export class MongoConversationRepository implements IConversationRepository {
   ) {
     // remove undefined values
     Object.keys(dto).forEach((key) => dto[key] === undefined && delete dto[key])
-    const updatedConversation = this.conversations.findOneAndUpdate(
+    const updatedConversation = this.conversations
+      .findOneAndUpdate(
+        {
+          uuid: conversation_uuid,
+        },
+        {
+          ...dto,
+        },
+        { new: true },
+      )
+      .exec()
+
+    return updatedConversation
+  }
+
+  async setMessageStatus(dto: SetMessageStatusDTO) {
+    const updatedMessage = await this.messages.findOneAndUpdate(
       {
-        uuid: conversation_uuid,
+        uuid: dto.uuid,
       },
-      {
-        ...dto,
-      },
+      { status: dto.status },
       { new: true },
     )
 
-    return updatedConversation
+    return updatedMessage
+  }
+
+  async setMemberMessageStatus(dto: SetMemberMessageStatusDTO) {
+    let memberMessageStatus = await this.memberMessageStatuses
+      .findOneAndUpdate(
+        {
+          member: dto.member,
+          message: dto.message,
+        },
+        {
+          status: dto.status,
+        },
+        { new: true },
+      )
+      .exec()
+
+    if (memberMessageStatus == null) {
+      const newMemberMessageStatus = new this.memberMessageStatuses(dto)
+      memberMessageStatus = await newMemberMessageStatus.save()
+    }
+
+    return memberMessageStatus
+  }
+
+  async aggregateMembersCountInConversation(conversation: string) {
+    const membersCount = await this.members
+      .countDocuments({
+        conversation: conversation,
+      })
+      .exec()
+
+    return membersCount
+  }
+
+  async aggregateMemberMesssageStatusesCountInConversation(
+    conversation: string,
+  ) {
+    const aggregation = await this.memberMessageStatuses
+      .aggregate([
+        {
+          $lookup: {
+            from: "members",
+            localField: "member",
+            foreignField: "uuid",
+            as: "member",
+            pipeline: [
+              {
+                $project: {
+                  _id: 0,
+                  conversation: 1,
+                },
+              },
+            ],
+          },
+        },
+        { $match: { "member.conversation": conversation } },
+        {
+          $group: {
+            _id: null,
+            delivered: {
+              $sum: {
+                $cond: [{ $eq: ["$status", "delivered"] }, 1, 0],
+              },
+            },
+            readed: {
+              $sum: {
+                $cond: [{ $eq: ["$status", "readed"] }, 1, 0],
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            delivered: 1,
+            readed: 1,
+          },
+        },
+      ])
+      .exec()
+
+    return aggregation ? aggregation[0] : { delivered: 0, readed: 0 }
   }
 
   private async updateLastMessageDate(conversation: string) {

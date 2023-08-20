@@ -4,7 +4,7 @@ import {
   AccountSchema,
   ConversationSchema,
   MemberSchema,
-  MessageObserverSchema,
+  MemberMessageStatusSchema,
   MessageSchema,
 } from "./conversation.entity"
 import { ConversationService } from "./conversation.service"
@@ -21,7 +21,7 @@ import { FileModule } from "src/file/file.module"
       { name: "Conversation", schema: ConversationSchema },
       { name: "Member", schema: MemberSchema },
       { name: "Message", schema: MessageSchema },
-      { name: "MessageObserver", schema: MessageObserverSchema },
+      { name: "MemberMessageStatus", schema: MemberMessageStatusSchema },
     ]),
   ],
   exports: [ConversationService],
