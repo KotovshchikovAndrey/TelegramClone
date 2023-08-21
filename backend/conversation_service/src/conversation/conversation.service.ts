@@ -5,7 +5,6 @@ import {
   CreateGroupMessageDTO,
   CreateMemberDTO,
   CreatePersonalMessageDTO,
-  SetMemberMessageStatusDTO,
   SetUserMessageStatus,
   UpdateMessageDTO,
 } from "./conversation.dto"
@@ -201,7 +200,7 @@ export class ConversationService {
     })
   }
 
-  async setMessageStatusForUserInConversation(dto: SetUserMessageStatus) {
+  async setMessageStatusForUser(dto: SetUserMessageStatus) {
     const member = await this.repository.findConversationMember({
       user: dto.user,
       conversation: dto.conversation,
@@ -211,9 +210,9 @@ export class ConversationService {
       throw Error("Forbidden!")
     }
 
-    const messageMemberStatus = this.repository
-      .setMemberMessageStatus({
-        member: member.uuid,
+    const accountMemberStatus = this.repository
+      .setAccountMessageStatus({
+        account: dto.user,
         message: dto.message,
         status: dto.status,
       })
@@ -224,7 +223,7 @@ export class ConversationService {
         }),
       )
 
-    return messageMemberStatus
+    return accountMemberStatus
   }
 
   private getNameForPersonalConversation({
@@ -268,12 +267,10 @@ export class ConversationService {
     conversation_uuid: string
   }) {
     const membersCountInConversation =
-      await this.repository.aggregateMembersCountInConversation(
-        conversation_uuid,
-      )
+      await this.repository.countMembersInConversation(conversation_uuid)
 
     const { delivered, readed } =
-      await this.repository.aggregateMemberMesssageStatusesCountInConversation(
+      await this.repository.countAccountMesssageStatusesInConversation(
         conversation_uuid,
       )
 

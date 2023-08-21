@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common"
 import { MongooseModule } from "@nestjs/mongoose"
 import {
+  AccountMessageStatusSchema,
   AccountSchema,
   ConversationSchema,
   MemberSchema,
-  MemberMessageStatusSchema,
   MessageSchema,
 } from "./conversation.entity"
 import { ConversationService } from "./conversation.service"
@@ -21,7 +21,7 @@ import { FileModule } from "src/file/file.module"
       { name: "Conversation", schema: ConversationSchema },
       { name: "Member", schema: MemberSchema },
       { name: "Message", schema: MessageSchema },
-      { name: "MemberMessageStatus", schema: MemberMessageStatusSchema },
+      { name: "AccountMessageStatus", schema: AccountMessageStatusSchema },
     ]),
   ],
   exports: [ConversationService],

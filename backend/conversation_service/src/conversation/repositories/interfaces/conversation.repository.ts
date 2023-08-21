@@ -2,15 +2,15 @@ import {
   CreateConversationDTO,
   CreateMemberDTO,
   CreateMessageDTO,
-  SetMemberMessageStatusDTO,
+  SetAccountMessageStatusDTO,
   SetMessageStatusDTO,
   UpdateConversationDTO,
   UpdateMessageDTO,
 } from "src/conversation/conversation.dto"
 import {
+  AccountMessageStatus,
   Conversation,
   Member,
-  MemberMessageStatus,
   Message,
 } from "src/conversation/conversation.entity"
 
@@ -66,13 +66,13 @@ export interface IConversationRepository {
 
   setMessageStatus(dto: SetMessageStatusDTO): Promise<Message>
 
-  setMemberMessageStatus(
-    dto: SetMemberMessageStatusDTO,
-  ): Promise<MemberMessageStatus>
+  setAccountMessageStatus(
+    dto: SetAccountMessageStatusDTO,
+  ): Promise<AccountMessageStatus>
 
-  aggregateMembersCountInConversation(conversation: string): Promise<number>
+  countMembersInConversation(conversation: string): Promise<number>
 
-  aggregateMemberMesssageStatusesCountInConversation(
+  countAccountMesssageStatusesInConversation(
     conversation: string,
   ): Promise<{ delivered: number; readed: number }>
 }

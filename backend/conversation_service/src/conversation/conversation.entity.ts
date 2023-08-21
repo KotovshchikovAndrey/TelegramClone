@@ -5,8 +5,9 @@ import { Field, ObjectType } from "@nestjs/graphql"
 export type AccountDocument = HydratedDocument<Account>
 export type ConversationDocument = HydratedDocument<Conversation>
 export type MemberDocument = HydratedDocument<Member>
-export type MessageDocumenr = HydratedDocument<Message>
-export type MemberMessageStatusDocument = HydratedDocument<MemberMessageStatus>
+export type MessageDocument = HydratedDocument<Message>
+export type AccountMessageStatusDocument =
+  HydratedDocument<AccountMessageStatus>
 
 @Schema()
 @ObjectType()
@@ -142,14 +143,14 @@ export class Message {
 }
 
 @Schema()
-export class MemberMessageStatus {
+export class AccountMessageStatus {
+  @Prop({ type: String, ref: "Account", required: true })
+  // @Field(() => String, { nullable: false })
+  account: string
+
   @Prop({ type: String, ref: "Message", required: true })
   // @Field(() => String, { nullable: false })
   message: string
-
-  @Prop({ type: String, ref: "Member", required: true })
-  // @Field(() => String, { nullable: false })
-  member: string
 
   @Prop({ default: "sent" })
   // @Field()
@@ -166,5 +167,5 @@ export const AccountSchema = SchemaFactory.createForClass(Account)
 export const ConversationSchema = SchemaFactory.createForClass(Conversation)
 export const MemberSchema = SchemaFactory.createForClass(Member)
 export const MessageSchema = SchemaFactory.createForClass(Message)
-export const MemberMessageStatusSchema =
-  SchemaFactory.createForClass(MemberMessageStatus)
+export const AccountMessageStatusSchema =
+  SchemaFactory.createForClass(AccountMessageStatus)

@@ -32,9 +32,9 @@ export class ConversationController {
 
   // @Get()
   // async aggregate() {
-  //   return this.conversationService.setMemberMessageStatus({
-
-  //   })
+  //   const data = await this.conversationService.test()
+  //   console.log(data)
+  //   return data
   // }
 
   @Post()

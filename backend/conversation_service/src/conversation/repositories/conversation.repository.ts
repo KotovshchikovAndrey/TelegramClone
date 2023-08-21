@@ -1,8 +1,8 @@
-import { Model, Types } from "mongoose"
+import { Model } from "mongoose"
 import {
+  AccountMessageStatus,
   Conversation,
   Member,
-  MemberMessageStatus,
   Message,
 } from "../conversation.entity"
 import { IConversationRepository } from "./interfaces/conversation.repository"
@@ -11,7 +11,7 @@ import {
   CreateConversationDTO,
   CreateMemberDTO,
   CreateMessageDTO,
-  SetMemberMessageStatusDTO,
+  SetAccountMessageStatusDTO,
   SetMessageStatusDTO,
   UpdateConversationDTO,
   UpdateMessageDTO,
@@ -29,8 +29,8 @@ export class MongoConversationRepository implements IConversationRepository {
     @InjectModel("Member")
     private readonly members: Model<Member>,
 
-    @InjectModel("MemberMessageStatus")
-    private readonly memberMessageStatuses: Model<MemberMessageStatus>,
+    @InjectModel("AccountMessageStatus")
+    private readonly accountMessageStatuses: Model<AccountMessageStatus>,
   ) {}
 
   async findAllUserConversations({
@@ -316,11 +316,11 @@ export class MongoConversationRepository implements IConversationRepository {
     return updatedMessage
   }
 
-  async setMemberMessageStatus(dto: SetMemberMessageStatusDTO) {
-    let memberMessageStatus = await this.memberMessageStatuses
+  async setAccountMessageStatus(dto: SetAccountMessageStatusDTO) {
+    let accountMessageStatuses = await this.accountMessageStatuses
       .findOneAndUpdate(
         {
-          member: dto.member,
+          account: dto.account,
           message: dto.message,
         },
         {
@@ -330,15 +330,15 @@ export class MongoConversationRepository implements IConversationRepository {
       )
       .exec()
 
-    if (memberMessageStatus == null) {
-      const newMemberMessageStatus = new this.memberMessageStatuses(dto)
-      memberMessageStatus = await newMemberMessageStatus.save()
+    if (accountMessageStatuses == null) {
+      const newMemberMessageStatus = new this.accountMessageStatuses(dto)
+      accountMessageStatuses = await newMemberMessageStatus.save()
     }
 
-    return memberMessageStatus
+    return accountMessageStatuses
   }
 
-  async aggregateMembersCountInConversation(conversation: string) {
+  async countMembersInConversation(conversation: string) {
     const membersCount = await this.members
       .countDocuments({
         conversation: conversation,
@@ -348,17 +348,15 @@ export class MongoConversationRepository implements IConversationRepository {
     return membersCount
   }
 
-  async aggregateMemberMesssageStatusesCountInConversation(
-    conversation: string,
-  ) {
-    const aggregation = await this.memberMessageStatuses
+  async countAccountMesssageStatusesInConversation(conversation: string) {
+    const aggregation = await this.accountMessageStatuses
       .aggregate([
         {
           $lookup: {
-            from: "members",
-            localField: "member",
+            from: "messages",
+            localField: "message",
             foreignField: "uuid",
-            as: "member",
+            as: "message",
             pipeline: [
               {
                 $project: {
@@ -369,7 +367,7 @@ export class MongoConversationRepository implements IConversationRepository {
             ],
           },
         },
-        { $match: { "member.conversation": conversation } },
+        { $match: { "message.conversation": conversation } },
         {
           $group: {
             _id: null,

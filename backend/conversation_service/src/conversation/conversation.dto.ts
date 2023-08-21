@@ -95,8 +95,8 @@ export class SetMessageStatusDTO {
   status: "sent" | "delivered" | "readed"
 }
 
-export class SetMemberMessageStatusDTO {
-  member: string
+export class SetAccountMessageStatusDTO {
+  account: string
   message: string
   status: "sent" | "delivered" | "readed"
 }
