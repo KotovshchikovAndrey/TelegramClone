@@ -84,7 +84,7 @@ describe("ConversationService", () => {
     currentUser.user_uuid = randomUUID()
 
     expect(
-      await conversationService.getUserConversations(currentUser, {
+      await conversationService.getAllConversationsForCurrentUser(currentUser, {
         limit: 10,
         offset: 0,
       }),
@@ -99,7 +99,7 @@ describe("ConversationService", () => {
       await conversationService.createPersonalMessage(
         currentUser,
         {
-          reciever_uuid: "second_user",
+          reciever: "second_user",
           text: "text_aaaaaaaaaaaaa",
         },
         [],

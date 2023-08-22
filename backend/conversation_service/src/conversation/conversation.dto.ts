@@ -1,17 +1,19 @@
-import { Field, Int, InputType } from "@nestjs/graphql"
+import { Field, Int, InputType, ObjectType } from "@nestjs/graphql"
 import {
   MaxLength,
   IsNotEmpty,
   IsUUID,
   IsOptional,
   IsArray,
+  IsString,
+  IsIn,
 } from "class-validator"
 
 @InputType()
 export class CreatePersonalMessageDTO {
   @Field()
   @IsUUID()
-  reciever_uuid: string
+  reciever: string
 
   @Field({ nullable: true })
   @IsOptional()
@@ -77,10 +79,15 @@ export class UpdateMessageDTO {
   text?: string
 }
 
-export class SetUserMessageStatus {
-  user: string
-  conversation: string
+@InputType()
+export class SetUserMessageStatusDTO {
+  @Field({ nullable: false })
+  @IsNotEmpty()
+  @IsUUID()
   message: string
+
+  @Field({ nullable: false })
+  @IsIn(["sent", "delivered", "readed"])
   status: "sent" | "delivered" | "readed"
 }
 

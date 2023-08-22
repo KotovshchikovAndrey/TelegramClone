@@ -15,12 +15,12 @@ import {
 } from "src/conversation/conversation.entity"
 
 export interface IConversationRepository {
-  findAllUserConversations({
-    user_account,
+  findConversationsWhereAccountIsMember({
+    account,
     limit,
     offset,
   }: {
-    user_account: string
+    account: string
     limit: number
     offset: number
   }): Promise<Conversation[]>
@@ -36,10 +36,10 @@ export interface IConversationRepository {
   findPersonalConversationByName(name: string): Promise<Conversation | null>
 
   findConversationMember({
-    user,
+    account,
     conversation,
   }: {
-    user: string
+    account: string
     conversation: string
   }): Promise<Member | null>
 
@@ -66,13 +66,21 @@ export interface IConversationRepository {
 
   setMessageStatus(dto: SetMessageStatusDTO): Promise<Message>
 
-  setAccountMessageStatus(
+  setMessageStatusForAccount(
     dto: SetAccountMessageStatusDTO,
   ): Promise<AccountMessageStatus>
 
   countMembersInConversation(conversation: string): Promise<number>
 
-  countAccountMesssageStatusesInConversation(
-    conversation: string,
-  ): Promise<{ delivered: number; readed: number }>
+  countMesssageStatusesSummary(
+    message: string,
+  ): Promise<{ total: number; delivered: number; readed: number }>
+
+  countUnreadMessagesForAccount({
+    account,
+    conversation,
+  }: {
+    account: string
+    conversation: string
+  }): Promise<{ count: number }>
 }

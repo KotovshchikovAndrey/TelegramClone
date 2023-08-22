@@ -27,6 +27,12 @@ type Message {
   created_at: DateTime!
 }
 
+type AccountMessageStatus {
+  account: String!
+  message: String!
+  status: String!
+}
+
 type ConversationWithLastMessage {
   uuid: String!
   name: String
@@ -39,17 +45,24 @@ type ConversationWithLastMessage {
 }
 
 type Query {
-  getUserConversations(limit: Int! = 10, offset: Int! = 0): [ConversationWithLastMessage]!
+  getAllConversationsForCurrentUser(limit: Int! = 10, offset: Int! = 0): [ConversationWithLastMessage]!
+  getUnreadMessageCountForCurrentUser(conversation: String!): Int!
 }
 
 type Mutation {
   createPersonalMessage(dto: CreatePersonalMessageDTO!, files: [Upload!]! = []): Message!
+  setMessageStatusForCurrentUser(dto: SetUserMessageStatusDTO!): AccountMessageStatus!
 }
 
 input CreatePersonalMessageDTO {
-  reciever_uuid: String!
+  reciever: String!
   text: String
 }
 
 """The `Upload` scalar type represents a file upload."""
 scalar Upload
+
+input SetUserMessageStatusDTO {
+  message: String!
+  status: String!
+}

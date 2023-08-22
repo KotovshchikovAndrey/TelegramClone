@@ -1,10 +1,13 @@
 import { Args, Int, Mutation, Query, Resolver } from "@nestjs/graphql"
 import { FileUpload } from "src/file/file.types"
-import { ConversationWithLastMessage, Message } from "./conversation.entity"
+import { AccountMessageStatus, ConversationWithLastMessage, Message } from "./conversation.entity"
 import * as GraphQLUpload from "graphql-upload/GraphQLUpload.js"
 import { CurrentUser } from "./decorators/auth.decorator"
 import { User } from "src/app.entity"
-import { CreatePersonalMessageDTO } from "./conversation.dto"
+import {
+  CreatePersonalMessageDTO,
+  SetUserMessageStatusDTO,
+} from "./conversation.dto"
 import { ConversationService } from "./conversation.service"
 import { FileDTO } from "src/file/file.dto"
 
@@ -13,17 +16,31 @@ export class ConversationResolver {
   constructor(private readonly conversationService: ConversationService) {}
 
   @Query(() => [ConversationWithLastMessage], { nullable: "items" })
-  async getUserConversations(
+  async getAllConversationsForCurrentUser(
     @CurrentUser() currentUser: User,
     @Args("limit", { type: () => Int, defaultValue: 10 })
     limit: number,
     @Args("offset", { type: () => Int, defaultValue: 0 })
     offset: number,
   ) {
-    return this.conversationService.getUserConversations(currentUser, {
-      limit: limit,
-      offset: offset,
-    })
+    return this.conversationService.getAllConversationsForCurrentUser(
+      currentUser,
+      {
+        limit: limit,
+        offset: offset,
+      },
+    )
+  }
+
+  @Query(() => Int, { defaultValue: 0 })
+  async getUnreadMessageCountForCurrentUser(
+    @CurrentUser() currentUser: User,
+    @Args("conversation") conversation: string,
+  ) {
+    return this.conversationService.getUnreadMessageCountForCurrentUser(
+      currentUser,
+      conversation,
+    )
   }
 
   @Mutation(() => Message)
@@ -43,5 +60,13 @@ export class ConversationResolver {
       dto,
       messageFiles,
     )
+  }
+
+  @Mutation(() => AccountMessageStatus)
+  async setMessageStatusForCurrentUser(
+    @CurrentUser() currentUser: User,
+    @Args("dto") dto: SetUserMessageStatusDTO,
+  ) {
+    return this.conversationService.setMessageStatusForUser(currentUser, dto)
   }
 }

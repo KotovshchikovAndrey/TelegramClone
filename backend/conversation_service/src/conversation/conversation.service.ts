@@ -5,7 +5,7 @@ import {
   CreateGroupMessageDTO,
   CreateMemberDTO,
   CreatePersonalMessageDTO,
-  SetUserMessageStatus,
+  SetUserMessageStatusDTO,
   UpdateMessageDTO,
 } from "./conversation.dto"
 import { User } from "src/app.entity"
@@ -22,7 +22,7 @@ export class ConversationService {
     private readonly fileService: FileService,
   ) {}
 
-  async getUserConversations(
+  async getAllConversationsForCurrentUser(
     currentUser: User,
     {
       limit,
@@ -32,13 +32,27 @@ export class ConversationService {
       offset: number
     },
   ) {
-    const conversations = await this.repository.findAllUserConversations({
-      user_account: currentUser.user_uuid,
-      limit,
-      offset,
-    })
+    const conversations =
+      await this.repository.findConversationsWhereAccountIsMember({
+        account: currentUser.user_uuid,
+        limit,
+        offset,
+      })
 
     return conversations
+  }
+
+  async getUnreadMessageCountForCurrentUser(
+    currentUser: User,
+    conversation: string,
+  ) {
+    const unreadMessageCount =
+      await this.repository.countUnreadMessagesForAccount({
+        account: currentUser.user_uuid,
+        conversation: conversation,
+      })
+
+    return unreadMessageCount.count
   }
 
   async createPersonalMessage(
@@ -52,7 +66,7 @@ export class ConversationService {
 
     const conversationName = this.getNameForPersonalConversation({
       first_user: currentUser.user_uuid,
-      second_user: dto.reciever_uuid,
+      second_user: dto.reciever,
     })
 
     let personalConversation =
@@ -72,7 +86,7 @@ export class ConversationService {
             is_admin: false,
           },
           {
-            account: dto.reciever_uuid,
+            account: dto.reciever,
             is_admin: false,
           },
         ],
@@ -100,7 +114,7 @@ export class ConversationService {
     const userIsMember =
       (await this.repository.findConversationMember({
         conversation: dto.conversation,
-        user: currentUser.user_uuid,
+        account: currentUser.user_uuid,
       })) ?? false
 
     if (!userIsMember || !userIsMember.is_active) {
@@ -200,30 +214,41 @@ export class ConversationService {
     })
   }
 
-  async setMessageStatusForUser(dto: SetUserMessageStatus) {
+  async setMessageStatusForUser(
+    currentUser: User,
+    dto: SetUserMessageStatusDTO,
+  ) {
+    const message = await this.repository.findMessage(dto.message)
+    if (message == null) {
+      throw Error("Message does not exists!")
+    }
+
+    // current user can't read messages from himself
+    if (message.sender === currentUser.user_uuid) {
+      throw Error("Bad request!")
+    }
+
     const member = await this.repository.findConversationMember({
-      user: dto.user,
-      conversation: dto.conversation,
+      account: currentUser.user_uuid,
+      conversation: message.conversation,
     })
 
     if (member == null) {
       throw Error("Forbidden!")
     }
 
-    const accountMemberStatus = this.repository
-      .setAccountMessageStatus({
-        account: dto.user,
+    const accountMessageStatus = this.repository
+      .setMessageStatusForAccount({
+        account: currentUser.user_uuid,
         message: dto.message,
         status: dto.status,
       })
-      .then(() =>
-        this.updateMessageStatusInConversation({
-          conversation_uuid: dto.conversation,
-          message_uuid: dto.message,
-        }),
-      )
+      .then((accountMessageStatus) => {
+        this.updateMessageStatus(dto.message)
+        return accountMessageStatus
+      })
 
-    return accountMemberStatus
+    return accountMessageStatus
   }
 
   private getNameForPersonalConversation({
@@ -259,38 +284,26 @@ export class ConversationService {
     return membersWithoutDuplicate
   }
 
-  private async updateMessageStatusInConversation({
-    message_uuid,
-    conversation_uuid,
-  }: {
-    message_uuid: string
-    conversation_uuid: string
-  }) {
-    const membersCountInConversation =
-      await this.repository.countMembersInConversation(conversation_uuid)
+  private async updateMessageStatus(message: string) {
+    // info about the number of accounts (members) who received and read the message
+    const { total, delivered, readed } =
+      await this.repository.countMesssageStatusesSummary(message)
 
-    const { delivered, readed } =
-      await this.repository.countAccountMesssageStatusesInConversation(
-        conversation_uuid,
-      )
-
-    const messageIsDelivered = membersCountInConversation === delivered + readed
+    const messageIsDelivered = total === delivered + readed
     if (messageIsDelivered) {
-      return this.repository.setMessageStatus({
-        uuid: message_uuid,
+      await this.repository.setMessageStatus({
+        uuid: message,
         status: "delivered",
       })
     }
 
-    const messageIsReaded = membersCountInConversation === readed
+    const messageIsReaded = total === readed
     if (messageIsReaded) {
-      return this.repository.setMessageStatus({
-        uuid: message_uuid,
+      await this.repository.setMessageStatus({
+        uuid: message,
         status: "readed",
       })
     }
-
-    return null
   }
 
   private async checkAccountsExists(user_accounts: { account: string }[]) {

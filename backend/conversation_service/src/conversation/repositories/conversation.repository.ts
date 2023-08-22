@@ -33,12 +33,12 @@ export class MongoConversationRepository implements IConversationRepository {
     private readonly accountMessageStatuses: Model<AccountMessageStatus>,
   ) {}
 
-  async findAllUserConversations({
-    user_account,
+  async findConversationsWhereAccountIsMember({
+    account,
     limit,
     offset,
   }: {
-    user_account: string
+    account: string
     limit: number
     offset: number
   }) {
@@ -60,7 +60,7 @@ export class MongoConversationRepository implements IConversationRepository {
             ],
           },
         },
-        { $match: { "members.account": user_account } },
+        { $match: { "members.account": account } },
         {
           $lookup: {
             from: "messages",
@@ -75,9 +75,6 @@ export class MongoConversationRepository implements IConversationRepository {
                   foreignField: "uuid",
                   as: "sender",
                 },
-              },
-              {
-                $unwind: "$sender",
               },
               {
                 $project: {
@@ -100,7 +97,9 @@ export class MongoConversationRepository implements IConversationRepository {
           },
         },
         {
-          $addFields: { last_message: { $arrayElemAt: ["$messages", -1] } },
+          $addFields: {
+            last_message: { $arrayElemAt: ["$messages", -1] },
+          },
         },
         {
           $project: {
@@ -176,15 +175,15 @@ export class MongoConversationRepository implements IConversationRepository {
   }
 
   async findConversationMember({
-    user,
+    account,
     conversation,
   }: {
-    user: string
+    account: string
     conversation: string
   }) {
     const member = await this.members
       .findOne({
-        account: user,
+        account,
         conversation: conversation,
       })
       .exec()
@@ -252,7 +251,9 @@ export class MongoConversationRepository implements IConversationRepository {
     })
 
     const createdMessage = newMessage.save().then((message) => {
-      this.updateLastMessageDate(message.conversation)
+      this.updateLastMessageDateInConversation(message.conversation)
+      this.setSentMessageStatusForAllMembersExcludeSender(message)
+
       return message.populate({
         path: "sender",
         foreignField: "uuid",
@@ -316,7 +317,7 @@ export class MongoConversationRepository implements IConversationRepository {
     return updatedMessage
   }
 
-  async setAccountMessageStatus(dto: SetAccountMessageStatusDTO) {
+  async setMessageStatusForAccount(dto: SetAccountMessageStatusDTO) {
     let accountMessageStatuses = await this.accountMessageStatuses
       .findOneAndUpdate(
         {
@@ -329,11 +330,6 @@ export class MongoConversationRepository implements IConversationRepository {
         { new: true },
       )
       .exec()
-
-    if (accountMessageStatuses == null) {
-      const newMemberMessageStatus = new this.accountMessageStatuses(dto)
-      accountMessageStatuses = await newMemberMessageStatus.save()
-    }
 
     return accountMessageStatuses
   }
@@ -348,7 +344,7 @@ export class MongoConversationRepository implements IConversationRepository {
     return membersCount
   }
 
-  async countAccountMesssageStatusesInConversation(conversation: string) {
+  async countMesssageStatusesSummary(message: string) {
     const aggregation = await this.accountMessageStatuses
       .aggregate([
         {
@@ -361,16 +357,19 @@ export class MongoConversationRepository implements IConversationRepository {
               {
                 $project: {
                   _id: 0,
-                  conversation: 1,
+                  uuid: 1,
                 },
               },
             ],
           },
         },
-        { $match: { "message.conversation": conversation } },
+        { $match: { "message.uuid": message } },
         {
           $group: {
             _id: null,
+            total: {
+              $sum: 1,
+            },
             delivered: {
               $sum: {
                 $cond: [{ $eq: ["$status", "delivered"] }, 1, 0],
@@ -386,6 +385,7 @@ export class MongoConversationRepository implements IConversationRepository {
         {
           $project: {
             _id: 0,
+            total: 1,
             delivered: 1,
             readed: 1,
           },
@@ -393,10 +393,68 @@ export class MongoConversationRepository implements IConversationRepository {
       ])
       .exec()
 
-    return aggregation ? aggregation[0] : { delivered: 0, readed: 0 }
+    return aggregation[0]
   }
 
-  private async updateLastMessageDate(conversation: string) {
+  async countUnreadMessagesForAccount({
+    account,
+    conversation,
+  }: {
+    account: string
+    conversation: string
+  }) {
+    const aggregation = await this.accountMessageStatuses
+      .aggregate([
+        {
+          $lookup: {
+            from: "messages",
+            localField: "message",
+            foreignField: "uuid",
+            as: "message",
+          },
+        },
+        {
+          $match: {
+            "message.conversation": conversation,
+            account,
+            status: {
+              $ne: "readed",
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            count: {
+              $sum: 1,
+            },
+          },
+        },
+      ])
+      .exec()
+
+    return aggregation[0] ?? { count: 0 }
+  }
+
+  private setSentMessageStatusForAllMembersExcludeSender(instance: Message) {
+    this.findAllMembersInConversation(instance.conversation).then((members) => {
+      const accountMessageStatuses = members
+        .filter((member) => member.account !== instance.sender)
+        .map((member) => {
+          return {
+            account: member.account,
+            message: instance.uuid,
+            status: "sent",
+          }
+        })
+
+      console.log(accountMessageStatuses)
+
+      this.accountMessageStatuses.create(accountMessageStatuses)
+    })
+  }
+
+  private async updateLastMessageDateInConversation(conversation: string) {
     await this.conversations.updateOne(
       {
         uuid: conversation,

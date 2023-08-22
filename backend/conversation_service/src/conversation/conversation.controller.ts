@@ -16,19 +16,22 @@ import { CreatePersonalMessageDTO } from "./conversation.dto"
 export class ConversationController {
   constructor(private readonly conversationService: ConversationService) {}
 
-  // @Get()
-  // async findAll(
-  //   @Query("limit", new DefaultValuePipe(10)) limit: number,
-  //   @Query("offset", new DefaultValuePipe(0)) offset: number,
-  // ) {
-  //   const currentUser = new User()
-  //   currentUser.user_uuid = "32146edb-a9db-4acb-bf99-d0f5cd777cdc"
+  @Get()
+  async findAll(
+    @Query("limit", new DefaultValuePipe(10)) limit: number,
+    @Query("offset", new DefaultValuePipe(0)) offset: number,
+  ) {
+    const currentUser = new User()
+    currentUser.user_uuid = "32146edb-a9db-4acb-bf99-d0f5cd777cdc"
 
-  //   return this.conversationService.getUserConversations(currentUser, {
-  //     limit,
-  //     offset,
-  //   })
-  // }
+    return this.conversationService.getAllConversationsForCurrentUser(
+      currentUser,
+      {
+        limit,
+        offset,
+      },
+    )
+  }
 
   // @Get()
   // async aggregate() {

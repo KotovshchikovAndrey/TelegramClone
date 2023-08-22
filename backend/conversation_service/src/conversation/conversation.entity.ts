@@ -143,17 +143,18 @@ export class Message {
 }
 
 @Schema()
+@ObjectType()
 export class AccountMessageStatus {
   @Prop({ type: String, ref: "Account", required: true })
-  // @Field(() => String, { nullable: false })
+  @Field(() => String, { nullable: false })
   account: string
 
   @Prop({ type: String, ref: "Message", required: true })
-  // @Field(() => String, { nullable: false })
+  @Field(() => String, { nullable: false })
   message: string
 
   @Prop({ default: "sent" })
-  // @Field()
+  @Field()
   status: "sent" | "delivered" | "readed"
 }
 
