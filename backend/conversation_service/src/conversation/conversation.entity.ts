@@ -1,49 +1,13 @@
 import { HydratedDocument } from "mongoose"
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { Field, ObjectType } from "@nestjs/graphql"
+import { Account } from "../user-account/user-account.entity"
 
-export type AccountDocument = HydratedDocument<Account>
 export type ConversationDocument = HydratedDocument<Conversation>
 export type MemberDocument = HydratedDocument<Member>
 export type MessageDocument = HydratedDocument<Message>
 export type AccountMessageStatusDocument =
   HydratedDocument<AccountMessageStatus>
-
-@Schema()
-@ObjectType()
-export class Account {
-  @Prop({ required: true, unique: true })
-  @Field(() => String)
-  uuid: string
-
-  @Prop({ required: true })
-  @Field({ nullable: false })
-  phone: string
-
-  @Prop({ required: false, default: null })
-  @Field({ nullable: true })
-  name?: string
-
-  @Prop({ required: false, default: null })
-  @Field({ nullable: true })
-  surname?: string
-
-  @Prop({ required: false, default: null })
-  @Field({ nullable: true })
-  about_me?: string
-
-  @Prop({ required: false, default: null })
-  @Field({ nullable: true })
-  avatar?: string
-
-  @Prop({ required: false })
-  @Field(() => Date, { nullable: true })
-  birthday?: Date
-
-  @Prop({ required: false, default: false })
-  @Field({ nullable: false })
-  is_online: boolean
-}
 
 @Schema({
   timestamps: { createdAt: "created_at", updatedAt: false },
@@ -164,7 +128,6 @@ export class ConversationWithLastMessage extends Conversation {
   last_message?: Message
 }
 
-export const AccountSchema = SchemaFactory.createForClass(Account)
 export const ConversationSchema = SchemaFactory.createForClass(Conversation)
 export const MemberSchema = SchemaFactory.createForClass(Member)
 export const MessageSchema = SchemaFactory.createForClass(Message)

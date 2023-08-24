@@ -2,22 +2,22 @@ import { Module } from "@nestjs/common"
 import { MongooseModule } from "@nestjs/mongoose"
 import {
   AccountMessageStatusSchema,
-  AccountSchema,
   ConversationSchema,
   MemberSchema,
   MessageSchema,
 } from "./conversation.entity"
 import { ConversationService } from "./conversation.service"
-import { MongoConversationRepository } from "./repositories/conversation.repository"
+import { MongoConversationRepository } from "./repositories/mongo.conversation.repository"
 import { ConversationController } from "./conversation.controller"
 import { ConversationResolver } from "./conversation.resolver"
 import { FileModule } from "src/file/file.module"
+import { UserAccountModule } from "src/user-account/user-account.module"
 
 @Module({
   imports: [
+    UserAccountModule,
     FileModule,
     MongooseModule.forFeature([
-      { name: "Account", schema: AccountSchema },
       { name: "Conversation", schema: ConversationSchema },
       { name: "Member", schema: MemberSchema },
       { name: "Message", schema: MessageSchema },

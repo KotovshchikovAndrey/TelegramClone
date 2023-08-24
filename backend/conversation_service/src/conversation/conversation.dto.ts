@@ -42,16 +42,20 @@ export class CreateMemberDTO {
   is_admin: boolean
 }
 
+@InputType()
 export class CreateGroupDTO {
+  @Field()
   @IsNotEmpty()
   @MaxLength(20)
   name: string
 
+  @Field({ nullable: true })
   @IsOptional()
   @IsNotEmpty()
   @MaxLength(70)
   description?: string
 
+  @Field(() => [String], { nullable: "items" })
   @IsArray()
   @IsUUID("4", { each: true })
   users: string[]

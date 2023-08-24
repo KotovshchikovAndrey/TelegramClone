@@ -11,31 +11,34 @@ export class FileDTO {
     this.content = file.content
   }
 
+  static async fromFileUpload(fileUpload: FileUpload): Promise<FileDTO> {
+    return new Promise(async (resolve, reject) => {
+      const chunks: Buffer[] = []
+      const stream = fileUpload.createReadStream()
+
+      stream.on("data", (chunk: Buffer) => {
+        chunks.push(chunk)
+      })
+
+      stream.on("end", () => {
+        const fileDTO = new FileDTO({
+          ext: fileUpload.filename.split(".")[1],
+          mimetype: fileUpload.mimetype,
+          content: Buffer.concat(chunks),
+        })
+
+        resolve(fileDTO)
+      })
+    })
+  }
+
   static async fromFileUploadArray(
     fileUploadArray: Promise<FileUpload>[],
   ): Promise<FileDTO[]> {
-    // @ts-ignore
     return Promise.all(
-      fileUploadArray.map((fileUpload) => {
-        return new Promise(async (resolve, reject) => {
-          const chunks: Buffer[] = []
-          const file = await fileUpload
-          const stream = file.createReadStream()
-
-          stream.on("data", (chunk: Buffer) => {
-            chunks.push(chunk)
-          })
-
-          stream.on("end", () => {
-            const fileDTO = new FileDTO({
-              ext: file.filename.split(".")[1],
-              mimetype: file.mimetype,
-              content: Buffer.concat(chunks),
-            })
-
-            resolve(fileDTO)
-          })
-        })
+      fileUploadArray.map(async (fileUploadPromise) => {
+        const fileUpload = await fileUploadPromise
+        return this.fromFileUpload(fileUpload)
       }),
     )
   }

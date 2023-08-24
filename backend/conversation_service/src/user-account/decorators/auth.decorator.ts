@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common"
 import { GqlExecutionContext } from "@nestjs/graphql"
-import { User } from "src/app.entity"
+import { User } from "../user-account.entity"
 
 export const CurrentUser = createParamDecorator(
   async (data: unknown, context: ExecutionContext) => {

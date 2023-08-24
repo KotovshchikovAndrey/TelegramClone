@@ -8,9 +8,9 @@ import {
 } from "@nestjs/common"
 
 import { ConversationService } from "./conversation.service"
-import { CurrentUser } from "src/conversation/decorators/auth.decorator"
-import { User } from "src/app.entity"
+import { CurrentUser } from "src/user-account/decorators/auth.decorator"
 import { CreatePersonalMessageDTO } from "./conversation.dto"
+import { User } from "../user-account/user-account.entity"
 
 @Controller("conversation")
 export class ConversationController {

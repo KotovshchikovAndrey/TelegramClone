@@ -1,15 +1,21 @@
 import { Args, Int, Mutation, Query, Resolver } from "@nestjs/graphql"
-import { FileUpload } from "src/file/file.types"
-import { AccountMessageStatus, ConversationWithLastMessage, Message } from "./conversation.entity"
-import * as GraphQLUpload from "graphql-upload/GraphQLUpload.js"
-import { CurrentUser } from "./decorators/auth.decorator"
-import { User } from "src/app.entity"
+import { FileUpload } from "../file/file.types"
 import {
+  AccountMessageStatus,
+  Conversation,
+  ConversationWithLastMessage,
+  Message,
+} from "./conversation.entity"
+import * as GraphQLUpload from "graphql-upload/GraphQLUpload.js"
+import { CurrentUser } from "../user-account/decorators/auth.decorator"
+import {
+  CreateGroupDTO,
   CreatePersonalMessageDTO,
   SetUserMessageStatusDTO,
 } from "./conversation.dto"
 import { ConversationService } from "./conversation.service"
-import { FileDTO } from "src/file/file.dto"
+import { FileDTO } from "../file/file.dto"
+import { User } from "../user-account/user-account.entity"
 
 @Resolver()
 export class ConversationResolver {
@@ -59,6 +65,21 @@ export class ConversationResolver {
       currentUser,
       dto,
       messageFiles,
+    )
+  }
+
+  @Mutation(() => Conversation)
+  async createNewGroup(
+    @CurrentUser() currentUser: User,
+    @Args("dto") dto: CreateGroupDTO,
+    @Args({ name: "avatar", type: () => GraphQLUpload, nullable: true })
+    avatar?: FileUpload,
+  ) {
+    const groupAvatar = avatar ? await FileDTO.fromFileUpload(avatar) : null
+    return this.conversationService.createNewGroup(
+      currentUser,
+      dto,
+      groupAvatar,
     )
   }
 

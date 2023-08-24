@@ -8,11 +8,11 @@ import {
   SetUserMessageStatusDTO,
   UpdateMessageDTO,
 } from "./conversation.dto"
-import { User } from "src/app.entity"
 import { FileDTO } from "../file/file.dto"
 import { FileService } from "../file/file.service"
 import { Member } from "./conversation.entity"
 import { createHash } from "crypto"
+import { User } from "../user-account/user-account.entity"
 
 @Injectable()
 export class ConversationService {
@@ -135,6 +135,7 @@ export class ConversationService {
     avatar?: FileDTO,
   ) {
     const newGroup = await this.repository.createConversation({
+      avatar: avatar ? await this.fileService.uploadSingleFile(avatar) : null,
       is_group: true,
       ...dto,
     })

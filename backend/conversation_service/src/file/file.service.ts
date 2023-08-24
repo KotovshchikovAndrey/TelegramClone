@@ -9,6 +9,13 @@ export abstract class FileService {
   protected readonly maxSize = 15728640
   protected readonly allowedExt = new Set(["jpeg", "png", "svg"])
 
+  async uploadSingleFile(file: FileDTO) {
+    this.checkIsValidOrThrowError(file)
+
+    const filename = await this.createFile(file)
+    return filename
+  }
+
   async uploadFiles(files: FileDTO[]) {
     if (files.length === 0) {
       return null
@@ -24,7 +31,7 @@ export abstract class FileService {
 
   async updateFiles(mediaUrl: string, files: FileDTO[]) {
     if (files.length === 0) {
-      await this.removeZip(mediaUrl)
+      await this.removeFile(mediaUrl)
       return null
     }
 
@@ -48,14 +55,16 @@ export abstract class FileService {
     }
   }
 
+  protected abstract createFile(file: FileDTO): Promise<string>
+
+  protected abstract removeFile(zipName: string): Promise<void>
+
   protected abstract createZipFromFiles(files: FileDTO[]): Promise<string>
 
   protected abstract updateZip(
     zipName: string,
     files: FileDTO[],
   ): Promise<string>
-
-  protected abstract removeZip(zipName: string): Promise<void>
 }
 
 export class DefaultFileService extends FileService {
@@ -64,6 +73,28 @@ export class DefaultFileService extends FileService {
   constructor() {
     super()
     this.uploadPath = resolve(process.cwd(), "src", "assets")
+  }
+
+  protected async createFile(file: FileDTO) {
+    const fileHash = createHash("sha256")
+      .update(file.content)
+      .digest("hex")
+      .toString()
+
+    const filename = `${fileHash}.${file.ext}`
+    const filePath = resolve(this.uploadPath, filename)
+    if (fs.existsSync(filePath)) {
+      return filename
+    }
+
+    await new Promise((resolve, reject) => {
+      fs.writeFile(filePath, file.content, (error) => {
+        if (error) reject(error)
+        else resolve(null)
+      })
+    })
+
+    return filename
   }
 
   protected async createZipFromFiles(files: FileDTO[]) {
@@ -95,13 +126,18 @@ export class DefaultFileService extends FileService {
       return zipName
     }
 
-    await this.removeZip(zipName) // remove old zip
+    await this.removeFile(zipName) // remove old zip
     const newZipName = await this.createZipFromFiles(files)
     return newZipName
   }
 
-  protected async removeZip(zipName: string) {
-    const zipPath = resolve(this.uploadPath, zipName)
-    await new Promise((resolve) => fs.unlink(zipPath, resolve))
+  protected async removeFile(filename: string) {
+    const filePath = resolve(this.uploadPath, filename)
+    await new Promise((resolve, reject) => {
+      fs.unlink(filePath, (error) => {
+        if (error) reject(error)
+        else resolve(null)
+      })
+    })
   }
 }

@@ -2,8 +2,8 @@ import { Test, TestingModule } from "@nestjs/testing"
 import { ConversationService } from "./conversation.service"
 import { FileModule } from "../file/file.module"
 import { FileService } from "../file/file.service"
-import { User } from "../app.entity"
 import { randomUUID } from "crypto"
+import { User } from "../user-account/user-account.entity"
 
 describe("ConversationService", () => {
   let conversationService: ConversationService
