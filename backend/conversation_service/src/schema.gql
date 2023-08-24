@@ -52,6 +52,7 @@ type ConversationWithLastMessage {
   last_message_at: DateTime!
   created_at: DateTime!
   last_message: Message
+  new_messages_count: Int!
 }
 
 type Query {

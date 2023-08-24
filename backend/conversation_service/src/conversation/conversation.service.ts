@@ -60,6 +60,11 @@ export class ConversationService {
     dto: CreatePersonalMessageDTO,
     files: FileDTO[],
   ) {
+    // Заглушка
+    if (currentUser.user_uuid === dto.reciever) {
+      throw Error("Bad request!")
+    }
+
     if (files.length === 0 && dto.text == null) {
       throw Error("Message must be not empty!")
     }

@@ -1,6 +1,6 @@
 import { HydratedDocument } from "mongoose"
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
-import { Field, ObjectType } from "@nestjs/graphql"
+import { Field, Int, ObjectType } from "@nestjs/graphql"
 import { Account } from "../user-account/user-account.entity"
 
 export type ConversationDocument = HydratedDocument<Conversation>
@@ -126,6 +126,9 @@ export class AccountMessageStatus {
 export class ConversationWithLastMessage extends Conversation {
   @Field(() => Message, { nullable: true })
   last_message?: Message
+
+  @Field(() => Int)
+  new_messages_count: number
 }
 
 export const ConversationSchema = SchemaFactory.createForClass(Conversation)

@@ -46,6 +46,37 @@ export class MongoConversationRepository implements IConversationRepository {
       .aggregate([
         {
           $lookup: {
+            from: "messages",
+            localField: "uuid",
+            foreignField: "conversation",
+            as: "unread_messages",
+            pipeline: [
+              {
+                $lookup: {
+                  from: "accountmessagestatuses",
+                  localField: "uuid",
+                  foreignField: "message",
+                  as: "unread_message_statuses",
+                },
+              },
+              {
+                $match: {
+                  "unread_message_statuses.account": account,
+                  "unread_message_statuses.status": {
+                    $ne: "readed",
+                  },
+                },
+              },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            unread_message_count: { $size: "$unread_messages" },
+          },
+        },
+        {
+          $lookup: {
             from: "members",
             localField: "uuid",
             foreignField: "conversation",
@@ -98,7 +129,9 @@ export class MongoConversationRepository implements IConversationRepository {
         },
         {
           $addFields: {
-            last_message: { $arrayElemAt: ["$messages", -1] },
+            last_message: {
+              $ifNull: [{ $arrayElemAt: ["$messages", -1] }, null],
+            },
           },
         },
         {
@@ -112,6 +145,7 @@ export class MongoConversationRepository implements IConversationRepository {
             created_at: 1,
             last_message_at: 1,
             last_message: 1,
+            unread_message_count: 1,
           },
         },
       ])
@@ -447,8 +481,6 @@ export class MongoConversationRepository implements IConversationRepository {
             status: "sent",
           }
         })
-
-      console.log(accountMessageStatuses)
 
       this.accountMessageStatuses.create(accountMessageStatuses)
     })
