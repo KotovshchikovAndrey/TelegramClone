@@ -1,4 +1,5 @@
 import typing as tp
+
 from pydantic import BaseModel, IPvAnyAddress, validator
 
 
@@ -9,7 +10,7 @@ class SessionPayload(BaseModel):
 
 
 class SessionData(SessionPayload):
-    login_code: int
+    activation_code: int
     is_active: bool = False
 
 
@@ -23,16 +24,16 @@ class SessionInDB(SessionBase):
 
 
 class SessionCreate(SessionBase):
-    pass
+    ...
 
 
-class SessionLogin(BaseModel):
+class SessionActivation(BaseModel):
     code: int
     session_key: str
 
     @validator("code")
     def validate_code(cls, code: int):
         if len(str(code)) != 5:
-            raise ValueError("Code length must be 6 symbols!")
+            raise ValueError("Code length must be 5 symbols!")
 
         return code

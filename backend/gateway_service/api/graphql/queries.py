@@ -1,27 +1,47 @@
-create_message_with_files = """mutation createMessage($dto: CreateMessageDTO!, $files: [Upload!]! = []) {
-    createMessage(dto: $dto, files: $files) {
+GET_ALL_CONVERSATIONS_FOR_CURRENT_USER = """query GetAllConversationsForCurrentUser {
+    getAllConversationsForCurrentUser(limit: %(limit)s, offset: %(offset)s) {
         uuid
-        text
-        media_url
+        name
+        description
+        avatar
+        is_group
+        last_message_at
         created_at
-        send_from
-        send_to
-        status
+        unread_message_count
     }
 }"""
 
-create_message_without_files = """mutation CreateMessage {
-    createMessage(dto: {
-        send_to: "%(send_to)s"
+CREATE_MESSAGE_WITH_FILES = """mutation createPersonalMessage($dto: CreatePersonalMessageDTO!, $files: [Upload!]! = []) {
+    createPersonalMessage(dto: $dto, files: $files) {
+        uuid
+        text
+        media_url
+        status
+        created_at
+        sender {
+            name
+            surname
+            avatar
+        }
+    }
+}"""
+
+
+CREATE_MESSAGE_WITHOUT_FILES = """mutation createPersonalMessage {
+    createPersonalMessage(dto: {
+        reciever: "%(reciever)s"
         text: "%(text)s"
     }, files: []) {
         uuid
         text
         media_url
-        created_at
-        send_from
-        send_to
         status
+        created_at
+        sender {
+            name
+            surname
+            avatar
+        }
     }
 }"""
 

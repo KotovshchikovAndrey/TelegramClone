@@ -1,11 +1,11 @@
 import typing as tp
 
+from fastapi import Depends, Header
 from kink import di
-from fastapi import Header, Depends
 
-from domain.services.auth_service import AuthService
 from domain.exceptions.http_exception import HttpException
 from domain.models.user import UserInDB
+from domain.services.auth_service import AuthService
 
 
 async def authenticate_current_user(

@@ -1,6 +1,7 @@
 from pydantic import BaseModel
-from domain.models.user import UserPayload
+
 from domain.models.session import SessionPayload
+from domain.models.user import UserPayload
 
 
 class ConfirmLoginResponse(BaseModel):

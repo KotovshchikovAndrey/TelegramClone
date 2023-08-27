@@ -10,7 +10,7 @@ class File(BaseModel):
 
 
 class PersonalMessageCreate(BaseModel):
-    send_to: str
+    reciever: str
     text: str = Field(max_length=500)
     files: tp.List[File] = []
 

@@ -5,7 +5,7 @@ from fastapi import FastAPI
 
 from api.exceptions.handler import handle_error
 from routes.auth import router as auth_router
-from routes.messages import router as message_router
+from routes.conversations import router as message_router
 from settings import settings
 
 # from api.utils.kafka import consumer, producer

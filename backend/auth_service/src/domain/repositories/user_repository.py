@@ -1,9 +1,9 @@
 import typing as tp
-
 from abc import abstractmethod
+
 from pydantic import UUID4
 
-from domain.models.user import UserInDB, UserCreate, UserPublic
+from domain.models.user import UserCreate, UserInDB, UserPublic
 
 UserUUID: tp.TypeAlias = str
 

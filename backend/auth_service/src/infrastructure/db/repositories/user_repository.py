@@ -1,7 +1,7 @@
 import typing as tp
 
-from kink import inject
 from databases import Database
+from kink import inject
 from pydantic import UUID4
 
 from domain.models.user import UserCreate, UserInDB, UserPublic

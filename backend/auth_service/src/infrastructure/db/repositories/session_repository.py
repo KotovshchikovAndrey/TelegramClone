@@ -1,9 +1,10 @@
+import json
 import typing as tp
 
-import json
 from kink import inject
 from redis.asyncio import Redis
-from domain.models.session import SessionCreate, SessionInDB, SessionData
+
+from domain.models.session import SessionCreate, SessionData, SessionInDB
 from domain.repositories.session_repository import ISessionRepository
 
 
@@ -35,13 +36,6 @@ class RedisSessionRepository(ISessionRepository):
                 data=session_data,
                 expire=session_expire,
             )
-
-    async def update_session(self, session_key: str, new_session_data: SessionData):
-        expire = await self._redis.ttl(session_key)
-        session_create = SessionCreate(data=new_session_data, expire=expire)
-        await self.create_session(session_key, session_create)
-
-        return session_key
 
     async def delete_session(self, session_key: str):
         await self._redis.delete(session_key)

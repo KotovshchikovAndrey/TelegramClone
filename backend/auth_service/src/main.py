@@ -1,11 +1,10 @@
 import uvicorn
-
-from kink import inject
 from databases import Database
+from kink import inject
 
+from infrastructure.api import router
 from infrastructure.config.server import FastApiServer
 from infrastructure.config.settings import settings
-from infrastructure.api import router
 
 
 @inject

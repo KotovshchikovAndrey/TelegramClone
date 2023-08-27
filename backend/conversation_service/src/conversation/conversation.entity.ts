@@ -123,12 +123,12 @@ export class AccountMessageStatus {
 }
 
 @ObjectType()
-export class ConversationWithLastMessage extends Conversation {
+export class ConversationWithMessageSummary extends Conversation {
   @Field(() => Message, { nullable: true })
   last_message?: Message
 
   @Field(() => Int)
-  new_messages_count: number
+  unread_message_count: number
 }
 
 export const ConversationSchema = SchemaFactory.createForClass(Conversation)

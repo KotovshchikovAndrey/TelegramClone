@@ -1,7 +1,7 @@
 import typing as tp
 
+from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
 from kink import inject
-from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 
 
 @inject

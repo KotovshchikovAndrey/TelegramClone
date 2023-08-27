@@ -1,13 +1,10 @@
 import typing as tp
 
-from kink import di
 from fastapi import APIRouter, Depends, Request, Response, status
+from kink import di
 
-from infrastructure.api.middlewares.auth_middleware import authenticate_current_user
-from domain.services.auth_service import AuthService
-from domain.services.user_service import UserService
 from domain.models.response import ConfirmLoginResponse
-from domain.models.session import SessionLogin
+from domain.models.session import SessionActivation
 from domain.models.user import (
     UserCreate,
     UserFingerPrint,
@@ -16,6 +13,9 @@ from domain.models.user import (
     UserPayload,
     UsersInfoGet,
 )
+from domain.services.auth_service import AuthService
+from domain.services.user_service import UserService
+from infrastructure.api.middlewares.auth_middleware import authenticate_current_user
 
 router = APIRouter(prefix="/v1")
 
@@ -57,9 +57,9 @@ async def login_user(
 )
 async def confirm_user_login(
     service: tp.Annotated[AuthService, Depends(lambda: di[AuthService])],
-    session_login: SessionLogin,
+    session_activation: SessionActivation,
 ):
-    user, session_data = await service.confirm_user_login(session_login)
+    user, session_data = await service.confirm_user_login(session_activation)
     return {
         "user": user,
         "session_payload": session_data,

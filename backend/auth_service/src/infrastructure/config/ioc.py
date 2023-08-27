@@ -1,6 +1,7 @@
 import pathlib
-from kink import di
+
 from fastapi_mail import ConnectionConfig
+from kink import di
 
 from infrastructure.config.settings import settings
 from infrastructure.db.connections.postgres import get_postgres_connection
@@ -35,3 +36,4 @@ def setup_di_container() -> None:
     )
 
     di["session_expire"] = 60 * 60 * 24 * 180  # 6 месяцев
+    di["session_activate_expire"] = 60  # 1 минута

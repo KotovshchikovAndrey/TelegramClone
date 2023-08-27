@@ -1,5 +1,6 @@
-import typing as tp
 import json
+import typing as tp
+
 import httpx
 
 from api.exceptions.api_exception import ApiException

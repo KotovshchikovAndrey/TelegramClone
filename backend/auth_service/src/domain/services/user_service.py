@@ -3,15 +3,15 @@ import typing as tp
 from kink import inject
 from pydantic import UUID4
 
-from domain.repositories.user_repository import IUserRepository
 from domain.exceptions.http_exception import HttpException
 from domain.models.user import (
-    UserCreate,
-    UserInDB,
+    ProfilePublic,
     ProfileUpdate,
     UserAvatar,
-    ProfilePublic,
+    UserCreate,
+    UserInDB,
 )
+from domain.repositories.user_repository import IUserRepository
 
 
 @inject

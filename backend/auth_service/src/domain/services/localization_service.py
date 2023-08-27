@@ -1,7 +1,7 @@
-import typing as tp
-
 import json
 import pathlib
+import typing as tp
+
 import aiofiles
 
 LOCALIZATION_PATH = pathlib.Path(__file__).parent.parent / "localization"

@@ -1,11 +1,12 @@
 from __future__ import annotations
+
 import typing as tp
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from domain.services.localization_service import translate
 from domain.exceptions.http_exception import HttpException
+from domain.services.localization_service import translate
 
 
 class FastApiServer:

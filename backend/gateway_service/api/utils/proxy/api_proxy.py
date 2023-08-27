@@ -1,6 +1,7 @@
 import typing as tp
-import httpx
 from abc import abstractmethod
+
+import httpx
 from fastapi import Request
 from httpx import AsyncClient, Response
 

@@ -3,7 +3,7 @@ import { FileUpload } from "../file/file.types"
 import {
   AccountMessageStatus,
   Conversation,
-  ConversationWithLastMessage,
+  ConversationWithMessageSummary,
   Message,
 } from "./conversation.entity"
 import * as GraphQLUpload from "graphql-upload/GraphQLUpload.js"
@@ -21,7 +21,7 @@ import { User } from "../user-account/user-account.entity"
 export class ConversationResolver {
   constructor(private readonly conversationService: ConversationService) {}
 
-  @Query(() => [ConversationWithLastMessage], { nullable: "items" })
+  @Query(() => [ConversationWithMessageSummary], { nullable: "items" })
   async getAllConversationsForCurrentUser(
     @CurrentUser() currentUser: User,
     @Args("limit", { type: () => Int, defaultValue: 10 })

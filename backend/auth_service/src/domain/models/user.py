@@ -1,8 +1,8 @@
 import typing as tp
-
+from datetime import date, datetime
 from io import BytesIO
-from pydantic import BaseModel, UUID4, IPvAnyAddress, validator
-from datetime import datetime, date
+
+from pydantic import UUID4, BaseModel, IPvAnyAddress, validator
 
 
 class UserBase(BaseModel):

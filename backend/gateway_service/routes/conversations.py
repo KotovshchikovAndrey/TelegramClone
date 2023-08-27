@@ -1,47 +1,82 @@
+import asyncio
 import json
 import typing as tp
-from fastapi.responses import StreamingResponse
 
-from starlette.datastructures import MutableHeaders
 from fastapi import APIRouter, BackgroundTasks, Request, WebSocket, WebSocketDisconnect
+from fastapi.responses import StreamingResponse
+from pydantic import ValidationError
+from starlette.datastructures import MutableHeaders
 
 from api.auth import get_current_user
+from api.conversation import (
+    create_personal_message,
+    get_all_conversations_for_current_user,
+    update_personal_message,
+)
 from api.exceptions.api_exception import ApiException
-from api.conversation import create_personal_message, update_personal_message
-from api.utils import websocket_manager, api_proxy_flyweight
+from api.utils import api_proxy_flyweight, websocket_manager
+from models.message import MessageAction, PersonalMessageCreate, PersonalMessageUpdate
 from models.user import CurrentUser
-from models.message import PersonalMessageCreate, PersonalMessageUpdate, MessageAction
 
-router = APIRouter()
+router = APIRouter(prefix="/conversations")
 
 
-@router.websocket("/messages/ws/{channel_name:str}")
-async def send_private_message(websocket: WebSocket, channel_name: str):
-    await websocket_manager.connect(channel_name, websocket)
+@router.websocket("/{conversation_uuid:str}/ws")
+async def conversation_websocket_handler(websocket: WebSocket, conversation_uuid: str):
+    await websocket_manager.connect(conversation_uuid, websocket)
     try:
         current_user = await _authenticate(websocket)
         while True:
             data = await websocket.receive_json()
-            print(data)
             action = MessageAction(**data)
 
             api_response = await _dispatch_action(action, current_user)
-            print(api_response)
             await websocket_manager.send_channel_message(
-                channel_name,
+                channel_name=conversation_uuid,
                 message=json.dumps(api_response),
             )
 
-    except ApiException as exc:
-        error_data = {"status": exc.status, "message": exc.message}
+    except (ApiException, ValidationError) as exc:
+        error_data = (
+            {"status": exc.status, "message": exc.message}
+            if isinstance(exc, ApiException)
+            else {"status": 400, "message": exc.errors()}
+        )
+
         await websocket_manager.send_personal_message(websocket, json.dumps(error_data))
-        websocket_manager.disconnect(channel_name, websocket)
+        websocket_manager.disconnect(conversation_uuid, websocket)
 
     except WebSocketDisconnect:
-        websocket_manager.disconnect(channel_name, websocket)
+        websocket_manager.disconnect(conversation_uuid, websocket)
 
 
-@router.route("/messages/read/{path:path}", methods=["GET", "POST"])
+@router.get("/sse/{stream_delay:int}")
+async def conversation_sse_handler(request: Request, stream_delay: int):
+    current_user = await _authenticate(request)
+    if not (5 <= stream_delay <= 10):
+        raise ApiException.bad_request(message="stream_delay must be between 5 and 10!")
+
+    async def create_sse_stream(request: Request):
+        while True:
+            if await request.is_disconnected():
+                break
+
+            conversations = await get_all_conversations_for_current_user(current_user)
+            json_data = json.dumps(conversations)
+            yield f"data:{json_data}\n\n"
+
+            await asyncio.sleep(stream_delay)
+
+    response = StreamingResponse(
+        create_sse_stream(request),
+        media_type="text/event-stream",
+    )
+
+    response.headers["Cache-Control"] = "no-cache"
+    return response
+
+
+@router.route("/{path:path}", methods=["GET", "POST"])
 async def message_api_proxy(request: Request):
     current_user = await _authenticate(request)
 
@@ -73,7 +108,7 @@ async def _authenticate(client: WebSocket | Request) -> CurrentUser:
 
 
 async def _dispatch_action(action: MessageAction, current_user: CurrentUser):
-    if action.action_type == "send_personal_message":
+    if action.action_type == "create_personal_message":
         dto = PersonalMessageCreate(**action.data)
         api_response = await create_personal_message(current_user, dto)
     elif action.action_type == "update_personal_message":
