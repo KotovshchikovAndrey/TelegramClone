@@ -10,6 +10,7 @@ from domain.models.session import (
     SessionCreate,
     SessionData,
     SessionPayload,
+    SessionUpdate,
 )
 from domain.repositories.session_repository import ISessionRepository
 
@@ -58,20 +59,19 @@ class SessionService:
             raise HttpException.not_found("session_not_found")
 
         session_data = current_session.data
+        if session_data.is_active:
+            return session_data
+
         if session_data.activation_code != activation_code:
             raise HttpException.bad_request("incorrect_code")
 
         session_data.is_active = True
-        session_create = SessionCreate(
+        session_update = SessionUpdate(
             data=session_data,
             expire=self._session_expire,
         )
 
-        session_key = await self._repository.create_session(
-            session_key=session_key,
-            session_create=session_create,
-        )
-
+        await self._repository.update_session(session_key, session_update)
         return session_data
 
     async def delete_user_session(self, session_key: str):

@@ -27,6 +27,10 @@ class SessionCreate(SessionBase):
     ...
 
 
+class SessionUpdate(SessionBase):
+    ...
+
+
 class SessionActivation(BaseModel):
     code: int
     session_key: str
