@@ -46,20 +46,23 @@ CREATE_MESSAGE_WITHOUT_FILES = """mutation createPersonalMessage {
 }"""
 
 
-update_message_with_files = """mutation updateMessage($dto: UpdateMessageDTO!, $files: [Upload!]! = []) {
+UPDATE_MESSAGE_WITH_FILES = """mutation updateMessage($dto: UpdateMessageDTO!, $files: [Upload!]! = []) {
     updateMessage(dto: $dto, files: $files) {
         uuid
         text
         media_url
-        created_at
-        send_from
-        send_to
         status
+        created_at
+        sender {
+            name
+            surname
+            avatar
+        }
     }
 }"""
 
 
-update_message_without_files = """mutation UpdateMessage {
+UPDATE_MESSAGE_WITHOUT_FILES = """mutation UpdateMessage {
     updateMessage(dto: {
         uuid: "%(uuid)s"
         text: "%(text)s"
@@ -67,9 +70,12 @@ update_message_without_files = """mutation UpdateMessage {
         uuid
         text
         media_url
-        created_at
-        send_from
-        send_to
         status
+        created_at
+        sender {
+            name
+            surname
+            avatar
+        }
     }
 }"""

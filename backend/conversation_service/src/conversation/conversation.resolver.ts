@@ -11,7 +11,9 @@ import { CurrentUser } from "../user-account/decorators/auth.decorator"
 import {
   CreateGroupDTO,
   CreatePersonalMessageDTO,
+  GetMessageHistoryDTO,
   SetUserMessageStatusDTO,
+  UpdateMessageDTO,
 } from "./conversation.dto"
 import { ConversationService } from "./conversation.service"
 import { FileDTO } from "../file/file.dto"
@@ -49,6 +51,17 @@ export class ConversationResolver {
     )
   }
 
+  @Query(() => [Message], { nullable: "items" })
+  async getMessageHistoryInConversation(
+    @CurrentUser() currentUser: User,
+    @Args("dto") dto: GetMessageHistoryDTO,
+  ) {
+    return this.conversationService.getMessageHistoryInConversation(
+      currentUser,
+      dto,
+    )
+  }
+
   @Mutation(() => Message)
   async createPersonalMessage(
     @CurrentUser() currentUser: User,
@@ -80,6 +93,25 @@ export class ConversationResolver {
       currentUser,
       dto,
       groupAvatar,
+    )
+  }
+
+  @Mutation(() => Message)
+  async updateMessage(
+    @CurrentUser() currentUser: User,
+    @Args("dto") dto: UpdateMessageDTO,
+    @Args({ name: "files", type: () => [GraphQLUpload], defaultValue: [] })
+    files: Promise<FileUpload>[],
+  ) {
+    let messageFiles: FileDTO[] = []
+    if (files.length !== 0) {
+      messageFiles = await FileDTO.fromFileUploadArray(files)
+    }
+
+    return this.conversationService.updateMessage(
+      currentUser,
+      dto,
+      messageFiles,
     )
   }
 

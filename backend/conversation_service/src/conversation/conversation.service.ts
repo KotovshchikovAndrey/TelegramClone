@@ -5,6 +5,7 @@ import {
   CreateGroupMessageDTO,
   CreateMemberDTO,
   CreatePersonalMessageDTO,
+  GetMessageHistoryDTO,
   SetUserMessageStatusDTO,
   UpdateMessageDTO,
 } from "./conversation.dto"
@@ -55,6 +56,31 @@ export class ConversationService {
     return unreadMessageCount.count
   }
 
+  async getMessageHistoryInConversation(
+    currentUser: User,
+    dto: GetMessageHistoryDTO,
+  ) {
+    const isConversationExists = await this.repository.findConversationByUUID(
+      dto.conversation,
+    )
+
+    if (!isConversationExists) {
+      throw Error("Conversation does not exists!")
+    }
+
+    const isUserMember = await this.repository.findConversationMember({
+      account: currentUser.user_uuid,
+      conversation: dto.conversation,
+    })
+
+    if (!isUserMember) {
+      throw Error("Forbidden!")
+    }
+
+    const messages = await this.repository.findAllMessagesByConversation(dto)
+    return messages
+  }
+
   async createPersonalMessage(
     currentUser: User,
     dto: CreatePersonalMessageDTO,
@@ -77,7 +103,7 @@ export class ConversationService {
     let personalConversation =
       await this.repository.findPersonalConversationByName(conversationName)
 
-    if (personalConversation === null) {
+    if (!personalConversation) {
       personalConversation = await this.repository.createConversation({
         name: conversationName,
         is_group: false,
@@ -112,17 +138,16 @@ export class ConversationService {
     files: FileDTO[],
   ) {
     const group = await this.repository.findGroupConversation(dto.conversation)
-    if (group === null) {
+    if (!group) {
       throw Error("Conversation does not exists!")
     }
 
-    const userIsMember =
-      (await this.repository.findConversationMember({
-        conversation: dto.conversation,
-        account: currentUser.user_uuid,
-      })) ?? false
+    const groupMember = await this.repository.findConversationMember({
+      conversation: dto.conversation,
+      account: currentUser.user_uuid,
+    })
 
-    if (!userIsMember || !userIsMember.is_active) {
+    if (!groupMember || !groupMember.is_active) {
       throw Error("Forbidden!")
     }
 
@@ -201,7 +226,7 @@ export class ConversationService {
     files: FileDTO[],
   ) {
     const message = await this.repository.findMessage(dto.uuid)
-    if (message === null) {
+    if (!message) {
       throw Error("Message does not exists!")
     }
 
@@ -225,7 +250,7 @@ export class ConversationService {
     dto: SetUserMessageStatusDTO,
   ) {
     const message = await this.repository.findMessage(dto.message)
-    if (message == null) {
+    if (!message) {
       throw Error("Message does not exists!")
     }
 
@@ -234,12 +259,12 @@ export class ConversationService {
       throw Error("Bad request!")
     }
 
-    const member = await this.repository.findConversationMember({
+    const isUserMember = await this.repository.findConversationMember({
       account: currentUser.user_uuid,
       conversation: message.conversation,
     })
 
-    if (member == null) {
+    if (!isUserMember) {
       throw Error("Forbidden!")
     }
 
@@ -295,16 +320,16 @@ export class ConversationService {
     const { total, delivered, readed } =
       await this.repository.countMesssageStatusesSummary(message)
 
-    const messageIsDelivered = total === delivered + readed
-    if (messageIsDelivered) {
+    const isMessageDelivered = total === delivered + readed
+    if (isMessageDelivered) {
       await this.repository.setMessageStatus({
         uuid: message,
         status: "delivered",
       })
     }
 
-    const messageIsReaded = total === readed
-    if (messageIsReaded) {
+    const isMessageReaded = total === readed
+    if (isMessageReaded) {
       await this.repository.setMessageStatus({
         uuid: message,
         status: "readed",

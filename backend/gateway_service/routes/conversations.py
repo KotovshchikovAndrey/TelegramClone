@@ -11,17 +11,17 @@ from api.auth import get_current_user
 from api.conversation import (
     create_personal_message,
     get_all_conversations_for_current_user,
-    update_personal_message,
+    update_message,
 )
 from api.exceptions.api_exception import ApiException
 from api.utils import api_proxy_flyweight, websocket_manager
-from models.message import MessageAction, PersonalMessageCreate, PersonalMessageUpdate
+from models.message import MessageAction, MessageUpdate, PersonalMessageCreate
 from models.user import CurrentUser
 
-router = APIRouter(prefix="/conversations")
+router = APIRouter()
 
 
-@router.websocket("/{conversation_uuid:str}/ws")
+@router.websocket("/conversations/{conversation_uuid:str}/ws")
 async def conversation_websocket_handler(websocket: WebSocket, conversation_uuid: str):
     await websocket_manager.connect(conversation_uuid, websocket)
     try:
@@ -50,7 +50,7 @@ async def conversation_websocket_handler(websocket: WebSocket, conversation_uuid
         websocket_manager.disconnect(conversation_uuid, websocket)
 
 
-@router.get("/sse/{stream_delay:int}")
+@router.get("/conversations/sse/{stream_delay:int}")
 async def conversation_sse_handler(request: Request, stream_delay: int):
     current_user = await _authenticate(request)
     if not (5 <= stream_delay <= 10):
@@ -76,7 +76,7 @@ async def conversation_sse_handler(request: Request, stream_delay: int):
     return response
 
 
-@router.route("/{path:path}", methods=["GET", "POST"])
+@router.route("/conversations/{path:path}", methods=["GET", "POST"])
 async def message_api_proxy(request: Request):
     current_user = await _authenticate(request)
 
@@ -108,13 +108,12 @@ async def _authenticate(client: WebSocket | Request) -> CurrentUser:
 
 
 async def _dispatch_action(action: MessageAction, current_user: CurrentUser):
-    if action.action_type == "create_personal_message":
-        dto = PersonalMessageCreate(**action.data)
-        api_response = await create_personal_message(current_user, dto)
-    elif action.action_type == "update_personal_message":
-        dto = PersonalMessageUpdate(**action.data)
-        api_response = await update_personal_message(current_user, dto)
-    else:
-        raise ApiException.bad_request(message="Unexpected action_type!")
-
-    return api_response
+    match action.action_type:
+        case "create_personal_message":
+            dto = PersonalMessageCreate(**action.data)
+            return await create_personal_message(current_user, dto)
+        case "update_message":
+            dto = MessageUpdate(**action.data)
+            return await update_message(current_user, dto)
+        case _:
+            raise ApiException.bad_request(message="Unexpected action_type!")

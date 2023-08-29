@@ -7,7 +7,23 @@ import {
   IsArray,
   IsString,
   IsIn,
+  IsInt,
 } from "class-validator"
+
+@InputType()
+export class GetMessageHistoryDTO {
+  @Field()
+  @IsUUID()
+  conversation: string
+
+  @Field({ defaultValue: 10 })
+  @IsInt()
+  limit: number
+
+  @Field({ defaultValue: 0 })
+  @IsInt()
+  offset: number
+}
 
 @InputType()
 export class CreatePersonalMessageDTO {
@@ -72,11 +88,14 @@ export class CreateGroupMessageDTO {
   text?: string
 }
 
+@InputType()
 export class UpdateMessageDTO {
+  @Field()
   @IsNotEmpty()
   @IsUUID()
   uuid: string
 
+  @Field({ nullable: true })
   @IsOptional()
   @IsNotEmpty()
   @MaxLength(500)

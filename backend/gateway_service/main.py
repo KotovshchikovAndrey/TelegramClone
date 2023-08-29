@@ -11,8 +11,8 @@ from settings import settings
 # from api.utils.kafka import consumer, producer
 
 app = FastAPI()
-app.include_router(message_router)
 app.include_router(auth_router)
+app.include_router(message_router)
 app.add_exception_handler(Exception, handle_error)
 
 

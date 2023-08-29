@@ -3,7 +3,7 @@ import typing as tp
 
 from api.graphql import queries
 from api.utils.adapters.graphql_adapter import GraphqlAdapter
-from models.message import PersonalMessageCreate, PersonalMessageUpdate
+from models.message import PersonalMessageCreate, MessageUpdate
 from models.user import CurrentUser
 from settings import settings
 
@@ -15,7 +15,7 @@ async def get_all_conversations_for_current_user(
 ):
     headers = {
         "Apollo-Require-Preflight": "true",
-        # "Authorizer": current_user.model_dump_json(),
+        "Authorizer": current_user.model_dump_json(),
     }
 
     adapter = GraphqlAdapter(graphql_api_url=settings.conservation_service_host)
@@ -61,10 +61,7 @@ async def create_personal_message(
     return response
 
 
-async def update_personal_message(
-    current_user: CurrentUser,
-    dto: PersonalMessageUpdate,
-):
+async def update_message(current_user: CurrentUser, dto: MessageUpdate):
     headers = {
         "Apollo-Require-Preflight": "true",
         "Authorizer": current_user.model_dump_json(),
@@ -73,7 +70,7 @@ async def update_personal_message(
     adapter = GraphqlAdapter(graphql_api_url=settings.conservation_service_host)
     if dto.files:
         operations = {
-            "query": queries.update_message_with_files,
+            "query": queries.UPDATE_MESSAGE_WITH_FILES,
             "variables": {
                 "dto": dto.model_dump(exclude="files"),
                 "files": [None for _ in dto.files],
@@ -88,7 +85,8 @@ async def update_personal_message(
 
         return response
 
-    mutation = queries.update_message_without_files % dto.model_dump()
+    mutation = queries.UPDATE_MESSAGE_WITHOUT_FILES % dto.model_dump()
+    print(mutation)
     response = await adapter.send_query_json(query=mutation, headers=headers)
 
     return response

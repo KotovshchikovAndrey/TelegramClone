@@ -58,11 +58,19 @@ type ConversationWithMessageSummary {
 type Query {
   getAllConversationsForCurrentUser(limit: Int! = 10, offset: Int! = 0): [ConversationWithMessageSummary]!
   getUnreadMessageCountForCurrentUser(conversation: String!): Int!
+  getMessageHistoryInConversation(dto: GetMessageHistoryDTO!): [Message]!
+}
+
+input GetMessageHistoryDTO {
+  conversation: String!
+  limit: Float! = 10
+  offset: Float! = 0
 }
 
 type Mutation {
   createPersonalMessage(dto: CreatePersonalMessageDTO!, files: [Upload!]! = []): Message!
   createNewGroup(dto: CreateGroupDTO!, avatar: Upload): Conversation!
+  updateMessage(dto: UpdateMessageDTO!, files: [Upload!]! = []): Message!
   setMessageStatusForCurrentUser(dto: SetUserMessageStatusDTO!): AccountMessageStatus!
 }
 
@@ -78,6 +86,11 @@ input CreateGroupDTO {
   name: String!
   description: String
   users: [String]!
+}
+
+input UpdateMessageDTO {
+  uuid: String!
+  text: String
 }
 
 input SetUserMessageStatusDTO {

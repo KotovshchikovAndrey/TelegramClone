@@ -1,3 +1,4 @@
+from redis import Redis
 import uvicorn
 from databases import Database
 from kink import inject
@@ -13,8 +14,9 @@ async def handle_startup(postgres: Database):
 
 
 @inject
-async def handle_shutdown(postgres: Database):
+async def handle_shutdown(postgres: Database, redis: Redis):
     await postgres.disconnect()
+    await redis.close()
 
 
 server = FastApiServer(startup_handler=handle_startup, shutdown_handler=handle_shutdown)

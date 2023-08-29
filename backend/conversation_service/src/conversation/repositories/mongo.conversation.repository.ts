@@ -11,6 +11,7 @@ import {
   CreateConversationDTO,
   CreateMemberDTO,
   CreateMessageDTO,
+  GetMessageHistoryDTO,
   SetAccountMessageStatusDTO,
   SetMessageStatusDTO,
   UpdateConversationDTO,
@@ -157,6 +158,16 @@ export class MongoConversationRepository implements IConversationRepository {
     return conversations
   }
 
+  async findConversationByUUID(uuid: string) {
+    const conversation = await this.conversations
+      .findOne({
+        uuid,
+      })
+      .exec()
+
+    return conversation
+  }
+
   async findPersonalConversation({
     first_user,
     second_user,
@@ -254,6 +265,22 @@ export class MongoConversationRepository implements IConversationRepository {
       .exec()
 
     return members
+  }
+
+  async findAllMessagesByConversation(dto: GetMessageHistoryDTO) {
+    const messages = await this.messages
+      .find({
+        conversation: dto.conversation,
+      })
+      .populate({
+        path: "sender",
+        foreignField: "uuid",
+      })
+      .skip(dto.offset)
+      .limit(dto.limit)
+      .exec()
+
+    return messages
   }
 
   async createConversation(dto: CreateConversationDTO) {

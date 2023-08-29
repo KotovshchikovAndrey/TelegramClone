@@ -1,7 +1,5 @@
 import typing as tp
-from datetime import datetime
-
-from pydantic import UUID4, Base64Bytes, BaseModel, Field
+from pydantic import Base64Bytes, BaseModel, Field
 
 
 class File(BaseModel):
@@ -15,7 +13,7 @@ class PersonalMessageCreate(BaseModel):
     files: tp.List[File] = []
 
 
-class PersonalMessageUpdate(BaseModel):
+class MessageUpdate(BaseModel):
     uuid: str
     text: str = Field(max_length=500)
     files: tp.List[File] = []
@@ -24,13 +22,3 @@ class PersonalMessageUpdate(BaseModel):
 class MessageAction(BaseModel):
     action_type: str
     data: tp.Mapping[tp.Any, tp.Any]
-
-
-# class PersonalMessage(BaseModel):
-#     uuid: str
-#     text: str
-#     media_url: str | None = None
-#     created_at: datetime
-#     send_from: str
-#     send_to: str
-#     status: str

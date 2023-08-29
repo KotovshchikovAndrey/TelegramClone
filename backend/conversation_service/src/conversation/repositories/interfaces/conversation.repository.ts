@@ -2,6 +2,7 @@ import {
   CreateConversationDTO,
   CreateMemberDTO,
   CreateMessageDTO,
+  GetMessageHistoryDTO,
   SetAccountMessageStatusDTO,
   SetMessageStatusDTO,
   UpdateConversationDTO,
@@ -24,6 +25,8 @@ export interface IConversationRepository {
     limit: number
     offset: number
   }): Promise<Conversation[]>
+
+  findConversationByUUID(uuid: string): Promise<Conversation>
 
   findPersonalConversation({
     first_user,
@@ -48,6 +51,8 @@ export interface IConversationRepository {
   findMessage(uuid: string): Promise<Message | null>
 
   findAllMembersInConversation(conversation: string): Promise<Member[]>
+
+  findAllMessagesByConversation(dto: GetMessageHistoryDTO): Promise<Message[]>
 
   createConversation(dto: CreateConversationDTO): Promise<Conversation>
 
