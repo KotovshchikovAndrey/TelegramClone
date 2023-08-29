@@ -14,6 +14,7 @@ import { FileService } from "../file/file.service"
 import { Member } from "./conversation.entity"
 import { createHash } from "crypto"
 import { User } from "../user-account/user-account.entity"
+import { UserAccountService } from "src/user-account/user-account.service"
 
 @Injectable()
 export class ConversationService {
@@ -21,6 +22,7 @@ export class ConversationService {
     @Inject("ConversationRepository")
     private readonly repository: IConversationRepository,
     private readonly fileService: FileService,
+    private readonly userAccountService: UserAccountService,
   ) {}
 
   async getAllConversationsForCurrentUser(
@@ -194,10 +196,12 @@ export class ConversationService {
     conversation: string
     users: Omit<CreateMemberDTO, "conversation">[]
   }) {
-    const isUserAccountsExists = await this.checkAccountsExists(users)
-    if (!isUserAccountsExists) {
-      throw Error("User account(s) do not exists!")
-    }
+    // const isUserAccountsExists =
+    //   await this.userAccountService.checkUserAccountsExists(users)
+
+    // if (!isUserAccountsExists) {
+    //   throw Error("User account(s) do not exists!")
+    // }
 
     const newMembers: CreateMemberDTO[] = []
     for (const user of users) {
@@ -335,9 +339,5 @@ export class ConversationService {
         status: "readed",
       })
     }
-  }
-
-  private async checkAccountsExists(user_accounts: { account: string }[]) {
-    return true
   }
 }

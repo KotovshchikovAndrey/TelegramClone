@@ -3,9 +3,10 @@ import { KafkaMessagingFactory } from "./kafka.factory"
 import { IKafkaConsumer } from "./kafka.types"
 import { randomUUID } from "crypto"
 import { Kafka } from "kafkajs"
+import { UserAccountModule } from "src/user-account/user-account.module"
 
 @Module({
-  imports: [],
+  imports: [UserAccountModule],
   providers: [
     {
       provide: "KAFKA_CLIENT",

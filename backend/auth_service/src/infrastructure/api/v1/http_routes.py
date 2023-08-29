@@ -11,10 +11,8 @@ from domain.models.user import (
     UserInDB,
     UserLogin,
     UserPayload,
-    UsersInfoGet,
 )
 from domain.services.auth_service import AuthService
-from domain.services.user_service import UserService
 from infrastructure.api.middlewares.auth_middleware import authenticate_current_user
 
 router = APIRouter(prefix="/v1")
@@ -80,12 +78,3 @@ async def authenticate_user(
     current_user: tp.Annotated[UserInDB, Depends(authenticate_current_user)],
 ):
     return current_user
-
-
-@router.post("/get-users-info")
-async def get_users_info(
-    service: tp.Annotated[UserService, Depends(lambda: di[UserService])],
-    users_info_get: UsersInfoGet,
-):
-    users_info = await service.get_users_info_by_uuids(users_info_get.user_uuids)
-    return users_info

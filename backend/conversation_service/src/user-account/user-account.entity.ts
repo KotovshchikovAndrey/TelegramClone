@@ -15,13 +15,13 @@ export class Account {
   @Field({ nullable: false })
   phone: string
 
-  @Prop({ required: false, default: null })
-  @Field({ nullable: true })
-  name?: string
+  @Prop({ required: true })
+  @Field({ nullable: false })
+  name: string
 
-  @Prop({ required: false, default: null })
-  @Field({ nullable: true })
-  surname?: string
+  @Prop({ required: true })
+  @Field({ nullable: false })
+  surname: string
 
   @Prop({ required: false, default: null })
   @Field({ nullable: true })
@@ -42,8 +42,6 @@ export class Account {
 
 export class User {
   user_uuid: string
-  name: string
-  surname: string
   phone: string
   email: string
 }

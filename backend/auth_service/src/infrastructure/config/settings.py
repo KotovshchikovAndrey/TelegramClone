@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     mail_server: str
     mail_from_name: str
 
+    kafka_host: str
+    kafka_port: int
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 

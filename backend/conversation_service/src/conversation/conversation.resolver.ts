@@ -18,12 +18,15 @@ import {
 import { ConversationService } from "./conversation.service"
 import { FileDTO } from "../file/file.dto"
 import { User } from "../user-account/user-account.entity"
+import { UseGuards } from "@nestjs/common"
+import { AuthGuard } from "src/user-account/auth.guard"
 
 @Resolver()
 export class ConversationResolver {
   constructor(private readonly conversationService: ConversationService) {}
 
   @Query(() => [ConversationWithMessageSummary], { nullable: "items" })
+  @UseGuards(AuthGuard)
   async getAllConversationsForCurrentUser(
     @CurrentUser() currentUser: User,
     @Args("limit", { type: () => Int, defaultValue: 10 })
@@ -41,6 +44,7 @@ export class ConversationResolver {
   }
 
   @Query(() => Int, { defaultValue: 0 })
+  @UseGuards(AuthGuard)
   async getUnreadMessageCountForCurrentUser(
     @CurrentUser() currentUser: User,
     @Args("conversation") conversation: string,
@@ -52,6 +56,7 @@ export class ConversationResolver {
   }
 
   @Query(() => [Message], { nullable: "items" })
+  @UseGuards(AuthGuard)
   async getMessageHistoryInConversation(
     @CurrentUser() currentUser: User,
     @Args("dto") dto: GetMessageHistoryDTO,
@@ -63,6 +68,7 @@ export class ConversationResolver {
   }
 
   @Mutation(() => Message)
+  @UseGuards(AuthGuard)
   async createPersonalMessage(
     @CurrentUser() currentUser: User,
     @Args("dto") dto: CreatePersonalMessageDTO,
@@ -82,6 +88,7 @@ export class ConversationResolver {
   }
 
   @Mutation(() => Conversation)
+  @UseGuards(AuthGuard)
   async createNewGroup(
     @CurrentUser() currentUser: User,
     @Args("dto") dto: CreateGroupDTO,
@@ -97,6 +104,7 @@ export class ConversationResolver {
   }
 
   @Mutation(() => Message)
+  @UseGuards(AuthGuard)
   async updateMessage(
     @CurrentUser() currentUser: User,
     @Args("dto") dto: UpdateMessageDTO,
@@ -116,6 +124,7 @@ export class ConversationResolver {
   }
 
   @Mutation(() => AccountMessageStatus)
+  @UseGuards(AuthGuard)
   async setMessageStatusForCurrentUser(
     @CurrentUser() currentUser: User,
     @Args("dto") dto: SetUserMessageStatusDTO,

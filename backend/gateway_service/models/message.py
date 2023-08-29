@@ -1,4 +1,5 @@
 import typing as tp
+
 from pydantic import Base64Bytes, BaseModel, Field
 
 
@@ -19,6 +20,15 @@ class MessageUpdate(BaseModel):
     files: tp.List[File] = []
 
 
+class UserMessageStatusUpdate(BaseModel):
+    message: str
+    status: tp.Literal["sent", "delivered", "readed"]
+
+
 class MessageAction(BaseModel):
-    action_type: str
+    action_type: tp.Literal[
+        "create_personal_message",
+        "update_message",
+        "update_message_status_for_user",
+    ]
     data: tp.Mapping[tp.Any, tp.Any]

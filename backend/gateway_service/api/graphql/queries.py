@@ -79,3 +79,14 @@ UPDATE_MESSAGE_WITHOUT_FILES = """mutation UpdateMessage {
         }
     }
 }"""
+
+SET_MESSAGE_STATUS_FOR_CURRENT_USER = """mutation SetMessageStatusForCurrentUser {
+    setMessageStatusForCurrentUser(dto: {
+        message: "%(message)s",
+        status: "%(status)%"
+    }) {
+        account
+        message
+        status
+    }
+}"""

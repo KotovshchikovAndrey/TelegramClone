@@ -5,11 +5,18 @@ from kink import inject
 
 from domain.exceptions.http_exception import HttpException
 from domain.models.session import SessionActivation
-from domain.models.user import UserCreate, UserFingerPrint, UserLogin
+from domain.models.user import (
+    UserCreate,
+    UserFingerPrint,
+    UserInDB,
+    UserLogin,
+    UserPublic,
+)
 from domain.services.mail_service import MailService
 from domain.services.session_service import SessionService
 from domain.services.user_service import UserService
 from infrastructure.utils.ip import get_location_by_ip
+from infrastructure.utils.kafka.kafka_interfaces import IKafkaProducer
 
 
 @inject
@@ -17,16 +24,19 @@ class AuthService:
     _user_service: UserService
     _session_service: SessionService
     _mail_service: MailService
+    _kafka_producer: IKafkaProducer
 
     def __init__(
         self,
         user_service: UserService,
         session_service: SessionService,
         mail_service: MailService,
+        kafka_producer: IKafkaProducer,
     ) -> None:
         self._user_service = user_service
         self._session_service = session_service
         self._mail_service = mail_service
+        self._kafka_producer = kafka_producer
 
     async def register_new_user(
         self, finger_print: UserFingerPrint, user_create: UserCreate
@@ -35,10 +45,11 @@ class AuthService:
         finger_print.user_location = await get_location_by_ip(finger_print.user_ip)
 
         new_session = await self._session_service.create_user_session(
-            user_uuid=new_user,
+            user_uuid=new_user.user_uuid,
             payload=finger_print,
         )
 
+        await self._send_new_user_data_to_queue(new_user)
         asyncio.create_task(
             self._mail_service.send_login_confirm_code(
                 email=user_create.email,
@@ -95,3 +106,10 @@ class AuthService:
         current_user = await self._user_service.get_user_by_uuid(user_uuid)
 
         return current_user
+
+    async def _send_new_user_data_to_queue(self, new_user: UserInDB):
+        user_public = UserPublic(**new_user.model_dump())
+        await self._kafka_producer.send_message(
+            topic_name="created-account-data-for-conversation-service",
+            message=user_public.model_dump_json(),
+        )

@@ -8,14 +8,20 @@ from pydantic import ValidationError
 from starlette.datastructures import MutableHeaders
 
 from api.auth import get_current_user
-from api.conversation import (
+from api.conversations import (
     create_personal_message,
     get_all_conversations_for_current_user,
+    set_message_status_for_current_user,
     update_message,
 )
 from api.exceptions.api_exception import ApiException
 from api.utils import api_proxy_flyweight, websocket_manager
-from models.message import MessageAction, MessageUpdate, PersonalMessageCreate
+from models.message import (
+    MessageAction,
+    MessageUpdate,
+    PersonalMessageCreate,
+    UserMessageStatusUpdate,
+)
 from models.user import CurrentUser
 
 router = APIRouter()
@@ -115,5 +121,8 @@ async def _dispatch_action(action: MessageAction, current_user: CurrentUser):
         case "update_message":
             dto = MessageUpdate(**action.data)
             return await update_message(current_user, dto)
+        case "update_message_status_for_user":
+            dto = UserMessageStatusUpdate(**action.data)
+            return await set_message_status_for_current_user(current_user, dto)
         case _:
             raise ApiException.bad_request(message="Unexpected action_type!")

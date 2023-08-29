@@ -5,8 +5,8 @@
 type Account {
   uuid: String!
   phone: String!
-  name: String
-  surname: String
+  name: String!
+  surname: String!
   about_me: String
   avatar: String
   birthday: DateTime

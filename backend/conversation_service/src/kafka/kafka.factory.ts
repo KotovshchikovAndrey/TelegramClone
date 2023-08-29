@@ -4,6 +4,7 @@ import { KafkaConsumer } from "./kafka.consumer"
 import { Kafka } from "kafkajs"
 import { randomUUID } from "crypto"
 import { ConfigService } from "@nestjs/config"
+import { UserAccountService } from "src/user-account/user-account.service"
 
 @Injectable()
 export class KafkaMessagingFactory {
@@ -11,6 +12,7 @@ export class KafkaMessagingFactory {
     @Inject("KAFKA_CLIENT")
     private readonly kafkaClient: Kafka,
     private readonly configService: ConfigService,
+    private readonly userAccountService: UserAccountService,
   ) {}
 
   createConsumer(): IKafkaConsumer {
@@ -19,7 +21,12 @@ export class KafkaMessagingFactory {
     })
 
     const topicName = this.configService.get("KAFKA_CONSUMER_TOPIC")
-    const kafkaConsumer = new KafkaConsumer(consumer, topicName)
+    const kafkaConsumer = new KafkaConsumer(
+      consumer,
+      topicName,
+      this.userAccountService,
+    )
+
     return kafkaConsumer
   }
 

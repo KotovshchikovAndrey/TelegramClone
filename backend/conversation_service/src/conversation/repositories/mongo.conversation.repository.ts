@@ -105,7 +105,14 @@ export class MongoConversationRepository implements IConversationRepository {
                   from: "accounts",
                   localField: "sender",
                   foreignField: "uuid",
-                  as: "sender",
+                  as: "accounts",
+                },
+              },
+              {
+                $addFields: {
+                  sender: {
+                    $ifNull: [{ $arrayElemAt: ["$accounts", -1] }, null],
+                  },
                 },
               },
               {

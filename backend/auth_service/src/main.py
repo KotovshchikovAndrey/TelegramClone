@@ -1,22 +1,25 @@
-from redis import Redis
 import uvicorn
 from databases import Database
 from kink import inject
+from redis import Redis
 
 from infrastructure.api import router
 from infrastructure.config.server import FastApiServer
 from infrastructure.config.settings import settings
+from infrastructure.utils.kafka.kafka_interfaces import IKafkaProducer
 
 
 @inject
-async def handle_startup(postgres: Database):
+async def handle_startup(postgres: Database, kafka: IKafkaProducer):
     await postgres.connect()
+    await kafka.connect()
 
 
 @inject
-async def handle_shutdown(postgres: Database, redis: Redis):
+async def handle_shutdown(postgres: Database, redis: Redis, kafka: IKafkaProducer):
     await postgres.disconnect()
     await redis.close()
+    await kafka.disconect()
 
 
 server = FastApiServer(startup_handler=handle_startup, shutdown_handler=handle_shutdown)

@@ -14,12 +14,6 @@ class IUserRepository(tp.Protocol):
         ...
 
     @abstractmethod
-    async def get_users_info_by_uuids(
-        self, user_uuids: tp.List[UUID4]
-    ) -> tp.List[UserPublic]:
-        ...
-
-    @abstractmethod
     async def find_user_by_email(self, email: str) -> UserInDB | None:
         ...
 
@@ -28,5 +22,5 @@ class IUserRepository(tp.Protocol):
         ...
 
     @abstractmethod
-    async def create_user(self, user_create: UserCreate) -> UserUUID:
+    async def create_user(self, user_create: UserCreate) -> UserInDB:
         ...
