@@ -196,12 +196,12 @@ export class ConversationService {
     conversation: string
     users: Omit<CreateMemberDTO, "conversation">[]
   }) {
-    // const isUserAccountsExists =
-    //   await this.userAccountService.checkUserAccountsExists(users)
+    const isUserAccountsExists =
+      await this.userAccountService.checkUserAccountsExists(users)
 
-    // if (!isUserAccountsExists) {
-    //   throw Error("User account(s) do not exists!")
-    // }
+    if (!isUserAccountsExists) {
+      throw Error("User account(s) do not exists!")
+    }
 
     const newMembers: CreateMemberDTO[] = []
     for (const user of users) {
