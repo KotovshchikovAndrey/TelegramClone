@@ -5,8 +5,6 @@ from pydantic import UUID4, BaseModel, IPvAnyAddress, validator
 
 
 class UserBase(BaseModel):
-    name: str
-    surname: str
     phone: str
     email: str
 
@@ -20,7 +18,8 @@ class UserInDB(UserBase):
 
 
 class UserCreate(UserBase):
-    ...
+    name: str
+    surname: str
 
 
 class UserLogin(BaseModel):

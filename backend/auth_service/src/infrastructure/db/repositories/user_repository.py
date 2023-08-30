@@ -38,10 +38,8 @@ class PostgresUserRepository(IUserRepository):
 
     async def create_user(self, user_create: UserCreate):
         db_query = """
-        INSERT INTO "user" (name, surname, email, phone) 
+        INSERT INTO "user" (email, phone) 
         VALUES (
-            :name,
-            :surname,
             :email,
             :phone
         ) RETURNING *;
@@ -49,7 +47,7 @@ class PostgresUserRepository(IUserRepository):
 
         new_user = await self._postgres.fetch_one(
             query=db_query,
-            values=user_create.model_dump(),
+            values=user_create.model_dump(exclude={"name", "surname"}),
         )
 
         return UserInDB.model_validate(new_user)
