@@ -1,6 +1,3 @@
-import pathlib
-
-from fastapi_mail import ConnectionConfig
 from kink import di
 
 from infrastructure.config.settings import settings
@@ -23,18 +20,6 @@ def setup_di_container() -> None:
         host=settings.redis_host,
         port=settings.redis_port,
         password=settings.redis_password,
-    )
-
-    di["mail_config"] = ConnectionConfig(
-        MAIL_USERNAME=settings.mail_username,
-        MAIL_PASSWORD=settings.mail_password,
-        MAIL_FROM=settings.mail_from,
-        MAIL_PORT=settings.mail_port,
-        MAIL_SERVER=settings.mail_server,
-        MAIL_FROM_NAME=settings.mail_from_name,
-        MAIL_STARTTLS=True,
-        MAIL_SSL_TLS=False,
-        TEMPLATE_FOLDER=pathlib.Path("./src") / "common" / "templates",
     )
 
     di[IKafkaProducer] = lambda _: KafkaProducer(

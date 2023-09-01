@@ -1,19 +1,13 @@
-import asyncio
 import typing as tp
-
 from kink import inject
 
 from domain.exceptions.http_exception import HttpException
 from domain.models.session import SessionActivation
-from domain.models.user import (
-    UserCreate,
-    UserFingerPrint,
-    UserLogin,
-    UserPublic,
-)
-from domain.services.mail_service import MailService
+from domain.models.user import UserCreate, UserFingerPrint, UserLogin, UserPublic
+
 from domain.services.session_service import SessionService
 from domain.services.user_service import UserService
+from infrastructure.utils.celery.tasks import send_login_code_email
 from infrastructure.utils.ip import get_location_by_ip
 from infrastructure.utils.kafka.kafka_interfaces import IKafkaProducer
 
@@ -22,19 +16,16 @@ from infrastructure.utils.kafka.kafka_interfaces import IKafkaProducer
 class AuthService:
     _user_service: UserService
     _session_service: SessionService
-    _mail_service: MailService
     _kafka_producer: IKafkaProducer
 
     def __init__(
         self,
         user_service: UserService,
         session_service: SessionService,
-        mail_service: MailService,
         kafka_producer: IKafkaProducer,
     ) -> None:
         self._user_service = user_service
         self._session_service = session_service
-        self._mail_service = mail_service
         self._kafka_producer = kafka_producer
 
     async def register_new_user(
@@ -54,14 +45,8 @@ class AuthService:
             surname=user_create.surname,
         )
 
-        async with asyncio.TaskGroup() as task_group:
-            task_group.create_task(self._send_new_user_data_to_queue(user_public))
-            task_group.create_task(
-                self._send_login_code_email(
-                    email=new_user.email,
-                    code=new_session.code,
-                )
-            )
+        await self._send_new_user_data_to_queue(user_public)
+        send_login_code_email.delay(new_user.email, new_session.code)
 
         return new_session.session_key
 
@@ -76,7 +61,7 @@ class AuthService:
             payload=finger_print,
         )
 
-        await self._send_login_code_email(email=user.email, code=new_session.code)
+        send_login_code_email.delay(user.email, new_session.code)
         return new_session.session_key
 
     async def confirm_user_login(self, session_activation: SessionActivation):
@@ -111,13 +96,4 @@ class AuthService:
         await self._kafka_producer.send_message(
             topic_name="created-account-data-for-conversation-service",
             message=user_public.model_dump_json(),
-        )
-
-    async def _send_login_code_email(self, email: str, code: int):
-        # Заглушка (Позже будет очередь)
-        asyncio.create_task(
-            self._mail_service.send_login_confirm_code(
-                email=email,
-                code=code,
-            )
         )

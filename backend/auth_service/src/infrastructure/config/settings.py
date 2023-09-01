@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     kafka_host: str
     kafka_port: int
 
+    celery_broker_host: str
+    celery_broker_port: int
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 
