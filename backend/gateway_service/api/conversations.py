@@ -105,3 +105,17 @@ async def set_message_status_for_current_user(
     response = await adapter.send_query_json(query=mutation, headers=headers)
 
     return response
+
+
+async def set_account_online_status(current_user: CurrentUser, is_online: bool):
+    adapter = GraphqlAdapter(graphql_api_url=settings.conservation_service_host)
+    headers = {
+        "Apollo-Require-Preflight": "true",
+        "Authorizer": current_user.model_dump_json(),
+    }
+
+    mutation = queries.SET_ACCOUNT_ONLINE_STATUS % {"is_online": str(is_online).lower()}
+    response = await adapter.send_query_json(query=mutation, headers=headers)
+
+    print(response)
+    return response

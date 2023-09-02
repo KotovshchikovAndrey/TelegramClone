@@ -26,7 +26,6 @@ CREATE_MESSAGE_WITH_FILES = """mutation createPersonalMessage($dto: CreatePerson
     }
 }"""
 
-
 CREATE_MESSAGE_WITHOUT_FILES = """mutation createPersonalMessage {
     createPersonalMessage(dto: {
         reciever: "%(reciever)s"
@@ -45,7 +44,6 @@ CREATE_MESSAGE_WITHOUT_FILES = """mutation createPersonalMessage {
     }
 }"""
 
-
 UPDATE_MESSAGE_WITH_FILES = """mutation updateMessage($dto: UpdateMessageDTO!, $files: [Upload!]! = []) {
     updateMessage(dto: $dto, files: $files) {
         uuid
@@ -60,7 +58,6 @@ UPDATE_MESSAGE_WITH_FILES = """mutation updateMessage($dto: UpdateMessageDTO!, $
         }
     }
 }"""
-
 
 UPDATE_MESSAGE_WITHOUT_FILES = """mutation UpdateMessage {
     updateMessage(dto: {
@@ -90,3 +87,11 @@ SET_MESSAGE_STATUS_FOR_CURRENT_USER = """mutation SetMessageStatusForCurrentUser
         status
     }
 }"""
+
+SET_ACCOUNT_ONLINE_STATUS = """mutation SetAccountOnlineStatus {
+    setAccountOnlineStatus(is_online: %(is_online)s) {
+        uuid
+        is_online
+    }
+}
+"""

@@ -41,10 +41,6 @@ except ValueError:
     )
 
 
-celery = Celery(
-    "worker",
-    broker=f"redis://{BROKER_HOST}:{BROKER_PORT}",
-    backend=f"redis://{BROKER_HOST}:{BROKER_PORT}",
-)
+celery = Celery("worker", broker=f"redis://{BROKER_HOST}:{BROKER_PORT}")
 
 mail_service = MailService(mail_config=MAIL_CONFIG)

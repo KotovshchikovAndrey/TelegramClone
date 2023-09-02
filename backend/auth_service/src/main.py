@@ -10,16 +10,20 @@ from infrastructure.utils.kafka.kafka_interfaces import IKafkaProducer
 
 
 @inject
-async def handle_startup(postgres: Database, kafka: IKafkaProducer):
+async def handle_startup(postgres: Database, kafka_producer: IKafkaProducer):
     await postgres.connect()
-    await kafka.connect()
+    await kafka_producer.connect()
 
 
 @inject
-async def handle_shutdown(postgres: Database, redis: Redis, kafka: IKafkaProducer):
+async def handle_shutdown(
+    postgres: Database,
+    redis: Redis,
+    kafka_producer: IKafkaProducer,
+):
     await postgres.disconnect()
     await redis.close()
-    await kafka.disconect()
+    await kafka_producer.disconect()
 
 
 server = FastApiServer(startup_handler=handle_startup, shutdown_handler=handle_shutdown)

@@ -50,7 +50,6 @@ async def conversation_websocket_handler(websocket: WebSocket, conversation_uuid
         )
 
         await websocket_manager.send_personal_message(websocket, json.dumps(error_data))
-        websocket_manager.disconnect(conversation_uuid, websocket)
 
     except WebSocketDisconnect:
         websocket_manager.disconnect(conversation_uuid, websocket)
