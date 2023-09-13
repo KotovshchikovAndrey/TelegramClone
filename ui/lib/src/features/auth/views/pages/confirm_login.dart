@@ -13,48 +13,50 @@ class ConfirmLoginPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 28, 40, 51),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (!isKeyboard) _buildGreeting(),
-          BlocConsumer(
-            bloc: authBloc,
-            listener: (context, state) {
-              if (state is AuthenticatedUser) {
-                Navigator.pushNamed(context, "/");
-              }
-            },
-            builder: (context, state) {
-              if (state is UserError) {
-                return Column(
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.all(30),
-                      child: CodeInput(),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 30),
-                      child: Text(
-                        state.message,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontSize: 15,
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              if (!isKeyboard) _buildGreeting(),
+              BlocConsumer(
+                bloc: authBloc,
+                listener: (context, state) {
+                  if (state is AuthenticatedUser) {
+                    Navigator.pushNamed(context, "/");
+                  }
+                },
+                builder: (context, state) {
+                  if (state is UserError) {
+                    return Column(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.all(30),
+                          child: CodeInput(),
                         ),
-                      ),
-                    ),
-                  ],
-                );
-              }
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          child: Text(
+                            state.message,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
 
-              return const Padding(
-                padding: EdgeInsets.all(30),
-                child: CodeInput(),
-              );
-            },
-          )
-        ],
+                  return const Padding(
+                    padding: EdgeInsets.all(30),
+                    child: CodeInput(),
+                  );
+                },
+              )
+            ],
+          ),
+        ),
       ),
     );
   }

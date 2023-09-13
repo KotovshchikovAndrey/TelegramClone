@@ -3,14 +3,15 @@ import 'package:ui/src/core/ioc.dart';
 import 'package:ui/src/core/routes/route_builder.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ui/src/features/auth/views/bloc/user_bloc.dart';
+import 'package:ui/src/features/messages/views/bloc/chat_bloc.dart';
 
 void main() {
   setupIocContainer();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
-  MyApp({super.key});
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -27,8 +28,15 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => _authBloc, // Global Authentication State
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<UserBloc>(
+          create: (context) => _authBloc,
+        ),
+        BlocProvider<ChatBloc>(
+          create: (context) => ChatBloc(),
+        )
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',

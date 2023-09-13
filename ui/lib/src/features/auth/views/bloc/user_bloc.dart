@@ -83,7 +83,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         sessionKey: sessionKey,
       );
 
-      emit(AuthenticatedUser(currentUser: currentUser));
+      emit(AuthenticatedUser(
+        currentUser: currentUser,
+        sessionKey: sessionKey,
+      ));
     } on ApiException catch (exc) {
       emit(UserError(message: exc.message));
     }
@@ -100,7 +103,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
     try {
       final currentUser = await _repository.authenticateUser(sessionKey);
-      emit(AuthenticatedUser(currentUser: currentUser));
+      emit(AuthenticatedUser(
+        currentUser: currentUser,
+        sessionKey: sessionKey,
+      ));
     } on ApiException catch (_) {
       return;
     }

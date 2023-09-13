@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class ChatMessage extends StatelessWidget {
-  const ChatMessage({
+class MessageItem extends StatelessWidget {
+  const MessageItem({
     super.key,
     required this.text,
     required this.date,

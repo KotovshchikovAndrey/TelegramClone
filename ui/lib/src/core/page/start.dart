@@ -13,9 +13,9 @@ class StartPage extends StatelessWidget {
     return BlocBuilder(
       bloc: authBloc,
       builder: (context, state) {
-        if (state is AuthenticatedUser) {
-          return const TopTabBar();
-        }
+        // if (state is AuthenticatedUser) {
+        return const TopTabBar();
+        // }
 
         return Scaffold(
           appBar: AppBar(

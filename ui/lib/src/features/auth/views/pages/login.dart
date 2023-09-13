@@ -10,13 +10,16 @@ class LoginPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 28, 40, 51),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (!isKeyboard) _buildGreeting(),
-          const LoginForm(),
-        ],
+      body: Center(
+        child: SingleChildScrollView(
+          reverse: true,
+          child: Column(
+            children: [
+              if (!isKeyboard) _buildGreeting(),
+              const LoginForm(),
+            ],
+          ),
+        ),
       ),
     );
   }
