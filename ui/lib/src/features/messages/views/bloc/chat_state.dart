@@ -9,3 +9,9 @@ class ChatMessageList extends ChatState {
 
   ChatMessageList({required this.messages});
 }
+
+class ChatList extends ChatState {
+  List<Chat> chats;
+
+  ChatList({required this.chats});
+}

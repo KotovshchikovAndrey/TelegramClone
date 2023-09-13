@@ -33,7 +33,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     super.initState();
 
     final chatBloc = BlocProvider.of<ChatBloc>(context);
-    chatBloc.add(FetchConversationMessages());
+    chatBloc.add(FetchChatMessages());
 
     // _websocket.stream.listen((event) {
     //   print(event);
@@ -70,7 +70,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
             ChatInput(
               onSendMessage: (text) {
                 final message = Message(text: text, date: "15:20");
-                chatBloc.add(AddMessageToChatList(message: message));
+                chatBloc.add(SendMessageToChat(message: message));
                 _sendMessage(text);
               },
             ),

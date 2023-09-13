@@ -2,12 +2,17 @@ part of 'chat_bloc.dart';
 
 abstract class ChatEvent {}
 
-class LoadConversation extends ChatEvent {}
-
-class AddMessageToChatList extends ChatEvent {
+class SendMessageToChat extends ChatEvent {
   Message message;
 
-  AddMessageToChatList({required this.message});
+  SendMessageToChat({required this.message});
 }
 
-class FetchConversationMessages extends ChatEvent {}
+class FetchChatMessages extends ChatEvent {}
+
+class FetchChats extends ChatEvent {
+  num limit;
+  num offset;
+
+  FetchChats({this.limit = 10, this.offset = 0});
+}

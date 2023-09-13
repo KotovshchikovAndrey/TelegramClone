@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 
 class ChatListItem extends StatelessWidget {
-  final String chatRoomTitle;
-  final String chatRoomDescription;
-  final String chatRoomImageUrl;
+  final String chatName;
+  final String avatarUrl;
+  final String lastMessage;
+  final String lastMessageDate;
 
   const ChatListItem({
     super.key,
-    required this.chatRoomTitle,
-    required this.chatRoomDescription,
-    required this.chatRoomImageUrl,
+    required this.chatName,
+    required this.lastMessage,
+    required this.lastMessageDate,
+    this.avatarUrl = "default",
   });
 
   @override
   Widget build(BuildContext context) {
+    print(avatarUrl);
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Column(
@@ -25,7 +29,11 @@ class ChatListItem extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 15, left: 7),
                 child: CircleAvatar(
                   radius: 27,
-                  backgroundImage: NetworkImage(chatRoomImageUrl),
+                  backgroundImage: avatarUrl != "default"
+                      ? NetworkImage(avatarUrl)
+                      : const AssetImage(
+                          "assets/images/default_chat_avatar.jpg",
+                        ) as ImageProvider,
                 ),
               ),
               Expanded(
@@ -44,18 +52,18 @@ class ChatListItem extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            chatRoomTitle,
+                            chatName,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                               color: Colors.white,
                             ),
                           ),
-                          const Padding(
-                            padding: EdgeInsets.only(right: 7),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 7),
                             child: Text(
-                              "ср",
-                              style: TextStyle(color: Colors.grey),
+                              lastMessageDate,
+                              style: const TextStyle(color: Colors.grey),
                             ),
                           )
                         ],
@@ -63,7 +71,7 @@ class ChatListItem extends StatelessWidget {
                       Container(
                         margin: const EdgeInsets.symmetric(vertical: 10),
                         child: Text(
-                          chatRoomDescription,
+                          lastMessage,
                           style: const TextStyle(color: Colors.grey),
                         ),
                       ),
