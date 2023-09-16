@@ -16,3 +16,11 @@ class FetchChats extends ChatEvent {
 
   FetchChats({this.limit = 10, this.offset = 0});
 }
+
+class FilterChatsByName extends ChatEvent {
+  String name;
+
+  FilterChatsByName({this.name = ""});
+}
+
+class ResetChatFilters extends ChatEvent {}

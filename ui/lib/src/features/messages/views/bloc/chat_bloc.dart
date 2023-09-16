@@ -10,7 +10,27 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<SendMessageToChat>(_sendMessageToChat);
     on<FetchChatMessages>(_fetchChatMessages);
     on<FetchChats>(_fetchChats);
+    on<FilterChatsByName>(_filterChatsByName);
+    on<ResetChatFilters>(_resetChatFilters);
   }
+
+  final List<Chat> chats = const [
+    Chat(
+      name: "Роберт Адамов",
+      lastMessage: "Дорова",
+      lastMessageDate: "2023-08-10",
+    ),
+    Chat(
+      name: "Михаил Ищенко",
+      lastMessage: "Привет",
+      lastMessageDate: "2023-08-10",
+    ),
+    Chat(
+      name: "Алексей Штоль",
+      lastMessage: "Батя в городе",
+      lastMessageDate: "2023-08-10",
+    ),
+  ];
 
   Future<void> _sendMessageToChat(
     SendMessageToChat event,
@@ -41,6 +61,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       Message(text: "init message", date: "18:00"),
       Message(text: "init message", date: "18:00"),
     ];
+
     emit(ChatMessageList(messages: messages));
   }
 
@@ -49,24 +70,37 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     Emitter<ChatState> emit,
   ) async {
     // fetch chats
-    const List<Chat> chats = [
-      Chat(
-        name: "Роберт Адамов",
-        lastMessage: "Дорова",
-        lastMessageDate: "2023-08-10",
-      ),
-      Chat(
-        name: "Михаил Ищенко",
-        lastMessage: "Привет",
-        lastMessageDate: "2023-08-10",
-      ),
-      Chat(
-        name: "Алексей Штоль",
-        lastMessage: "Батя в городе",
-        lastMessageDate: "2023-08-10",
-      ),
-    ];
+    emit(ChatList(chats: chats));
+  }
 
+  Future<void> _filterChatsByName(
+    FilterChatsByName event,
+    Emitter<ChatState> emit,
+  ) async {
+    final currentState = state;
+    final searchChatName = event.name.toLowerCase();
+
+    if (currentState is ChatList && searchChatName.isNotEmpty) {
+      final filteredChats = currentState.chats
+          .where(
+            (chat) => chat.name.toLowerCase().contains(
+                  searchChatName.toLowerCase(),
+                ),
+          )
+          .toList();
+
+      emit(ChatList(chats: filteredChats));
+    }
+
+    if (searchChatName.isEmpty) {
+      emit(ChatList(chats: chats));
+    }
+  }
+
+  Future<void> _resetChatFilters(
+    ResetChatFilters event,
+    Emitter<ChatState> emit,
+  ) async {
     emit(ChatList(chats: chats));
   }
 }

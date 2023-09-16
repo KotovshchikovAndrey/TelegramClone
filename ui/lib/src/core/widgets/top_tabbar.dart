@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ui/src/core/widgets/drawer_menu.dart';
+import 'package:ui/src/core/widgets/search_chat_input.dart';
 import 'package:ui/src/features/messages/views/pages/chat_list.dart';
 
 import 'custom_appbar.dart';
@@ -13,13 +14,37 @@ class TopTabBar extends StatefulWidget {
 
 class _TopTabBarState extends State<TopTabBar>
     with SingleTickerProviderStateMixin {
+  bool _isSearchInputShow = false;
+
+  void _showSearchInput() {
+    setState(() {
+      _isSearchInputShow = true;
+    });
+  }
+
+  void _cancelSearchInput() {
+    setState(() {
+      _isSearchInputShow = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: const Drawer(
         child: DrawerMenu(),
       ),
-      appBar: customAppBar(),
+      appBar: _isSearchInputShow
+          ? AppBar(
+              iconTheme: const IconThemeData(color: Colors.white, size: 27),
+              backgroundColor: const Color.fromARGB(255, 33, 47, 60),
+              actions: [
+                SearchChatInput(
+                  onCancelInputClick: _cancelSearchInput,
+                ),
+              ],
+            )
+          : customAppBar(onSearchButtonClick: _showSearchInput),
       body: Theme(
         data: ThemeData(
           highlightColor: Colors.transparent,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-AppBar customAppBar() {
+AppBar customAppBar({required void Function() onSearchButtonClick}) {
   return AppBar(
     iconTheme: const IconThemeData(color: Colors.white, size: 27),
     title: const Text(
@@ -11,12 +11,15 @@ AppBar customAppBar() {
         fontSize: 21,
       ),
     ),
-    actions: const <Widget>[
-      Padding(
-        padding: EdgeInsets.only(right: 10),
-        child: Icon(
-          Icons.search,
-          color: Colors.white,
+    actions: <Widget>[
+      InkWell(
+        onTap: onSearchButtonClick,
+        child: const Padding(
+          padding: EdgeInsets.only(right: 10),
+          child: Icon(
+            Icons.search,
+            color: Colors.white,
+          ),
         ),
       ),
     ],

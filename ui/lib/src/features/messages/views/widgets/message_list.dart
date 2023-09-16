@@ -13,10 +13,10 @@ class MessageList extends StatefulWidget {
 
 class _MessageListState extends State<MessageList> {
   final _scrollController = ScrollController();
+  List<Message> messages = [];
 
   @override
   Widget build(BuildContext context) {
-    List<Message> messages = [];
     final chatBloc = BlocProvider.of<ChatBloc>(context);
 
     return BlocBuilder(
