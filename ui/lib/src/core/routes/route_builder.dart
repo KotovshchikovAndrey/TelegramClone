@@ -6,6 +6,7 @@ import 'package:ui/src/features/auth/views/pages/confirm_login.dart';
 import 'package:ui/src/features/auth/views/pages/login.dart';
 import 'package:ui/src/features/auth/views/pages/register.dart';
 import 'package:ui/src/features/messages/views/pages/chat_room.dart';
+import 'package:ui/src/features/messages/views/pages/group_creation.dart';
 
 Route<dynamic>? routeBuilder(RouteSettings settings) {
   final routeArgs = settings.arguments;
@@ -24,6 +25,8 @@ Route<dynamic>? routeBuilder(RouteSettings settings) {
           widget: ChatRoomPage(roomName: routeArgs.roomName),
         );
       }
+    case '/group-creation':
+      return SlideRightRoute(widget: const GroupCreationPage());
   }
 
   return null;

@@ -78,7 +78,7 @@ class DrawerMenu extends StatelessWidget {
         child: ListView(
           children: [
             IconButton(
-              onPressed: () => null,
+              onPressed: () => Navigator.pushNamed(context, '/group-creation'),
               icon: const Row(
                 children: [
                   Padding(

@@ -41,7 +41,7 @@ class _MyAppState extends State<MyApp> {
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          scaffoldBackgroundColor: const Color.fromARGB(255, 28, 40, 51),
           useMaterial3: true,
         ),
         onGenerateRoute: routeBuilder,

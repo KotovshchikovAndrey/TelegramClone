@@ -77,11 +77,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     FilterChatsByName event,
     Emitter<ChatState> emit,
   ) async {
-    final currentState = state;
     final searchChatName = event.name.toLowerCase();
-
-    if (currentState is ChatList && searchChatName.isNotEmpty) {
-      final filteredChats = currentState.chats
+    if (searchChatName.isEmpty) emit(ChatList(chats: chats));
+    if (searchChatName.isNotEmpty) {
+      final filteredChats = chats
           .where(
             (chat) => chat.name.toLowerCase().contains(
                   searchChatName.toLowerCase(),
@@ -90,10 +89,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           .toList();
 
       emit(ChatList(chats: filteredChats));
-    }
-
-    if (searchChatName.isEmpty) {
-      emit(ChatList(chats: chats));
     }
   }
 

@@ -5,10 +5,10 @@ import 'package:ui/src/features/messages/views/bloc/chat_bloc.dart';
 class SearchChatInput extends StatefulWidget {
   const SearchChatInput({
     super.key,
-    required this.onCancelInputClick,
+    required this.onClickCloseInput,
   });
 
-  final void Function() onCancelInputClick;
+  final void Function() onClickCloseInput;
 
   @override
   State<SearchChatInput> createState() => _SearchChatInputState();
@@ -40,7 +40,7 @@ class _SearchChatInputState extends State<SearchChatInput> {
   void _resetSearchParams() {
     final chatBloc = BlocProvider.of<ChatBloc>(context);
     chatBloc.add(ResetChatFilters());
-    widget.onCancelInputClick();
+    widget.onClickCloseInput();
   }
 
   @override
@@ -58,7 +58,7 @@ class _SearchChatInputState extends State<SearchChatInput> {
             suffixIcon: InkWell(
               onTap: _resetSearchParams,
               child: const Icon(
-                Icons.cancel,
+                Icons.close,
                 color: Colors.white,
                 size: 18,
               ),

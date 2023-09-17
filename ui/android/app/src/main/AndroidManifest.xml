@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- permissions to get phone contacts -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />  
+
     <application
         android:label="ui"
         android:name="${applicationName}"

@@ -22,7 +22,7 @@ class _TopTabBarState extends State<TopTabBar>
     });
   }
 
-  void _cancelSearchInput() {
+  void _closeSearchInput() {
     setState(() {
       _isSearchInputShow = false;
     });
@@ -40,11 +40,11 @@ class _TopTabBarState extends State<TopTabBar>
               backgroundColor: const Color.fromARGB(255, 33, 47, 60),
               actions: [
                 SearchChatInput(
-                  onCancelInputClick: _cancelSearchInput,
+                  onClickCloseInput: _closeSearchInput,
                 ),
               ],
             )
-          : customAppBar(onSearchButtonClick: _showSearchInput),
+          : customAppBar(onClickSearchButton: _showSearchInput),
       body: Theme(
         data: ThemeData(
           highlightColor: Colors.transparent,
