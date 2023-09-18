@@ -59,6 +59,7 @@ type Query {
   getAllConversationsForCurrentUser(limit: Int! = 10, offset: Int! = 0): [ConversationWithMessageSummary]!
   getUnreadMessageCountForCurrentUser(conversation: String!): Int!
   getMessageHistoryInConversation(dto: GetMessageHistoryDTO!): [Message]!
+  findAccountByPhoneNumber(phoneNumber: String!): Account
 }
 
 input GetMessageHistoryDTO {
@@ -73,6 +74,7 @@ type Mutation {
   updateMessage(dto: UpdateMessageDTO!, files: [Upload!]! = []): Message!
   setMessageStatusForCurrentUser(dto: SetUserMessageStatusDTO!): AccountMessageStatus!
   setAccountOnlineStatus(is_online: Boolean!): Account!
+  setAccountAvatar(avatar: Upload!): Account!
 }
 
 input CreatePersonalMessageDTO {

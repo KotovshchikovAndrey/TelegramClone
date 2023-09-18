@@ -1,12 +1,20 @@
 import typing as tp
-from datetime import date, datetime
+from datetime import datetime
 
-from pydantic import UUID4, BaseModel, IPvAnyAddress, validator
+from pydantic import UUID4, BaseModel, IPvAnyAddress, validator, EmailStr
+from pydantic_extra_types.phone_numbers import PhoneNumber
 
 
-class UserBase(BaseModel):
-    phone: str
-    email: str
+class UserPhone(BaseModel):
+    phone: PhoneNumber
+
+    @validator("phone")
+    def validate_phone(cls, phone: str):
+        return phone.replace("tel:", "").replace("-", "")
+
+
+class UserBase(UserPhone):
+    email: EmailStr
 
 
 class UserInDB(UserBase):
@@ -18,12 +26,12 @@ class UserInDB(UserBase):
 
 
 class UserCreate(UserBase):
-    name: str
-    surname: str
+    name: str  # Добавить валидацию на длину и пустату
+    surname: str  # Добавить валидацию на длину и пустату
 
 
-class UserLogin(BaseModel):
-    phone: str
+class UserLogin(UserPhone):
+    ...
 
 
 class UserFingerPrint(BaseModel):
@@ -39,11 +47,10 @@ class UserPayload(UserBase):
         from_attributes = True
 
 
-class UserPublic(BaseModel):
+class UserPublic(UserPhone):
     user_uuid: UUID4
     name: str
     surname: str
-    phone: str
 
     class Config:
         from_attributes = True

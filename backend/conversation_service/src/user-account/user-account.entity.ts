@@ -11,7 +11,7 @@ export class Account {
   @Field(() => String)
   uuid: string
 
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true, index: true })
   @Field({ nullable: false })
   phone: string
 

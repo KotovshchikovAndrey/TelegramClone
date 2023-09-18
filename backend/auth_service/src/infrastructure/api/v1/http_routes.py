@@ -3,7 +3,7 @@ import typing as tp
 from fastapi import APIRouter, Depends, Request, Response, status
 from kink import di
 
-from domain.models.response import ConfirmLoginResponse
+from domain.models.response import ActiveSessionsResponse, ConfirmLoginResponse
 from domain.models.session import SessionActivation
 from domain.models.user import (
     UserCreate,
@@ -13,6 +13,7 @@ from domain.models.user import (
     UserPayload,
 )
 from domain.services.auth_service import AuthService
+from domain.services.session_service import SessionService
 from infrastructure.api.middlewares.auth_middleware import authenticate_current_user
 
 router = APIRouter(prefix="/v1")
@@ -78,3 +79,18 @@ async def authenticate_user(
     current_user: tp.Annotated[UserInDB, Depends(authenticate_current_user)],
 ):
     return current_user
+
+
+@router.get("/active-sessions", response_model=ActiveSessionsResponse)
+async def get_active_sessions(
+    service: tp.Annotated[SessionService, Depends(lambda: di[SessionService])],
+    current_user: tp.Annotated[UserInDB, Depends(authenticate_current_user)],
+):
+    active_sessions = await service.get_all_active_user_sessions(
+        user_uuid=current_user.user_uuid
+    )
+
+    return {
+        "user": current_user,
+        "active_sessions": active_sessions,
+    }

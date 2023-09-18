@@ -35,6 +35,15 @@ class SessionService:
         session = await self._repository.get_session(session_key)
         return session
 
+    async def get_all_active_user_sessions(self, user_uuid: str):
+        session_keys = await self._repository.get_all_session_keys_by_part(
+            session_key_part=f"{user_uuid}_"
+        )
+
+        sessions = await self._repository.get_all_sessions(session_keys)
+        active_sessions = list(filter(lambda session: session.data.is_active, sessions))
+        return active_sessions
+
     async def create_user_session(self, user_uuid: str, payload: SessionPayload):
         activation_code = self._generate_activation_code()
         session_data = SessionData(
