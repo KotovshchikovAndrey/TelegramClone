@@ -27,7 +27,7 @@ from models.user import CurrentUser
 router = APIRouter()
 
 
-@router.websocket("/conversations/{conversation_uuid:str}/ws")
+@router.websocket("/conversations/ws/{conversation_uuid:str}")
 async def conversation_websocket_handler(websocket: WebSocket, conversation_uuid: str):
     await websocket_manager.connect(conversation_uuid, websocket)
     try:
@@ -66,9 +66,22 @@ async def conversation_sse_handler(request: Request, stream_delay: int):
             if await request.is_disconnected():
                 break
 
-            conversations = await get_all_conversations_for_current_user(current_user)
-            json_data = json.dumps(conversations)
-            yield f"data:{json_data}\n\n"
+            try:
+                conversations = await get_all_conversations_for_current_user(
+                    current_user=current_user
+                )
+
+                json_data = json.dumps(conversations)
+                yield f"data:{json_data}\n\n"
+
+            except ApiException as exc:
+                exc_data = {
+                    "status": exc.status,
+                    "message": exc.message,
+                }
+
+                json_data = json.dumps(exc_data)
+                yield f"data:{json_data}\n\n"
 
             await asyncio.sleep(stream_delay)
 

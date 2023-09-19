@@ -8,6 +8,7 @@ from routes.auth import router as auth_router
 from routes.conversations import router as message_router
 from settings import settings
 
+# from api.utils.redis import redis_client
 # from api.utils.kafka import consumer, producer
 
 app = FastAPI()
@@ -19,6 +20,7 @@ app.add_exception_handler(Exception, handle_error)
 @app.on_event("startup")
 async def startup():
     ...
+    # await redis_client.connect()
     # await producer.connect()
     # asyncio.create_task(consumer.connect())
 
@@ -26,6 +28,7 @@ async def startup():
 @app.on_event("shutdown")
 async def shutdown():
     ...
+    # await redis_client.disconnect()
     # await producer.disconect()
     # await consumer.disconect()
 

@@ -31,9 +31,6 @@ class WebSocketManager:
         if channel is None:
             return
 
-        send_message_tasks = []
-        for websocket in channel:
-            task = asyncio.create_task(websocket.send_text(message))
-            send_message_tasks.append(task)
-
-        await asyncio.gather(*send_message_tasks)
+        async with asyncio.TaskGroup() as tg:
+            for websocket in channel:
+                tg.create_task(websocket.send_text(message))
