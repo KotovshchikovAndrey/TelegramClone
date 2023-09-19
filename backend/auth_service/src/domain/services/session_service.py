@@ -2,6 +2,7 @@ import random
 import typing as tp
 import uuid
 
+from datetime import datetime, timezone
 from kink import inject
 
 from domain.exceptions.http_exception import HttpException
@@ -50,6 +51,7 @@ class SessionService:
             **payload.model_dump(),
             activation_code=activation_code,
             is_active=False,
+            created_at=datetime.now(tz=timezone.utc).isoformat(),
         )
 
         session_create = SessionCreate(

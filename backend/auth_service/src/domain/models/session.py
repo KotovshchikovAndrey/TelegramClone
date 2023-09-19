@@ -1,5 +1,6 @@
 import typing as tp
 
+from datetime import datetime
 from pydantic import BaseModel, IPvAnyAddress, validator
 
 
@@ -7,6 +8,7 @@ class SessionPayload(BaseModel):
     user_device: str
     user_ip: IPvAnyAddress
     user_location: str
+    created_at: str
 
 
 class SessionData(SessionPayload):

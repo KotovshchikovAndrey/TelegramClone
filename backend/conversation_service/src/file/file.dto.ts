@@ -1,11 +1,13 @@
 import { FileUpload } from "./file.types"
 
 export class FileDTO {
+  filename: string
   ext: string
   mimetype: string
   content: Buffer
 
   constructor(file: FileDTO) {
+    this.filename = file.filename
     this.ext = file.ext
     this.mimetype = file.mimetype
     this.content = file.content
@@ -22,6 +24,7 @@ export class FileDTO {
 
       stream.on("end", () => {
         const fileDTO = new FileDTO({
+          filename: fileUpload.filename,
           ext: fileUpload.filename.split(".")[1],
           mimetype: fileUpload.mimetype,
           content: Buffer.concat(chunks),

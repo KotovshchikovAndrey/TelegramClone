@@ -22,6 +22,7 @@ class ActiveSessionsResponse(BaseModel):
                 user_device=session.data.user_device,
                 user_ip=session.data.user_ip,
                 user_location=session.data.user_location,
+                created_at=session.data.created_at,
             )
 
             active_sessions_payload.append(active_session_payload)

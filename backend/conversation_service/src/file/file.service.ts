@@ -7,7 +7,7 @@ const AdmZip = require("adm-zip")
 
 export abstract class FileService {
   protected readonly maxSize = 15728640
-  protected readonly allowedExt = new Set(["jpeg", "png", "svg"])
+  protected readonly allowedExt = new Set(["jpeg", "jpg", "png", "svg"])
 
   async uploadSingleFile(file: FileDTO) {
     this.checkIsValidOrThrowError(file)
@@ -100,7 +100,7 @@ export class DefaultFileService extends FileService {
   protected async createZipFromFiles(files: FileDTO[]) {
     const zip = new AdmZip()
     for (const file of files) {
-      const filename = `${randomUUID()}.${file.ext}`
+      const filename = `${randomUUID()}_${file.filename}.${file.ext}`
       zip.addFile(filename, file.content)
     }
 
