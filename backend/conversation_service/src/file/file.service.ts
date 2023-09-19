@@ -1,13 +1,12 @@
 import { FileDTO } from "./file.dto"
 import { resolve } from "path"
 import { randomUUID, createHash } from "crypto"
-
-const fs = require("fs")
-const AdmZip = require("adm-zip")
+import * as fs from "fs"
+import * as AdmZip from "adm-zip"
 
 export abstract class FileService {
-  protected readonly maxSize = 15728640
-  protected readonly allowedExt = new Set(["jpeg", "jpg", "png", "svg"])
+  private readonly maxSize = 15728640
+  private readonly allowedExt = new Set(["jpeg", "jpg", "png", "svg"])
 
   async uploadSingleFile(file: FileDTO) {
     this.checkIsValidOrThrowError(file)
@@ -87,13 +86,7 @@ export class DefaultFileService extends FileService {
       return filename
     }
 
-    await new Promise((resolve, reject) => {
-      fs.writeFile(filePath, file.content, (error) => {
-        if (error) reject(error)
-        else resolve(null)
-      })
-    })
-
+    await fs.promises.writeFile(filePath, file.content)
     return filename
   }
 
@@ -128,16 +121,12 @@ export class DefaultFileService extends FileService {
 
     await this.removeFile(zipName) // remove old zip
     const newZipName = await this.createZipFromFiles(files)
+
     return newZipName
   }
 
   protected async removeFile(filename: string) {
     const filePath = resolve(this.uploadPath, filename)
-    await new Promise((resolve, reject) => {
-      fs.unlink(filePath, (error) => {
-        if (error) reject(error)
-        else resolve(null)
-      })
-    })
+    fs.promises.unlink(filePath)
   }
 }

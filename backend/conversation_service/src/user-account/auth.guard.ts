@@ -19,7 +19,7 @@ export class AuthGuard implements CanActivate {
     // Заглушка
     const gqlContext = GqlExecutionContext.create(context).getContext()
     const currentUser = new User()
-    currentUser.user_uuid = "b7738652-25a6-4449-8048-9ce172d5ea18"
+    currentUser.user_uuid = "b7738652-25a6-4449-8048-9ce172d5ea19"
     gqlContext.req.currentUser = currentUser
     return true
 
