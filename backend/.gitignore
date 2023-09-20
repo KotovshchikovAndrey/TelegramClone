@@ -33,6 +33,10 @@
 **.launch
 **.settings/
 **.sublime-workspace
+**.txt
 
 **/conversation_service/src/assets
-**.txt
+/conversation_service/test.py
+/conversation_service/docker-compose.yaml
+
+/auth_service/docker-compose.yaml

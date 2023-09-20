@@ -14,7 +14,6 @@ class Settings(BaseSettings):
     redis_host: str
     redis_port: str | int
     redis_password: str
-    redis_data_path: str
 
     mail_username: str
     mail_password: str

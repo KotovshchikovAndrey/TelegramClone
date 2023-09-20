@@ -5,7 +5,7 @@ import * as fs from "fs"
 import * as AdmZip from "adm-zip"
 
 export abstract class FileService {
-  private readonly maxSize = 15728640
+  private readonly maxSize = 15728640 // 15 мб
   private readonly allowedExt = new Set(["jpeg", "jpg", "png", "svg"])
 
   async uploadSingleFile(file: FileDTO) {

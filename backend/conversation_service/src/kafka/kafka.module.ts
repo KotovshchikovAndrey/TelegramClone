@@ -5,6 +5,8 @@ import { randomUUID } from "crypto"
 import { Kafka } from "kafkajs"
 import { UserAccountModule } from "src/user-account/user-account.module"
 
+const KAFKA_CLIENT_HOST = process.env["KAFKA_CLIENT_HOST"]
+
 @Module({
   imports: [UserAccountModule],
   providers: [
@@ -13,7 +15,7 @@ import { UserAccountModule } from "src/user-account/user-account.module"
       useFactory: (): Kafka => {
         const kafkaClient = new Kafka({
           clientId: randomUUID(),
-          brokers: ["localhost:9091"], // ЗАМЕНИТЬ НА .env!
+          brokers: [KAFKA_CLIENT_HOST],
         })
 
         return kafkaClient
