@@ -4,10 +4,10 @@ services:
   postgresdb:
     image: postgres:14.8-alpine3.18
     container_name: postgresdb
-    # volumes:
-    #   - ${POSTGRES_DATA_PATH}:/var/lib/postgresql/data
-    ports:
-     - ${POSTGRES_PORT}:5432
+    volumes:
+      - ${POSTGRES_DATA_PATH}:/var/lib/postgresql/data
+    expose:
+     - ${POSTGRES_PORT}
     environment:
       POSTGRES_DB: ${POSTGRES_DB_NAME}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -35,9 +35,9 @@ services:
     restart: always
     expose:
       - ${CELERY_BROKER_PORT}
-    # volumes: 
-    #   - ${CELERY_BROKER_DATA_PATH}:/data
-    #   - ${CELERY_BROKER_DATA_PATH}:/mounted-etc/redis.conf
+    volumes: 
+      - ${CELERY_BROKER_DATA_PATH}:/data
+      - ${CELERY_BROKER_DATA_PATH}:/mounted-etc/redis.conf
     env_file:
       - .env
 
@@ -53,13 +53,13 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
-    ports:
-      - ${MONGO_PORT}:27017
-    # volumes:
-    #   - ${MONGO_DATA_PATH}:/data/db
+    expose:
+      - ${MONGO_PORT}
+    volumes:
+      - ${MONGO_DATA_PATH}:/data/db
     env_file:
       - .env
-  
+
   zookeeper-1:
     image: confluentinc/cp-zookeeper:latest
     container_name: zookeeper-1
@@ -69,9 +69,11 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     expose:
       - 2181
-    # volumes:
-    #   - D:/Programs/Kafka/zookeeper-1/data:/var/lib/zookeeper/data
-    #   - D:/Programs/Kafka/zookeeper-1/log:/var/lib/zookeeper/log
+    volumes:
+      - ${KAFKA_DATA_PATH}/zookeeper-1/data:/var/lib/zookeeper/data
+      - ${KAFKA_DATA_PATH}/zookeeper-1/log:/var/lib/zookeeper/log
+    env_file:
+      - .env
 
   zookeeper-2:
     image: confluentinc/cp-zookeeper:latest
@@ -82,9 +84,11 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     expose:
       - 2181
-    # volumes:
-    #   - D:/Programs/Kafka/zookeeper-2/data:/var/lib/zookeeper/data
-    #   - D:/Programs/Kafka/zookeeper-2/log:/var/lib/zookeeper/log
+    volumes:
+      - ${KAFKA_DATA_PATH}/zookeeper-2/data:/var/lib/zookeeper/data
+      - ${KAFKA_DATA_PATH}/zookeeper-2/log:/var/lib/zookeeper/log
+    env_file:
+      - .env
 
   kafka-1:
     image: confluentinc/cp-kafka:latest
@@ -101,15 +105,17 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:19091,PLAINTEXT_HOST://localhost:9091
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-    # volumes:
-    #   - D:/Programs/Kafka/kafka-1/data:/var/lib/kafka/data
-    #   - D:/Programs/Kafka/kafka-1/config:/etc/kafka
+    volumes:
+      - ${KAFKA_DATA_PATH}/kafka-1/data:/var/lib/kafka/data
+      - ${KAFKA_DATA_PATH}/kafka-1/config:/etc/kafka
+    env_file:
+      - .env
 
   kafka-2:
     image: confluentinc/cp-kafka:latest
     container_name: kafka-2
     expose:
-      - 9092
+      - 19092
     depends_on:
       - zookeeper-1
       - zookeeper-2
@@ -120,15 +126,17 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:19092,PLAINTEXT_HOST://localhost:9092
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-    # volumes:
-      # - D:/Programs/Kafka/kafka-2/data:/var/lib/kafka/data
-      # - D:/Programs/Kafka/kafka-2/config:/etc/kafka
+    volumes:
+      - ${KAFKA_DATA_PATH}/kafka-2/data:/var/lib/kafka/data
+      - ${KAFKA_DATA_PATH}/kafka-2/config:/etc/kafka
+    env_file:
+      - .env
 
   kafka-3:
     image: confluentinc/cp-kafka:latest
     container_name: kafka-3
     expose:
-      - 9093
+      - 19093
     depends_on:
       - zookeeper-1
       - zookeeper-2
@@ -139,23 +147,23 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:19093,PLAINTEXT_HOST://localhost:9093
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-    # volumes:
-    #   - D:/Programs/Kafka/kafka-3/data:/var/lib/kafka/data
-    #   - D:/Programs/Kafka/kafka-3/config:/etc/kafka
+    volumes:
+      - ${KAFKA_DATA_PATH}/kafka-3/data:/var/lib/kafka/data
+      - ${KAFKA_DATA_PATH}/kafka-3/config:/etc/kafka
+    env_file:
+      - .env
 
   auth_service:
     build: ./auth_service/
     container_name: auth_service
     command: bash run_app.sh
-    ports:
-      - 8000:8000
+    expose:
+      - 8000
     depends_on:
       - celery
       - postgresdb
       - redis
       - kafka-1
-      - kafka-2
-      - kafka-3
     env_file:
       - ./auth_service/.env
 
@@ -163,12 +171,24 @@ services:
     build: ./conversation_service/
     container_name: conversation_service
     command: npm run start:dev
-    ports:
-      - 3000:3000
+    expose:
+      - 3000
     depends_on:
       - mongodb
-      - kafka-1
+      - auth_service
       - kafka-2
-      - kafka-3
     env_file:
       - ./conversation_service/.env
+
+  gateway_service:
+    build: ./gateway_service/
+    container_name: gateway_service
+    command: python main.py
+    ports:
+      - 80:80
+    depends_on:
+      - auth_service
+      - conversation_service
+      - kafka-3
+    env_file:
+      - ./gateway_service/.env
