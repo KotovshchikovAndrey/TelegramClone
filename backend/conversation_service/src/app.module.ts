@@ -7,7 +7,7 @@ import { getMongoConnection } from "./db/mongo.connection"
 import { ConversationModule } from "./conversation/conversation.module"
 import { join } from "path"
 import { FileModule } from "./file/file.module"
-import { KafkaModule } from "./kafka/kafka.module"
+// import { KafkaModule } from "./kafka/kafka.module"
 import { UserAccountModule } from "./user-account/user-account.module"
 
 @Module({
@@ -25,7 +25,7 @@ import { UserAccountModule } from "./user-account/user-account.module"
     ConversationModule,
     FileModule,
     UserAccountModule,
-    KafkaModule,
+    // KafkaModule,
   ],
 })
 export class AppModule {}

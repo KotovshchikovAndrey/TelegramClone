@@ -96,7 +96,7 @@ export class Message {
 
   @Prop({ required: false, default: null })
   @Field({ nullable: true })
-  media_url?: string
+  media_path?: string
 
   @Prop({ default: "sent" })
   @Field()

@@ -12,11 +12,13 @@ import { ConversationController } from "./conversation.controller"
 import { ConversationResolver } from "./conversation.resolver"
 import { FileModule } from "src/file/file.module"
 import { UserAccountModule } from "src/user-account/user-account.module"
+// import { KafkaModule } from "src/kafka/kafka.module"
 
 @Module({
   imports: [
-    UserAccountModule,
+    // KafkaModule,
     FileModule,
+    UserAccountModule,
     MongooseModule.forFeature([
       { name: "Conversation", schema: ConversationSchema },
       { name: "Member", schema: MemberSchema },

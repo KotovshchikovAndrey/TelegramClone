@@ -82,7 +82,7 @@ export class UserAccountService {
       throw Error("Account does not exists!")
     }
 
-    const avatarUrl = await this.fileService.uploadSingleFile(file)
+    const avatarUrl = await this.fileService.uploadMedia(file)
     const updatedAccount = await this.accounts.findOneAndUpdate(
       {
         uuid: currentUser.user_uuid,

@@ -66,7 +66,7 @@ export interface IConversationRepository {
   ): Promise<Conversation>
 
   updateMessage(
-    dto: UpdateMessageDTO & { media_url?: string },
+    dto: UpdateMessageDTO & { media_path?: string },
   ): Promise<Message>
 
   setMessageStatus(dto: SetMessageStatusDTO): Promise<Message>

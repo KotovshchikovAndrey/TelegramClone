@@ -1,16 +1,21 @@
 import { Consumer, KafkaMessage } from "kafkajs"
 import { UserAccountService } from "src/user-account/user-account.service"
+import { IKafkaConsumer } from "./kafka.types"
 
-export class KafkaConsumer implements KafkaConsumer {
+export class KafkaUserAccountConsumer implements IKafkaConsumer {
   private readonly consumer: Consumer
   private readonly topicName: string
   private readonly userAccountService: UserAccountService
 
-  constructor(
-    consumer: Consumer,
-    topicName: string,
-    userAccountService: UserAccountService,
-  ) {
+  constructor({
+    consumer,
+    topicName,
+    userAccountService,
+  }: {
+    consumer: Consumer
+    topicName: string
+    userAccountService: UserAccountService
+  }) {
     this.consumer = consumer
     this.topicName = topicName
     this.userAccountService = userAccountService

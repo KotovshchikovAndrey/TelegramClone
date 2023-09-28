@@ -120,7 +120,7 @@ export class MongoConversationRepository implements IConversationRepository {
                   _id: 0,
                   uuid: 1,
                   text: 1,
-                  media_url: 1,
+                  media_path: 1,
                   created_at: 1,
                   status: 1,
                   sender: 1,
@@ -331,7 +331,7 @@ export class MongoConversationRepository implements IConversationRepository {
     return createdMessage
   }
 
-  async updateMessage(dto: UpdateMessageDTO & { media_url?: string }) {
+  async updateMessage(dto: UpdateMessageDTO & { media_path?: string }) {
     const updatedMessage = await this.messages
       .findOneAndUpdate(
         {
@@ -339,7 +339,7 @@ export class MongoConversationRepository implements IConversationRepository {
         },
         {
           text: dto.text,
-          media_url: dto.media_url,
+          media_path: dto.media_path,
         },
         { new: true },
       )

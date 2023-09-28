@@ -5,7 +5,6 @@ import {
   IsUUID,
   IsOptional,
   IsArray,
-  IsString,
   IsIn,
   IsInt,
 } from "class-validator"
@@ -49,7 +48,7 @@ export class CreateMessageDTO {
   sender: string
   conversation: string
   text?: string
-  media_url?: string
+  media_path?: string
 }
 
 export class CreateMemberDTO {

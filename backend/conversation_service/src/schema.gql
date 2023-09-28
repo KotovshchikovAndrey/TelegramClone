@@ -32,7 +32,7 @@ type Message {
   uuid: String!
   sender: Account!
   text: String
-  media_url: String
+  media_path: String
   status: String!
   created_at: DateTime!
 }
@@ -69,7 +69,7 @@ input GetMessageHistoryDTO {
 }
 
 type Mutation {
-  createPersonalMessage(dto: CreatePersonalMessageDTO!, files: [Upload!]! = []): Message!
+  createPersonalMessage(dto: CreatePersonalMessageDTO!, files: [Upload!]! = []): Message
   createNewGroup(dto: CreateGroupDTO!, avatar: Upload): Conversation!
   updateMessage(dto: UpdateMessageDTO!, files: [Upload!]! = []): Message!
   setMessageStatusForCurrentUser(dto: SetUserMessageStatusDTO!): AccountMessageStatus!

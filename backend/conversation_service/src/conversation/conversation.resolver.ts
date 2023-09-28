@@ -18,12 +18,17 @@ import {
 import { ConversationService } from "./conversation.service"
 import { FileDTO } from "../file/file.dto"
 import { User } from "../user-account/user-account.entity"
-import { UseGuards } from "@nestjs/common"
+import { Inject, UseGuards } from "@nestjs/common"
 import { AuthGuard } from "src/user-account/auth.guard"
+import { IKafkaProducer } from "src/kafka/kafka.types"
 
 @Resolver()
 export class ConversationResolver {
-  constructor(private readonly conversationService: ConversationService) {}
+  constructor(
+    // @Inject("KAFKA_PRODUCER")
+    // private readonly kafkaProducer: IKafkaProducer,
+    private readonly conversationService: ConversationService,
+  ) {}
 
   @Query(() => [ConversationWithMessageSummary], { nullable: "items" })
   @UseGuards(AuthGuard)
@@ -34,13 +39,11 @@ export class ConversationResolver {
     @Args("offset", { type: () => Int, defaultValue: 0 })
     offset: number,
   ) {
-    return this.conversationService.getAllConversationsForCurrentUser(
-      currentUser,
-      {
-        limit: limit,
-        offset: offset,
-      },
-    )
+    return this.conversationService.getAllConversationsForCurrentUser({
+      currentUser: currentUser,
+      limit: limit,
+      offset: offset,
+    })
   }
 
   @Query(() => Int, { defaultValue: 0 })
@@ -49,10 +52,10 @@ export class ConversationResolver {
     @CurrentUser() currentUser: User,
     @Args("conversation") conversation: string,
   ) {
-    return this.conversationService.getUnreadMessageCountForCurrentUser(
-      currentUser,
-      conversation,
-    )
+    return this.conversationService.getUnreadMessageCountForCurrentUser({
+      currentUser: currentUser,
+      conversation: conversation,
+    })
   }
 
   @Query(() => [Message], { nullable: "items" })
@@ -61,13 +64,13 @@ export class ConversationResolver {
     @CurrentUser() currentUser: User,
     @Args("dto") dto: GetMessageHistoryDTO,
   ) {
-    return this.conversationService.getMessageHistoryInConversation(
-      currentUser,
-      dto,
-    )
+    return this.conversationService.getMessageHistoryInConversation({
+      currentUser: currentUser,
+      dto: dto,
+    })
   }
 
-  @Mutation(() => Message)
+  @Mutation(() => Message, { nullable: true })
   @UseGuards(AuthGuard)
   async createPersonalMessage(
     @CurrentUser() currentUser: User,
@@ -75,16 +78,27 @@ export class ConversationResolver {
     @Args({ name: "files", type: () => [GraphQLUpload], defaultValue: [] })
     files: Promise<FileUpload>[],
   ) {
-    let messageFiles: FileDTO[] = []
-    if (files.length !== 0) {
-      messageFiles = await FileDTO.fromFileUploadArray(files)
-    }
+    new Promise(async (resolve, reject) => {
+      let messageFiles: FileDTO[] = []
+      if (files.length !== 0) {
+        messageFiles = await FileDTO.fromFileUploadArray(files)
+      }
 
-    return this.conversationService.createPersonalMessage(
-      currentUser,
-      dto,
-      messageFiles,
-    )
+      const newMessage = await this.conversationService.createPersonalMessage({
+        currentUser: currentUser,
+        dto: dto,
+        files: messageFiles,
+      })
+
+      const kafkaMessage = JSON.stringify(newMessage)
+      const topicName = process.env["KAFKA_PRODUCER_TOPIC"]
+
+      // this.kafkaProducer.sendMessage(topicName, {
+      //   key: newMessage.uuid,
+      //   value: kafkaMessage,
+      //   partition: 1,
+      // })
+    })
   }
 
   @Mutation(() => Conversation)
@@ -96,11 +110,11 @@ export class ConversationResolver {
     avatar?: FileUpload,
   ) {
     const groupAvatar = avatar ? await FileDTO.fromFileUpload(avatar) : null
-    return this.conversationService.createNewGroup(
-      currentUser,
-      dto,
-      groupAvatar,
-    )
+    return this.conversationService.createNewGroup({
+      currentUser: currentUser,
+      dto: dto,
+      avatar: groupAvatar,
+    })
   }
 
   @Mutation(() => Message)
@@ -116,11 +130,11 @@ export class ConversationResolver {
       messageFiles = await FileDTO.fromFileUploadArray(files)
     }
 
-    return this.conversationService.updateMessage(
-      currentUser,
-      dto,
-      messageFiles,
-    )
+    return this.conversationService.updateMessage({
+      currentUser: currentUser,
+      dto: dto,
+      files: messageFiles,
+    })
   }
 
   @Mutation(() => AccountMessageStatus)
@@ -129,6 +143,9 @@ export class ConversationResolver {
     @CurrentUser() currentUser: User,
     @Args("dto") dto: SetUserMessageStatusDTO,
   ) {
-    return this.conversationService.setMessageStatusForUser(currentUser, dto)
+    return this.conversationService.setMessageStatusForUser({
+      currentUser: currentUser,
+      dto: dto,
+    })
   }
 }

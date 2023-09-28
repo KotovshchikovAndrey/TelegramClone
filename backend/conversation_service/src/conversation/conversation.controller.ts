@@ -24,13 +24,13 @@ export class ConversationController {
     const currentUser = new User()
     currentUser.user_uuid = "32146edb-a9db-4acb-bf99-d0f5cd777cdc"
 
-    return this.conversationService.getAllConversationsForCurrentUser(
-      currentUser,
-      {
-        limit,
-        offset,
-      },
-    )
+    // return this.conversationService.getAllConversationsForCurrentUser(
+    //   currentUser,
+    //   {
+    //     limit,
+    //     offset,
+    //   },
+    // )
   }
 
   // @Get()
@@ -48,6 +48,6 @@ export class ConversationController {
     const currentUser = new User()
     currentUser.user_uuid = "32146edb-a9db-4acb-bf99-d0f5cd777cdc"
 
-    return this.conversationService.createPersonalMessage(currentUser, dto, [])
+    // return this.conversationService.createPersonalMessage(currentUser, dto, [])
   }
 }

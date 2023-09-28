@@ -1,20 +1,22 @@
 import { Inject, Injectable } from "@nestjs/common"
 import { IConversationRepository } from "./repositories/interfaces/conversation.repository"
-import {
-  CreateGroupDTO,
-  CreateGroupMessageDTO,
-  CreateMemberDTO,
-  CreatePersonalMessageDTO,
-  GetMessageHistoryDTO,
-  SetUserMessageStatusDTO,
-  UpdateMessageDTO,
-} from "./conversation.dto"
-import { FileDTO } from "../file/file.dto"
+import { CreateMemberDTO } from "./conversation.dto"
 import { FileService } from "../file/file.service"
-import { Member } from "./conversation.entity"
 import { createHash } from "crypto"
-import { User } from "../user-account/user-account.entity"
 import { UserAccountService } from "src/user-account/user-account.service"
+import {
+  AddUsersToConversationArgs,
+  CreateGroupMessageArgs,
+  CreateNewGroupArgs,
+  CreatePersonalMessageArgs,
+  ExcludeDuplicateMembersArgs,
+  GetAllConversationsForCurrentUserArgs,
+  GetMessageHistoryInConversationArgs,
+  GetNameForPersonalConversationArgs,
+  GetUnreadMessageCountForCurrentUserArgs,
+  SetMessageStatusForAccountArgs,
+  UpdateMessageArgs,
+} from "./conversation.types"
 
 @Injectable()
 export class ConversationService {
@@ -26,29 +28,23 @@ export class ConversationService {
   ) {}
 
   async getAllConversationsForCurrentUser(
-    currentUser: User,
-    {
-      limit,
-      offset,
-    }: {
-      limit: number
-      offset: number
-    },
+    args: GetAllConversationsForCurrentUserArgs,
   ) {
+    const { currentUser, limit, offset } = args
     const conversations =
       await this.repository.findConversationsWhereAccountIsMember({
         account: currentUser.user_uuid,
-        limit,
-        offset,
+        limit: limit,
+        offset: offset,
       })
 
     return conversations
   }
 
   async getUnreadMessageCountForCurrentUser(
-    currentUser: User,
-    conversation: string,
+    args: GetUnreadMessageCountForCurrentUserArgs,
   ) {
+    const { currentUser, conversation } = args
     const unreadMessageCount =
       await this.repository.countUnreadMessagesForAccount({
         account: currentUser.user_uuid,
@@ -59,9 +55,9 @@ export class ConversationService {
   }
 
   async getMessageHistoryInConversation(
-    currentUser: User,
-    dto: GetMessageHistoryDTO,
+    args: GetMessageHistoryInConversationArgs,
   ) {
+    const { currentUser, dto } = args
     const isConversationExists = await this.repository.findConversationByUUID(
       dto.conversation,
     )
@@ -83,15 +79,13 @@ export class ConversationService {
     return messages
   }
 
-  async createPersonalMessage(
-    currentUser: User,
-    dto: CreatePersonalMessageDTO,
-    files: FileDTO[],
-  ) {
+  async createPersonalMessage(args: CreatePersonalMessageArgs) {
+    const { currentUser, dto, files } = args
+
     // Заглушка
-    if (currentUser.user_uuid === dto.reciever) {
-      throw Error("Bad request!")
-    }
+    // if (currentUser.user_uuid === dto.reciever) {
+    //   throw Error("Bad request!")
+    // }
 
     if (files.length === 0 && dto.text == null) {
       throw Error("Message must be not empty!")
@@ -129,16 +123,13 @@ export class ConversationService {
     return this.repository.createMessage({
       conversation: personalConversation.uuid,
       sender: currentUser.user_uuid,
-      media_url: await this.fileService.uploadFiles(files),
+      media_path: await this.fileService.uploadMultipleMedia(files),
       text: dto.text,
     })
   }
 
-  async createGroupMessage(
-    currentUser: User,
-    dto: CreateGroupMessageDTO,
-    files: FileDTO[],
-  ) {
+  async createGroupMessage(args: CreateGroupMessageArgs) {
+    const { currentUser, dto, files } = args
     const group = await this.repository.findGroupConversation(dto.conversation)
     if (!group) {
       throw Error("Conversation does not exists!")
@@ -156,18 +147,15 @@ export class ConversationService {
     return this.repository.createMessage({
       conversation: dto.conversation,
       sender: currentUser.user_uuid,
-      media_url: await this.fileService.uploadFiles(files),
+      media_path: await this.fileService.uploadMultipleMedia(files),
       text: dto.text,
     })
   }
 
-  async createNewGroup(
-    currentUser: User,
-    dto: CreateGroupDTO,
-    avatar?: FileDTO,
-  ) {
+  async createNewGroup(args: CreateNewGroupArgs) {
+    const { currentUser, dto, avatar } = args
     const newGroup = await this.repository.createConversation({
-      avatar: avatar ? await this.fileService.uploadSingleFile(avatar) : null,
+      avatar: avatar ? await this.fileService.uploadMedia(avatar) : null,
       is_group: true,
       ...dto,
     })
@@ -189,13 +177,8 @@ export class ConversationService {
     return newGroup
   }
 
-  async addUsersToConversation({
-    conversation,
-    users,
-  }: {
-    conversation: string
-    users: Omit<CreateMemberDTO, "conversation">[]
-  }) {
+  async addUsersToConversation(args: AddUsersToConversationArgs) {
+    const { conversation, users } = args
     const isUserAccountsExists =
       await this.userAccountService.checkUserAccountsExists(users)
 
@@ -224,11 +207,8 @@ export class ConversationService {
     return createdMembers
   }
 
-  async updateMessage(
-    currentUser: User,
-    dto: UpdateMessageDTO,
-    files: FileDTO[],
-  ) {
+  async updateMessage(args: UpdateMessageArgs) {
+    const { currentUser, dto, files } = args
     const message = await this.repository.findMessage(dto.uuid)
     if (!message) {
       throw Error("Message does not exists!")
@@ -238,21 +218,19 @@ export class ConversationService {
       throw Error("Forbidden!")
     }
 
-    const media_url =
-      message.media_url !== null
-        ? await this.fileService.updateFiles(message.media_url, files)
-        : await this.fileService.uploadFiles(files)
+    const media_path =
+      message.media_path !== null
+        ? await this.fileService.updateMultipleMedia(message.media_path, files)
+        : await this.fileService.uploadMultipleMedia(files)
 
     return this.repository.updateMessage({
       ...dto,
-      media_url,
+      media_path,
     })
   }
 
-  async setMessageStatusForUser(
-    currentUser: User,
-    dto: SetUserMessageStatusDTO,
-  ) {
+  async setMessageStatusForUser(args: SetMessageStatusForAccountArgs) {
+    const { currentUser, dto } = args
     const message = await this.repository.findMessage(dto.message)
     if (!message) {
       throw Error("Message does not exists!")
@@ -286,13 +264,10 @@ export class ConversationService {
     return accountMessageStatus
   }
 
-  private getNameForPersonalConversation({
-    first_user,
-    second_user,
-  }: {
-    first_user: string
-    second_user: string
-  }) {
+  private getNameForPersonalConversation(
+    args: GetNameForPersonalConversationArgs,
+  ) {
+    const { first_user, second_user } = args
     const conversationName = createHash("sha256")
       .update([first_user, second_user].sort().join("."))
       .digest("hex")
@@ -301,13 +276,8 @@ export class ConversationService {
     return conversationName
   }
 
-  private excludeDuplicateMembers({
-    membersInConversation,
-    newMembers,
-  }: {
-    membersInConversation: Member[]
-    newMembers: CreateMemberDTO[]
-  }) {
+  private excludeDuplicateMembers(args: ExcludeDuplicateMembersArgs) {
+    const { membersInConversation, newMembers } = args
     const membersInConversationSet = new Set(
       membersInConversation.map((member) => member.account),
     )
