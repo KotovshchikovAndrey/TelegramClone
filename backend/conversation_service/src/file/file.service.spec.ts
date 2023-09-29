@@ -17,13 +17,12 @@ class AdmZipMock {
 
 jest.mock("adm-zip", () => jest.fn(() => new AdmZipMock()))
 jest.mock("crypto", () => ({
-  randomUUID: jest.fn().mockReturnValue("uuidMock"),
-  createHash: jest.fn().mockReturnValue({
-    update: jest.fn().mockReturnThis(),
-    digest: jest.fn().mockReturnThis(),
-    toString: jest.fn(() => "hashMock"),
-  } as unknown as Hash),
+  randomUUID: jest.fn(),
+  createHash: jest.fn(),
 }))
+
+const createHashMock = createHash as jest.MockedFunction<typeof createHash>
+const randomUUIDMock = randomUUID as jest.MockedFunction<typeof randomUUID>
 
 const existsSyncMock = jest.spyOn(fs, "existsSync")
 const writeFileMock = jest.spyOn(fs.promises, "writeFile")
@@ -46,7 +45,13 @@ describe("LocalFileService", () => {
       }
 
       writeFileMock.mockReturnValue(null)
-      const expectedResult = `hashMock.${file.ext}`
+      createHashMock.mockReturnValue({
+        update: jest.fn().mockReturnThis(),
+        digest: jest.fn().mockReturnThis(),
+        toString: jest.fn(() => `${file.filename}Hash`),
+      } as unknown as Hash)
+
+      const expectedResult = `${file.filename}Hash.${file.ext}`
       expect(await localFleService.uploadMedia(file)).toBe(expectedResult)
     })
   })
@@ -69,7 +74,14 @@ describe("LocalFileService", () => {
       }
 
       writeFileMock.mockReturnValue(null)
-      const expectedResult = `hashMock_uuidMock.zip`
+      randomUUIDMock.mockReturnValue("uuid-uuid-uuid-uuid-uuid")
+      createHashMock.mockReturnValue({
+        update: jest.fn().mockReturnThis(),
+        digest: jest.fn().mockReturnThis(),
+        toString: jest.fn(() => `zipHash`),
+      } as unknown as Hash)
+
+      const expectedResult = `zipHash_uuid-uuid-uuid-uuid-uuid.zip`
       expect(await localFleService.uploadMultipleMedia([file1, file2])).toBe(
         expectedResult,
       )
@@ -90,6 +102,8 @@ describe("LocalFileService", () => {
         mimetype: "image/png",
       }
 
+      writeFileMock.mockReturnValue(null)
+
       await expect(
         localFleService.uploadMultipleMedia([bigFile]),
       ).rejects.toThrow(Error)
@@ -101,7 +115,6 @@ describe("LocalFileService", () => {
         mimetype: "image/gif",
       }
 
-      writeFileMock.mockReturnValue(null)
       await expect(
         localFleService.uploadMultipleMedia([fileWithNotAllowedExt]),
       ).rejects.toThrow(Error)
@@ -119,13 +132,19 @@ describe("LocalFileService", () => {
       }
 
       existsSyncMock.mockReturnValue(true)
+      createHashMock.mockReturnValue({
+        update: jest.fn().mockReturnThis(),
+        digest: jest.fn().mockReturnThis(),
+        toString: jest.fn(() => `existsFileHash`),
+      } as unknown as Hash)
+
       writeFileMock
         .mockImplementationOnce(() => {
           throw Error("uploadMediaCache test fail!")
         })
         .mockReset()
 
-      const expectedResult = "hashMock.png"
+      const expectedResult = "existsFileHash.png"
       expect(await localFleService.uploadMedia(file)).toBe(expectedResult)
     })
   })
@@ -133,22 +152,32 @@ describe("LocalFileService", () => {
   // Check is multiple upload method cached exists files and not write this again
   describe("updateMultipleMediaCache", () => {
     it("should return exists media path", async () => {
+      randomUUIDMock.mockReturnValue("uuid-uuid-uuid-uuid-uuid")
+      createHashMock.mockReturnValue({
+        update: jest.fn().mockReturnThis(),
+        digest: jest.fn().mockReturnThis(),
+        toString: jest.fn(() => `oldFilesHash`),
+      } as unknown as Hash)
+
       unlickMock
         .mockImplementationOnce(() => {
           throw Error("updateMultipleMediaCache test fail!")
         })
         .mockReset()
 
-      const expectedResult = "hashMock_uuidMock.zip"
+      const expectedResult = "oldFilesHash_uuid-uuid-uuid-uuid-uuid.zip"
       expect(
-        await localFleService.updateMultipleMedia("hashMock_uuidMock.zip", [
-          {
-            filename: "file",
-            content: Buffer.from("content", "utf-8"),
-            ext: "png",
-            mimetype: "image/png",
-          },
-        ]),
+        await localFleService.updateMultipleMedia(
+          "oldFilesHash_uuid-uuid-uuid-uuid-uuid.zip",
+          [
+            {
+              filename: "file",
+              content: Buffer.from("content", "utf-8"),
+              ext: "png",
+              mimetype: "image/png",
+            },
+          ],
+        ),
       ).toBe(expectedResult)
     })
   })
@@ -159,16 +188,26 @@ describe("LocalFileService", () => {
       unlickMock.mockReturnValue(null)
       writeFileMock.mockReturnValue(null)
 
-      const expectedResult = "hashMock_uuidMock.zip"
+      randomUUIDMock.mockReturnValue("uuid-uuid-uuid-uuid-uuid")
+      createHashMock.mockReturnValue({
+        update: jest.fn().mockReturnThis(),
+        digest: jest.fn().mockReturnThis(),
+        toString: jest.fn(() => `newFilesHash`),
+      } as unknown as Hash)
+
+      const expectedResult = "newFilesHash_uuid-uuid-uuid-uuid-uuid.zip"
       expect(
-        await localFleService.updateMultipleMedia("oldHash_uuid.zip", [
-          {
-            filename: "file",
-            content: Buffer.from("content", "utf-8"),
-            ext: "png",
-            mimetype: "image/png",
-          },
-        ]),
+        await localFleService.updateMultipleMedia(
+          "oldFilesHash_uuid-uuid-uuid-uuid-uuid.zip",
+          [
+            {
+              filename: "file",
+              content: Buffer.from("content", "utf-8"),
+              ext: "png",
+              mimetype: "image/png",
+            },
+          ],
+        ),
       ).toBe(expectedResult)
     })
   })
