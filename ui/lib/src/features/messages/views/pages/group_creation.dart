@@ -1,6 +1,5 @@
-import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:ui/src/features/messages/views/widgets/phone_contacts_list.dart';
 
 class GroupCreationPage extends StatefulWidget {
   const GroupCreationPage({super.key});
@@ -11,13 +10,13 @@ class GroupCreationPage extends StatefulWidget {
 
 class _GroupCreationPageState extends State<GroupCreationPage> {
   final _controller = TextEditingController();
-  String phoneContactFilter = "";
+  String phoneContactsFilter = "";
 
   @override
   void initState() {
     _controller.addListener(() {
       setState(() {
-        phoneContactFilter = _controller.text.toLowerCase();
+        phoneContactsFilter = _controller.text.toLowerCase();
       });
     });
     super.initState();
@@ -29,35 +28,13 @@ class _GroupCreationPageState extends State<GroupCreationPage> {
     super.dispose();
   }
 
-  Future<List<Contact>> _getPhoneContacts() async {
-    bool isGranted = await Permission.contacts.isGranted;
-    if (!isGranted) {
-      isGranted = await Permission.contacts.request().isGranted;
-    }
-
-    if (isGranted) {
-      final contacts = await ContactsService.getContacts();
-      if (phoneContactFilter.isEmpty) return contacts;
-
-      final filteredContacts = contacts.where((contact) {
-        var contactName = contact.displayName;
-        contactName ??= contact.phones![0].value;
-        return contactName!.toLowerCase().contains(phoneContactFilter);
-      }).toList();
-
-      return filteredContacts;
-    }
-
-    return [];
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 33, 47, 60),
         iconTheme: const IconThemeData(
-          color: Colors.white, //change your color here
+          color: Colors.white,
         ),
         title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,53 +106,7 @@ class _GroupCreationPageState extends State<GroupCreationPage> {
             ),
           ),
           Expanded(
-            child: FutureBuilder(
-              future: _getPhoneContacts(),
-              builder: (context, snapshot) {
-                final contacts = snapshot.data;
-                if (contacts != null) {
-                  return ListView.builder(
-                    itemCount: contacts.length,
-                    itemBuilder: (context, index) {
-                      final contact = contacts[index];
-                      final contactName = contact.displayName;
-                      final contactPhoneNumber = contact.phones![0].value;
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        child: ListTile(
-                          leading: const CircleAvatar(
-                            radius: 25,
-                            backgroundImage: AssetImage(
-                                "assets/images/default_chat_avatar.jpg"),
-                          ),
-                          title: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                contactName ?? contactPhoneNumber ?? "Unknown",
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                              const Text(
-                                "был(a) недавно",
-                                style: TextStyle(color: Colors.grey),
-                              )
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                }
-
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.blue,
-                    strokeWidth: 2,
-                  ),
-                );
-              },
-            ),
+            child: PhoneContactsList(phoneContactsFilter: phoneContactsFilter),
           )
         ],
       ),

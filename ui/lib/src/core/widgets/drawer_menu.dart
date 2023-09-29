@@ -101,7 +101,7 @@ class DrawerMenu extends StatelessWidget {
               ),
             ),
             IconButton(
-              onPressed: () => null,
+              onPressed: () => Navigator.pushNamed(context, "/phone-contacts"),
               icon: const Row(
                 children: [
                   Padding(

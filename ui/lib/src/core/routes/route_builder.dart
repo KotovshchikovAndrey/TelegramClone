@@ -7,6 +7,7 @@ import 'package:ui/src/features/auth/views/pages/login.dart';
 import 'package:ui/src/features/auth/views/pages/register.dart';
 import 'package:ui/src/features/messages/views/pages/chat_room.dart';
 import 'package:ui/src/features/messages/views/pages/group_creation.dart';
+import 'package:ui/src/features/messages/views/pages/phone_contacts.dart';
 
 Route<dynamic>? routeBuilder(RouteSettings settings) {
   final routeArgs = settings.arguments;
@@ -27,6 +28,8 @@ Route<dynamic>? routeBuilder(RouteSettings settings) {
       }
     case '/group-creation':
       return SlideRightRoute(widget: const GroupCreationPage());
+    case '/phone-contacts':
+      return SlideRightRoute(widget: const PhoneContactsPage());
   }
 
   return null;

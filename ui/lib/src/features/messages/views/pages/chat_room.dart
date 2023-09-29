@@ -17,37 +17,43 @@ class ChatRoomPage extends StatefulWidget {
 }
 
 class _ChatRoomPageState extends State<ChatRoomPage> {
-  // IOWebSocketChannel get _websocket {
-  //   final authState = BlocProvider.of<UserBloc>(context).state;
-  //   return IOWebSocketChannel.connect(
-  //     Uri.parse('ws://10.0.2.2/messages/ws/test_channel'),
-  //     headers: {
-  //       "User-Session":
-  //           authState is AuthenticatedUser ? authState.sessionKey : ""
-  //     },
-  //   );
-  // }
+  late final IOWebSocketChannel _websocket;
 
   @override
   void initState() {
     super.initState();
-
-    final chatBloc = BlocProvider.of<ChatBloc>(context);
-    chatBloc.add(FetchChatMessages());
-
-    // _websocket.stream.listen((event) {
-    //   print(event);
-    // });
+    _fetchChatMessages();
+    _connectToWebsocket();
   }
 
   @override
   void dispose() {
-    // _websocket.sink.close();
+    _websocket.sink.close();
     super.dispose();
   }
 
-  _sendMessage(String text) {
-    // _websocket.sink.add(text);
+  void _fetchChatMessages() {
+    final chatBloc = BlocProvider.of<ChatBloc>(context);
+    chatBloc.add(FetchChatMessages());
+  }
+
+  void _connectToWebsocket() {
+    final authState = BlocProvider.of<UserBloc>(context).state;
+    _websocket = IOWebSocketChannel.connect(
+      Uri.parse('ws://10.0.2.2/conversations/ws/test_channel'),
+      headers: {
+        "User-Session":
+            authState is AuthenticatedUser ? authState.sessionKey : ""
+      },
+    );
+
+    _websocket.stream.listen((event) {
+      print(event);
+    });
+  }
+
+  void _sendMessage(String text) {
+    _websocket.sink.add(text);
   }
 
   @override

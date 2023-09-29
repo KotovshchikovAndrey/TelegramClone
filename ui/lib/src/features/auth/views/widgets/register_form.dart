@@ -45,7 +45,11 @@ class _RegisterFormState extends State<RegisterForm> {
         name: _nameController.text,
         surname: _surnameController.text,
         email: _emailController.text,
-        phone: _phoneController.text,
+        phone: _phoneController.text
+            .replaceAll(" ", "")
+            .replaceAll("-", "")
+            .replaceAll("(", "")
+            .replaceAll(")", ""),
       );
 
       userBloc.add(event);

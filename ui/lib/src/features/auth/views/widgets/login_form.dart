@@ -33,7 +33,14 @@ class _LoginFormState extends State<LoginForm> {
 
   void _sumbitForm() {
     if (_isFormValid) {
-      final event = LoginUser(phone: _phoneController.text);
+      final event = LoginUser(
+        phone: _phoneController.text
+            .replaceAll(" ", "")
+            .replaceAll("-", "")
+            .replaceAll("(", "")
+            .replaceAll(")", ""),
+      );
+
       userBloc.add(event);
     }
   }
