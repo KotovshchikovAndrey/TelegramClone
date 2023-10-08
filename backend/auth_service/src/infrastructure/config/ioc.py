@@ -1,10 +1,10 @@
 from kink import di
 
+from domain.utils.broker.broker_producer import IBrokerProducer
 from infrastructure.config.settings import settings
 from infrastructure.db.connections.postgres import get_postgres_connection
 from infrastructure.db.connections.redis import get_redis_connection
-from infrastructure.utils.kafka.kafka_interfaces import IKafkaProducer
-from infrastructure.utils.kafka.kafka_producer import KafkaProducer
+from infrastructure.utils.kafka.kafka_factory import KafkaFactory
 
 
 def setup_di_container() -> None:
@@ -22,9 +22,11 @@ def setup_di_container() -> None:
         password=settings.redis_password,
     )
 
-    di[IKafkaProducer] = lambda _: KafkaProducer(
+    kafka_factory = KafkaFactory()
+    di[IBrokerProducer] = lambda _: kafka_factory.create_producer(
         host=settings.kafka_host,
         port=settings.kafka_port,
+        queue_name=settings.kafka_producer_topic,
     )
 
     di["session_expire"] = 60 * 60 * 24 * 180  # 6 месяцев

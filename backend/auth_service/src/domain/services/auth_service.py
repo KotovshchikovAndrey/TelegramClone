@@ -7,32 +7,31 @@ from domain.models.user import UserCreate, UserFingerPrint, UserLogin, UserPubli
 
 from domain.services.session_service import SessionService
 from domain.services.user_service import UserService
+from domain.utils.broker.broker_producer import IBrokerProducer
 from infrastructure.utils.celery.tasks import send_login_code_email
 from infrastructure.utils.ip import get_location_by_ip
-from infrastructure.utils.kafka.kafka_interfaces import IKafkaProducer
 
 
 @inject
 class AuthService:
     _user_service: UserService
     _session_service: SessionService
-    _kafka_producer: IKafkaProducer
+    _broker_producer: IBrokerProducer
 
     def __init__(
         self,
         user_service: UserService,
         session_service: SessionService,
-        kafka_producer: IKafkaProducer,
+        broker_producer: IBrokerProducer,
     ) -> None:
         self._user_service = user_service
         self._session_service = session_service
-        self._kafka_producer = kafka_producer
+        self._broker_producer = broker_producer
 
     async def register_new_user(
         self, finger_print: UserFingerPrint, user_create: UserCreate
     ):
         new_user = await self._user_service.create_user(user_create)
-
         finger_print.user_location = await get_location_by_ip(finger_print.user_ip)
         new_session = await self._session_service.create_user_session(
             user_uuid=new_user.user_uuid,
@@ -45,7 +44,7 @@ class AuthService:
             surname=user_create.surname,
         )
 
-        await self._send_new_user_data_to_queue(user_public)
+        await self._broker_producer.send_message(message=user_public.model_dump_json())
         send_login_code_email.delay(new_user.email, new_session.code)
 
         return new_session.session_key
@@ -91,9 +90,3 @@ class AuthService:
         current_user = await self._user_service.get_user_by_uuid(user_uuid)
 
         return current_user
-
-    async def _send_new_user_data_to_queue(self, user_public: UserPublic):
-        await self._kafka_producer.send_message(
-            topic_name="created-account-data-for-conversation-service",
-            message=user_public.model_dump_json(),
-        )

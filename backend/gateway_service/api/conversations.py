@@ -57,7 +57,6 @@ async def create_personal_message(
 
     mutation = queries.CREATE_MESSAGE_WITHOUT_FILES % dto.model_dump()
     response = await adapter.send_query_json(query=mutation, headers=headers)
-
     return response
 
 
@@ -87,7 +86,6 @@ async def update_message(current_user: CurrentUser, dto: MessageUpdate):
 
     mutation = queries.UPDATE_MESSAGE_WITHOUT_FILES % dto.model_dump()
     response = await adapter.send_query_json(query=mutation, headers=headers)
-
     return response
 
 
@@ -103,7 +101,6 @@ async def set_message_status_for_current_user(
 
     mutation = queries.SET_MESSAGE_STATUS_FOR_CURRENT_USER % dto.model_dump()
     response = await adapter.send_query_json(query=mutation, headers=headers)
-
     return response
 
 
@@ -116,6 +113,4 @@ async def set_account_online_status(current_user: CurrentUser, is_online: bool):
 
     mutation = queries.SET_ACCOUNT_ONLINE_STATUS % {"is_online": str(is_online).lower()}
     response = await adapter.send_query_json(query=mutation, headers=headers)
-
-    print(response)
     return response

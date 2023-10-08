@@ -1,7 +1,7 @@
 import typing as tp
 
 from aiokafka import AIOKafkaProducer
-from domain.utils.broker.broker_producer import IBrokerProducer
+from utils.brokers.broker_producer import IBrokerProducer
 
 
 class KafkaProducer(IBrokerProducer):

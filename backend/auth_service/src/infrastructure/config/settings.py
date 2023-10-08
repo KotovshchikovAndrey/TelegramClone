@@ -24,6 +24,7 @@ class Settings(BaseSettings):
 
     kafka_host: str
     kafka_port: int
+    kafka_producer_topic: str
 
     celery_broker_host: str
     celery_broker_port: int
